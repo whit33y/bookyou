@@ -1,0 +1,29 @@
+{
+  "name": "bookyou-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "frontend:start": "npm start -w apps/frontend",
+    "frontend:build": "npm run build -w apps/frontend",
+    "frontend:test": "npm test -w apps/frontend",
+    "backend:start": "npm run start:dev -w apps/backend",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "prisma:generate": "npm run prisma:generate -w apps/backend",
+    "prisma:migrate": "npx prisma migrate dev -w apps/backend",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,js,json,md,css,html}": "prettier --write"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.5.3",
+    "@commitlint/config-conventional": "^20.5.3",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.2",
+    "prettier": "^3.8.3"
+  }
+}
