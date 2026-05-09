@@ -18,7 +18,7 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { AuthResponse } from './dto/auth-response.dto';
+import { AuthResponse, AuthUserResponse } from './dto/auth-response.dto';
 import { CurrentUser } from './decorators/current-user.decorator';
 
 @ApiTags('auth')
@@ -31,6 +31,7 @@ export class AuthController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'User successfully registered.',
+    type: AuthResponse,
   })
   @ApiResponse({
     status: HttpStatus.CONFLICT,
@@ -46,6 +47,7 @@ export class AuthController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'User successfully logged in.',
+    type: AuthResponse,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -62,6 +64,7 @@ export class AuthController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Return current user profile.',
+    type: AuthUserResponse,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,

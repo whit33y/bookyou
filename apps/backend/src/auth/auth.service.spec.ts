@@ -13,6 +13,7 @@ describe('AuthService', () => {
   const mockPrismaService = {
     user: {
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
     },
   };
@@ -45,7 +46,7 @@ describe('AuthService', () => {
         password: 'password123',
         name: 'Test User',
       };
-      mockPrismaService.user.findUnique.mockResolvedValue(null);
+      mockPrismaService.user.findFirst.mockResolvedValue(null);
       mockPrismaService.user.create.mockResolvedValue({
         id: '1',
         ...dto,
@@ -60,7 +61,7 @@ describe('AuthService', () => {
 
     it('should throw ConflictException if user exists', async () => {
       const dto = { email: 'test@example.com', password: 'password123' };
-      mockPrismaService.user.findUnique.mockResolvedValue({
+      mockPrismaService.user.findFirst.mockResolvedValue({
         id: '1',
         email: dto.email,
       });
@@ -73,7 +74,7 @@ describe('AuthService', () => {
     it('should login a user with valid credentials', async () => {
       const dto = { email: 'test@example.com', password: 'password123' };
       const hashedPassword = await bcrypt.hash(dto.password, 10);
-      mockPrismaService.user.findUnique.mockResolvedValue({
+      mockPrismaService.user.findFirst.mockResolvedValue({
         id: '1',
         email: dto.email,
         password: hashedPassword,
@@ -90,7 +91,7 @@ describe('AuthService', () => {
     it('should throw UnauthorizedException with invalid password', async () => {
       const dto = { email: 'test@example.com', password: 'wrongpassword' };
       const hashedPassword = await bcrypt.hash('password123', 10);
-      mockPrismaService.user.findUnique.mockResolvedValue({
+      mockPrismaService.user.findFirst.mockResolvedValue({
         id: '1',
         email: dto.email,
         password: hashedPassword,
@@ -101,7 +102,7 @@ describe('AuthService', () => {
 
     it('should throw UnauthorizedException if user not found', async () => {
       const dto = { email: 'nonexistent@example.com', password: 'password123' };
-      mockPrismaService.user.findUnique.mockResolvedValue(null);
+      mockPrismaService.user.findFirst.mockResolvedValue(null);
 
       await expect(service.login(dto)).rejects.toThrow(UnauthorizedException);
     });

@@ -18,7 +18,7 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto): Promise<AuthResponse> {
-    const existingUser = await this.prisma.user.findUnique({
+    const existingUser = await this.prisma.user.findFirst({
       where: { email: dto.email, deletedAt: null },
     });
 
@@ -54,7 +54,7 @@ export class AuthService {
   }
 
   async login(dto: LoginDto): Promise<AuthResponse> {
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.user.findFirst({
       where: { email: dto.email, deletedAt: null },
     });
 
@@ -86,7 +86,7 @@ export class AuthService {
   }
 
   async validateUserById(id: string) {
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.user.findFirst({
       where: { id, deletedAt: null },
     });
 
