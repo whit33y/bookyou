@@ -18,16 +18,46 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto): Promise<AuthResponse> {
-    const existingUser = await this.prisma.user.findFirst({
-      where: { email: dto.email, deletedAt: null },
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+    // Check if user exists (including soft-deleted)
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: dto.email },
     });
 
     if (existingUser) {
-      throw new ConflictException('User with this email already exists');
+      if (existingUser.deletedAt === null) {
+        throw new ConflictException('User with this email already exists');
+      }
+
+      // Re-activate soft-deleted user
+      const updatedUser = await this.prisma.user.update({
+        where: { id: existingUser.id },
+        data: {
+          password: hashedPassword,
+          name: dto.name,
+          deletedAt: null,
+        },
+      });
+
+      const accessToken = await this.generateToken(
+        updatedUser.id,
+        updatedUser.email,
+        updatedUser.role,
+      );
+
+      return {
+        accessToken,
+        user: {
+          id: updatedUser.id,
+          email: updatedUser.email,
+          name: updatedUser.name,
+          role: updatedUser.role,
+        },
+      };
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
-
+    // Create new user
     const user = await this.prisma.user.create({
       data: {
         email: dto.email,
@@ -54,11 +84,12 @@ export class AuthService {
   }
 
   async login(dto: LoginDto): Promise<AuthResponse> {
-    const user = await this.prisma.user.findFirst({
-      where: { email: dto.email, deletedAt: null },
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
     });
 
-    if (!user) {
+    // Check if user exists and is not soft-deleted
+    if (!user || user.deletedAt !== null) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -86,17 +117,17 @@ export class AuthService {
   }
 
   async validateUserById(id: string) {
-    const user = await this.prisma.user.findFirst({
-      where: { id, deletedAt: null },
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      omit: { password: true },
     });
 
-    if (!user) {
+    // Only return user if they are not soft-deleted
+    if (!user || user.deletedAt !== null) {
       return null;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...result } = user;
-    return result;
+    return user;
   }
 
   private async generateToken(
