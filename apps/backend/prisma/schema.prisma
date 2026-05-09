@@ -4,15 +4,120 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CLIENT
+  PROVIDER
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NOSHOW
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
+  id        String    @id @default(uuid())
+  email     String    @unique
   name      String?
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  role      Role      @default(CLIENT)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  ownedBusinesses  Business[]      @relation("BusinessOwner")
+  staffAssignments BusinessStaff[]
+  appointments     Appointment[]   @relation("ClientAppointments")
+  workedAppointments Appointment[] @relation("ProviderAppointments")
 
   @@map("users")
+}
+
+model Business {
+  id           String    @id @default(uuid())
+  name         String
+  description  String?
+  
+  // Structured Address
+  street       String
+  city         String
+  zipCode      String    @map("zip_code")
+  country      String    @default("Poland")
+  
+  openingHours Json?     @map("opening_hours")
+  latitude     Float?
+  longitude    Float?
+  
+  ownerId      String    @map("owner_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  // Relations
+  owner        User            @relation("BusinessOwner", fields: [ownerId], references: [id])
+  services     Service[]
+  staff        BusinessStaff[]
+  appointments Appointment[]
+
+  @@map("businesses")
+}
+
+model BusinessStaff {
+  businessId String @map("business_id")
+  userId     String @map("user_id")
+  
+  // Relations
+  business Business @relation(fields: [businessId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@id([businessId, userId])
+  @@map("business_staff")
+}
+
+model Service {
+  id         String    @id @default(uuid())
+  name       String
+  duration   Int // duration in minutes
+  price      Decimal   @db.Decimal(10, 2)
+  businessId String    @map("business_id")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  // Relations
+  business     Business      @relation(fields: [businessId], references: [id])
+  appointments Appointment[]
+
+  @@map("services")
+}
+
+model Appointment {
+  id         String            @id @default(uuid())
+  status     AppointmentStatus @default(PENDING)
+  startTime  DateTime          @map("start_time")
+  endTime    DateTime          @map("end_time")
+  
+  clientId   String            @map("client_id")
+  providerId String            @map("provider_id")
+  serviceId  String            @map("service_id")
+  businessId String            @map("business_id") // Denormalization for performance
+  
+  createdAt  DateTime          @default(now()) @map("created_at")
+  updatedAt  DateTime          @updatedAt @map("updated_at")
+  deletedAt  DateTime?         @map("deleted_at")
+
+  // Relations
+  client   User     @relation("ClientAppointments", fields: [clientId], references: [id])
+  provider User     @relation("ProviderAppointments", fields: [providerId], references: [id])
+  service  Service  @relation(fields: [serviceId], references: [id])
+  business Business @relation(fields: [businessId], references: [id])
+
+  @@index([startTime])
+  @@index([endTime])
+  @@index([businessId])
+  @@map("appointments")
 }
