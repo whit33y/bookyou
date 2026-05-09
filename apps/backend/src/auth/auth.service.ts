@@ -12,6 +12,8 @@ import * as bcrypt from 'bcrypt';
 import { AuthResponse, AuthUserResponse } from './dto/auth-response.dto';
 
 const BCRYPT_SALT_ROUNDS = 10;
+const DUMMY_HASH =
+  '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgNI9Dg8dzI8H586j7f7F7F7F7F7';
 
 @Injectable()
 export class AuthService {
@@ -21,18 +23,18 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto): Promise<AuthResponse> {
-    const hashedPassword = await bcrypt.hash(dto.password, BCRYPT_SALT_ROUNDS);
-
     // Check if user exists (including soft-deleted)
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
 
-    if (existingUser) {
-      if (existingUser.deletedAt === null) {
-        throw new ConflictException('User with this email already exists');
-      }
+    if (existingUser && existingUser.deletedAt === null) {
+      throw new ConflictException('User with this email already exists');
+    }
 
+    const hashedPassword = await bcrypt.hash(dto.password, BCRYPT_SALT_ROUNDS);
+
+    if (existingUser) {
       // Re-activate soft-deleted user and reset role to CLIENT for security
       const updatedUser = await this.prisma.user.update({
         where: { id: existingUser.id },
@@ -82,17 +84,20 @@ export class AuthService {
       where: { email: dto.email },
     });
 
-    // Check if user exists and is not soft-deleted
-    if (!user || user.deletedAt !== null) {
+    const isUserValid = user !== null && user.deletedAt === null;
+
+    // Use dummy hash if user is not found to prevent timing attacks
+    const passwordToCompare = isUserValid ? user.password : DUMMY_HASH;
+    const isPasswordValid = await bcrypt.compare(
+      dto.password,
+      passwordToCompare,
+    );
+
+    if (!isUserValid || !isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const isPasswordValid = await bcrypt.compare(dto.password, user.password);
-
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
+    // If we reach here, we know user is valid and not null
     const accessToken = await this.generateToken(
       user.id,
       user.email,
@@ -105,7 +110,7 @@ export class AuthService {
     };
   }
 
-  async validateUserById(id: string) {
+  async validateUserById(id: string): Promise<Omit<User, 'password'> | null> {
     const user = await this.prisma.user.findUnique({
       where: { id },
       omit: { password: true },
