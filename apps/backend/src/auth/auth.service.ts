@@ -124,7 +124,7 @@ export class AuthService {
     return user;
   }
 
-  private mapUserToResponse(user: User): AuthUserResponse {
+  public mapUserToResponse(user: User): AuthUserResponse {
     return {
       id: user.id,
       email: user.email,

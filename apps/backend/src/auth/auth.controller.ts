@@ -7,7 +7,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { User } from '@prisma/client';
+import type { User } from '@prisma/client';
 import {
   ApiTags,
   ApiOperation,
@@ -70,7 +70,7 @@ export class AuthController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'Unauthorized.',
   })
-  getMe(@CurrentUser() user: Omit<User, 'password'>) {
-    return user;
+  getMe(@CurrentUser() user: User) {
+    return this.authService.mapUserToResponse(user);
   }
 }
