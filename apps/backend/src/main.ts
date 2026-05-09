@@ -15,6 +15,8 @@ async function bootstrap() {
     }),
   );
 
+  app.setGlobalPrefix('api');
+
   // Enable Graceful Shutdown for Prisma
   app.enableShutdownHooks();
 
