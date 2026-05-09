@@ -4,11 +4,14 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Role, User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
-import { AuthResponse } from './dto/auth-response.dto';
+import { AuthResponse, AuthUserResponse } from './dto/auth-response.dto';
+
+const BCRYPT_SALT_ROUNDS = 10;
 
 @Injectable()
 export class AuthService {
@@ -18,7 +21,7 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto): Promise<AuthResponse> {
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const hashedPassword = await bcrypt.hash(dto.password, BCRYPT_SALT_ROUNDS);
 
     // Check if user exists (including soft-deleted)
     const existingUser = await this.prisma.user.findUnique({
@@ -30,12 +33,13 @@ export class AuthService {
         throw new ConflictException('User with this email already exists');
       }
 
-      // Re-activate soft-deleted user
+      // Re-activate soft-deleted user and reset role to CLIENT for security
       const updatedUser = await this.prisma.user.update({
         where: { id: existingUser.id },
         data: {
           password: hashedPassword,
           name: dto.name,
+          role: Role.CLIENT,
           deletedAt: null,
         },
       });
@@ -48,12 +52,7 @@ export class AuthService {
 
       return {
         accessToken,
-        user: {
-          id: updatedUser.id,
-          email: updatedUser.email,
-          name: updatedUser.name,
-          role: updatedUser.role,
-        },
+        user: this.mapUserToResponse(updatedUser),
       };
     }
 
@@ -74,12 +73,7 @@ export class AuthService {
 
     return {
       accessToken,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      },
+      user: this.mapUserToResponse(user),
     };
   }
 
@@ -107,12 +101,7 @@ export class AuthService {
 
     return {
       accessToken,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      },
+      user: this.mapUserToResponse(user),
     };
   }
 
@@ -130,10 +119,19 @@ export class AuthService {
     return user;
   }
 
+  private mapUserToResponse(user: User): AuthUserResponse {
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    };
+  }
+
   private async generateToken(
     userId: string,
     email: string,
-    role: string,
+    role: Role,
   ): Promise<string> {
     const payload = { sub: userId, email, role };
     return this.jwtService.signAsync(payload);

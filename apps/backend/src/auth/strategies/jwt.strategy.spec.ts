@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { UnauthorizedException } from '@nestjs/common';
 import { JwtStrategy } from './jwt.strategy';
 import { AuthService } from '../auth.service';
+import { Role } from '@prisma/client';
 
 describe('JwtStrategy', () => {
   let strategy: JwtStrategy;
@@ -36,17 +37,19 @@ describe('JwtStrategy', () => {
   });
 
   it('should validate and return the user if found', async () => {
-    const user = { id: '1', email: 'test@example.com', role: 'CLIENT' };
-    jest.spyOn(authService, 'validateUserById').mockResolvedValue(user as any);
+    const user = { id: '1', email: 'test@example.com', role: Role.CLIENT };
+    const validateSpy = jest
+      .spyOn(authService, 'validateUserById')
+      .mockResolvedValue(user as any);
 
     const result = await strategy.validate({
       sub: '1',
       email: 'test@example.com',
-      role: 'CLIENT',
+      role: Role.CLIENT,
     });
 
     expect(result).toEqual(user);
-    expect(authService.validateUserById).toHaveBeenCalledWith('1');
+    expect(validateSpy).toHaveBeenCalledWith('1');
   });
 
   it('should throw UnauthorizedException if user not found', async () => {
@@ -56,7 +59,7 @@ describe('JwtStrategy', () => {
       strategy.validate({
         sub: '1',
         email: 'test@example.com',
-        role: 'CLIENT',
+        role: Role.CLIENT,
       }),
     ).rejects.toThrow(UnauthorizedException);
   });

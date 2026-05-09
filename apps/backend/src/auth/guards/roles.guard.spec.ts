@@ -3,7 +3,6 @@ import { Reflector } from '@nestjs/core';
 import { ExecutionContext } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { RolesGuard } from './roles.guard';
-import { ROLES_KEY } from '../decorators/roles.decorator';
 
 describe('RolesGuard', () => {
   let guard: RolesGuard;
@@ -58,13 +57,13 @@ describe('RolesGuard', () => {
     expect(guard.canActivate(context)).toBe(false);
   });
 
-  function createMockContext(user: any): ExecutionContext {
+  function createMockContext(user: { role: Role } | null): ExecutionContext {
     return {
       switchToHttp: () => ({
         getRequest: () => ({ user }),
       }),
       getHandler: () => ({}),
       getClass: () => ({}),
-    } as ExecutionContext;
+    } as unknown as ExecutionContext;
   }
 });
