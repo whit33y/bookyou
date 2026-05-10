@@ -79,9 +79,20 @@ export class BusinessesService {
       throw new ForbiddenException('You are not the owner of this business');
     }
 
-    return this.prisma.business.update({
-      where: { id },
-      data: { deletedAt: new Date() },
+    return this.prisma.$transaction(async (tx) => {
+      // Soft-delete the business
+      const updatedBusiness = await tx.business.update({
+        where: { id },
+        data: { deletedAt: new Date() },
+      });
+
+      // Soft-delete all services belonging to this business
+      await tx.service.updateMany({
+        where: { businessId: id, deletedAt: null },
+        data: { deletedAt: new Date() },
+      });
+
+      return updatedBusiness;
     });
   }
 }

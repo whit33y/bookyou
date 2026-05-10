@@ -6,7 +6,56 @@ import {
   Min,
   Max,
   IsObject,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
+
+export class OpeningHoursDayDto {
+  @IsString()
+  @IsNotEmpty()
+  open: string; // HH:mm
+
+  @IsString()
+  @IsNotEmpty()
+  close: string; // HH:mm
+}
+
+export class OpeningHoursDto {
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => OpeningHoursDayDto)
+  monday?: OpeningHoursDayDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => OpeningHoursDayDto)
+  tuesday?: OpeningHoursDayDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => OpeningHoursDayDto)
+  wednesday?: OpeningHoursDayDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => OpeningHoursDayDto)
+  thursday?: OpeningHoursDayDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => OpeningHoursDayDto)
+  friday?: OpeningHoursDayDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => OpeningHoursDayDto)
+  saturday?: OpeningHoursDayDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => OpeningHoursDayDto)
+  sunday?: OpeningHoursDayDto;
+}
 
 export class CreateBusinessDto {
   @IsString()
@@ -35,7 +84,9 @@ export class CreateBusinessDto {
 
   @IsOptional()
   @IsObject()
-  openingHours?: Record<string, unknown>;
+  @ValidateNested()
+  @Type(() => OpeningHoursDto)
+  openingHours?: OpeningHoursDto;
 
   @IsNumber()
   @IsOptional()
