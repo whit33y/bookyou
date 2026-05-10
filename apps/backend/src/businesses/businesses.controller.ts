@@ -8,6 +8,12 @@ import {
   Delete,
   UseGuards,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import { BusinessesService } from './businesses.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
@@ -17,6 +23,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
+@ApiTags('businesses')
 @Controller('businesses')
 export class BusinessesController {
   constructor(private readonly businessesService: BusinessesService) {}
@@ -24,6 +31,16 @@ export class BusinessesController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.PROVIDER)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a new business profile' })
+  @ApiResponse({
+    status: 201,
+    description: 'The business has been successfully created.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden. Only providers can create businesses.',
+  })
   create(
     @CurrentUser('id') userId: string,
     @Body() createBusinessDto: CreateBusinessDto,
@@ -32,17 +49,33 @@ export class BusinessesController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all businesses' })
+  @ApiResponse({ status: 200, description: 'Returns all active businesses.' })
   findAll() {
     return this.businessesService.findAll();
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get a business by ID' })
+  @ApiResponse({ status: 200, description: 'Returns the business details.' })
+  @ApiResponse({ status: 404, description: 'Business not found.' })
   findOne(@Param('id') id: string) {
     return this.businessesService.findOne(id);
   }
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update a business profile' })
+  @ApiResponse({
+    status: 200,
+    description: 'The business has been successfully updated.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden. You are not the owner.',
+  })
+  @ApiResponse({ status: 404, description: 'Business not found.' })
   update(
     @Param('id') id: string,
     @CurrentUser('id') userId: string,
@@ -53,6 +86,17 @@ export class BusinessesController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete a business profile (soft delete)' })
+  @ApiResponse({
+    status: 200,
+    description: 'The business has been successfully deleted.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden. You are not the owner.',
+  })
+  @ApiResponse({ status: 404, description: 'Business not found.' })
   remove(@Param('id') id: string, @CurrentUser('id') userId: string) {
     return this.businessesService.remove(id, userId);
   }

@@ -60,7 +60,14 @@ export class BusinessesService {
   }
 
   async update(id: string, userId: string, dto: UpdateBusinessDto) {
-    const business = await this.findOne(id);
+    const business = await this.prisma.business.findUnique({
+      where: { id },
+      select: { ownerId: true, deletedAt: true },
+    });
+
+    if (!business || business.deletedAt) {
+      throw new NotFoundException(`Business with ID ${id} not found`);
+    }
 
     if (business.ownerId !== userId) {
       throw new ForbiddenException('You are not the owner of this business');
@@ -73,7 +80,14 @@ export class BusinessesService {
   }
 
   async remove(id: string, userId: string) {
-    const business = await this.findOne(id);
+    const business = await this.prisma.business.findUnique({
+      where: { id },
+      select: { ownerId: true, deletedAt: true },
+    });
+
+    if (!business || business.deletedAt) {
+      throw new NotFoundException(`Business with ID ${id} not found`);
+    }
 
     if (business.ownerId !== userId) {
       throw new ForbiddenException('You are not the owner of this business');
