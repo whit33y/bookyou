@@ -24,11 +24,11 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @ApiTags('services')
-@Controller()
+@Controller('services')
 export class ServicesController {
   constructor(private readonly servicesService: ServicesService) {}
 
-  @Post('businesses/:businessId/services')
+  @Post('businesses/:businessId')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.PROVIDER)
   @ApiBearerAuth()
@@ -50,7 +50,7 @@ export class ServicesController {
     return this.servicesService.create(businessId, userId, createServiceDto);
   }
 
-  @Get('businesses/:businessId/services')
+  @Get('businesses/:businessId')
   @ApiOperation({ summary: 'Get all services for a specific business' })
   @ApiResponse({
     status: 200,
@@ -60,7 +60,7 @@ export class ServicesController {
     return this.servicesService.findAllByBusiness(businessId);
   }
 
-  @Get('services/:id')
+  @Get(':id')
   @ApiOperation({ summary: 'Get a service by ID' })
   @ApiResponse({ status: 200, description: 'Returns the service details.' })
   @ApiResponse({ status: 404, description: 'Service not found.' })
@@ -68,7 +68,7 @@ export class ServicesController {
     return this.servicesService.findOne(id);
   }
 
-  @Patch('services/:id')
+  @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.PROVIDER)
   @ApiBearerAuth()
@@ -90,7 +90,7 @@ export class ServicesController {
     return this.servicesService.update(id, userId, updateServiceDto);
   }
 
-  @Delete('services/:id')
+  @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.PROVIDER)
   @ApiBearerAuth()

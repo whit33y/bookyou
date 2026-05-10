@@ -6,15 +6,21 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
+import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class BusinessesService {
   constructor(private prisma: PrismaService) {}
 
   async create(ownerId: string, dto: CreateBusinessDto) {
+    const openingHours = dto.openingHours
+      ? instanceToPlain(dto.openingHours)
+      : undefined;
+
     return this.prisma.business.create({
       data: {
         ...dto,
+        openingHours,
         ownerId,
       },
     });
@@ -73,9 +79,16 @@ export class BusinessesService {
       throw new ForbiddenException('You are not the owner of this business');
     }
 
+    const openingHours = dto.openingHours
+      ? instanceToPlain(dto.openingHours)
+      : undefined;
+
     return this.prisma.business.update({
       where: { id },
-      data: dto,
+      data: {
+        ...dto,
+        ...(openingHours && { openingHours }),
+      },
     });
   }
 

@@ -8,8 +8,45 @@ import {
   IsObject,
   ValidateNested,
   Matches,
+  ValidationArguments,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+  Validate,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+
+@ValidatorConstraint({ name: 'isAfter', async: false })
+export class IsAfterConstraint implements ValidatorConstraintInterface {
+  validate(propertyValue: string, args: ValidationArguments) {
+    const [relatedPropertyName] = args.constraints as string[];
+    const relatedValue = (args.object as Record<string, any>)[
+      relatedPropertyName
+    ] as string | undefined;
+
+    if (!propertyValue || !relatedValue) return true;
+
+    const parseTime = (time: string) => {
+      const parts = time.split(':');
+      return {
+        hours: parseInt(parts[0], 10),
+        minutes: parseInt(parts[1], 10),
+      };
+    };
+
+    const current = parseTime(propertyValue);
+    const related = parseTime(relatedValue);
+
+    const totalMinutes = current.hours * 60 + current.minutes;
+    const relatedTotalMinutes = related.hours * 60 + related.minutes;
+
+    return totalMinutes > relatedTotalMinutes;
+  }
+
+  defaultMessage(args: ValidationArguments) {
+    const [relatedPropertyName] = args.constraints as string[];
+    return `${args.property} must be after ${relatedPropertyName}`;
+  }
+}
 
 export class OpeningHoursDayDto {
   @IsString()
@@ -24,6 +61,7 @@ export class OpeningHoursDayDto {
   @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, {
     message: 'Time must be in HH:mm format',
   })
+  @Validate(IsAfterConstraint, ['open'])
   close: string; // HH:mm
 }
 
