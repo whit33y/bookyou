@@ -37,10 +37,18 @@ describe('JwtStrategy', () => {
   });
 
   it('should validate and return the user if found', async () => {
-    const user = { id: '1', email: 'test@example.com', role: Role.CLIENT };
+    const user = {
+      id: '1',
+      email: 'test@example.com',
+      role: Role.CLIENT,
+      name: 'Test User',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null,
+    };
     const validateSpy = jest
       .spyOn(authService, 'validateUserById')
-      .mockResolvedValue(user as any);
+      .mockResolvedValue(user);
 
     const result = await strategy.validate({
       sub: '1',
