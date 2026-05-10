@@ -7,16 +7,23 @@ import {
   Max,
   IsObject,
   ValidateNested,
+  Matches,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class OpeningHoursDayDto {
   @IsString()
   @IsNotEmpty()
+  @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+    message: 'Time must be in HH:mm format',
+  })
   open: string; // HH:mm
 
   @IsString()
   @IsNotEmpty()
+  @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+    message: 'Time must be in HH:mm format',
+  })
   close: string; // HH:mm
 }
 

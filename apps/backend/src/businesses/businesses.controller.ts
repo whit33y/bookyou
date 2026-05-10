@@ -64,7 +64,8 @@ export class BusinessesController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.PROVIDER)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update a business profile' })
   @ApiResponse({
@@ -85,7 +86,8 @@ export class BusinessesController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.PROVIDER)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a business profile (soft delete)' })
   @ApiResponse({

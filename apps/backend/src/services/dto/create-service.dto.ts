@@ -16,7 +16,7 @@ export class CreateServiceDto {
   @Min(1)
   duration: number;
 
-  @IsNumber()
+  @IsNumber({ maxDecimalPlaces: 2 })
   @IsPositive()
   price: number;
 }

@@ -14,6 +14,7 @@ export class ServicesService {
   async create(businessId: string, userId: string, dto: CreateServiceDto) {
     const business = await this.prisma.business.findUnique({
       where: { id: businessId },
+      select: { ownerId: true, deletedAt: true },
     });
 
     if (!business || business.deletedAt) {
@@ -53,7 +54,13 @@ export class ServicesService {
   async update(id: string, userId: string, dto: UpdateServiceDto) {
     const service = await this.prisma.service.findUnique({
       where: { id },
-      include: { business: true },
+      select: {
+        id: true,
+        deletedAt: true,
+        business: {
+          select: { ownerId: true },
+        },
+      },
     });
 
     if (!service || service.deletedAt) {
@@ -73,7 +80,13 @@ export class ServicesService {
   async remove(id: string, userId: string) {
     const service = await this.prisma.service.findUnique({
       where: { id },
-      include: { business: true },
+      select: {
+        id: true,
+        deletedAt: true,
+        business: {
+          select: { ownerId: true },
+        },
+      },
     });
 
     if (!service || service.deletedAt) {
