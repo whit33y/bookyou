@@ -131,6 +131,7 @@ describe('AppointmentsService', () => {
         id: 'app-1',
         clientId: 'client-1',
         businessId: 'bus-1',
+        status: AppointmentStatus.PENDING,
         business: { ownerId: 'owner-1', staff: [] },
       };
       mockPrismaService.appointment.findUnique.mockResolvedValue(appointment);
@@ -150,6 +151,7 @@ describe('AppointmentsService', () => {
         id: 'app-1',
         clientId: 'client-1',
         businessId: 'bus-1',
+        status: AppointmentStatus.PENDING,
         business: { ownerId: 'owner-1', staff: [] },
       };
       mockPrismaService.appointment.findUnique.mockResolvedValue(appointment);
@@ -166,6 +168,7 @@ describe('AppointmentsService', () => {
         id: 'app-1',
         clientId: 'client-1',
         businessId: 'bus-1',
+        status: AppointmentStatus.PENDING,
         business: { ownerId: 'owner-1', staff: [] },
       };
       mockPrismaService.appointment.findUnique.mockResolvedValue(appointment);
@@ -185,6 +188,7 @@ describe('AppointmentsService', () => {
         id: 'app-1',
         clientId: 'client-1',
         businessId: 'bus-1',
+        status: AppointmentStatus.PENDING,
         business: { ownerId: 'owner-1', staff: [] },
       };
       mockPrismaService.appointment.findUnique.mockResolvedValue(appointment);
@@ -194,6 +198,23 @@ describe('AppointmentsService', () => {
           status: AppointmentStatus.CANCELLED,
         }),
       ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should throw ConflictException when updating a terminal status', async () => {
+      const appointment = {
+        id: 'app-1',
+        clientId: 'client-1',
+        businessId: 'bus-1',
+        status: AppointmentStatus.CANCELLED,
+        business: { ownerId: 'owner-1', staff: [] },
+      };
+      mockPrismaService.appointment.findUnique.mockResolvedValue(appointment);
+
+      await expect(
+        service.updateStatus('app-1', 'owner-1', {
+          status: AppointmentStatus.CONFIRMED,
+        }),
+      ).rejects.toThrow(ConflictException);
     });
   });
 });

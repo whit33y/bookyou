@@ -49,7 +49,7 @@ export class AppointmentsService {
       async (tx) => {
         const overlapping = await tx.appointment.findFirst({
           where: {
-            providerId,
+            OR: [{ providerId }, { clientId }],
             status: {
               in: [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED],
             },
@@ -61,7 +61,9 @@ export class AppointmentsService {
 
         if (overlapping) {
           throw new ConflictException(
-            'Provider is already booked at this time',
+            overlapping.providerId === providerId
+              ? 'Provider is already booked at this time'
+              : 'You already have an appointment at this time',
           );
         }
 
@@ -106,14 +108,27 @@ export class AppointmentsService {
     const isBusinessOwner = appointment.business.ownerId === userId;
     const isProvider = appointment.providerId === userId;
     const isStaff = appointment.business.staff.some((s) => s.userId === userId);
+    const isPrivileged = isBusinessOwner || isStaff || isProvider;
 
-    if (isClient && !isBusinessOwner && !isStaff) {
-      if (dto.status !== AppointmentStatus.CANCELLED) {
-        throw new ForbiddenException('Clients can only cancel appointments');
-      }
-    } else if (!isBusinessOwner && !isStaff && !isProvider) {
+    if (!isPrivileged && !isClient) {
       throw new ForbiddenException(
         'You do not have permission to update this appointment',
+      );
+    }
+
+    if (!isPrivileged && dto.status !== AppointmentStatus.CANCELLED) {
+      throw new ForbiddenException('Clients can only cancel appointments');
+    }
+
+    const terminalStatuses: AppointmentStatus[] = [
+      AppointmentStatus.CANCELLED,
+      AppointmentStatus.COMPLETED,
+      AppointmentStatus.NOSHOW,
+    ];
+
+    if (terminalStatuses.includes(appointment.status)) {
+      throw new ConflictException(
+        `Cannot update appointment with status ${appointment.status}`,
       );
     }
 
