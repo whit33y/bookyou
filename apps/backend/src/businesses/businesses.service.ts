@@ -65,6 +65,21 @@ export class BusinessesService {
     return business;
   }
 
+  async findServices(businessId: string) {
+    const business = await this.prisma.business.findUnique({
+      where: { id: businessId },
+      select: { id: true, deletedAt: true },
+    });
+
+    if (!business || business.deletedAt) {
+      throw new NotFoundException(`Business with ID ${businessId} not found`);
+    }
+
+    return this.prisma.service.findMany({
+      where: { businessId, deletedAt: null },
+    });
+  }
+
   async update(id: string, userId: string, dto: UpdateBusinessDto) {
     const business = await this.prisma.business.findUnique({
       where: { id },

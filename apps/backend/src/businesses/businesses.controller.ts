@@ -63,6 +63,17 @@ export class BusinessesController {
     return this.businessesService.findOne(id);
   }
 
+  @Get(':id/services')
+  @ApiOperation({ summary: 'Get all services for a specific business' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns all active services for the business.',
+  })
+  @ApiResponse({ status: 404, description: 'Business not found.' })
+  findServices(@Param('id') id: string) {
+    return this.businessesService.findServices(id);
+  }
+
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.PROVIDER)
