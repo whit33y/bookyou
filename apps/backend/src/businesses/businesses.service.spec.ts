@@ -13,6 +13,9 @@ describe('BusinessesService', () => {
       findUnique: jest.fn(),
       update: jest.fn(),
     },
+    service: {
+      findMany: jest.fn(),
+    },
   };
 
   beforeEach(async () => {
@@ -64,6 +67,28 @@ describe('BusinessesService', () => {
     it('should throw NotFoundException if not found', async () => {
       mockPrismaService.business.findUnique.mockResolvedValue(null);
       await expect(service.findOne('bus-1')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('findServices', () => {
+    it('should return services for a business', async () => {
+      const business = { id: 'bus-1', deletedAt: null };
+      const services = [{ id: 'ser-1', name: 'Service 1' }];
+      mockPrismaService.business.findUnique.mockResolvedValue(business);
+      mockPrismaService.service.findMany.mockResolvedValue(services);
+
+      const result = await service.findServices('bus-1');
+      expect(result).toEqual(services);
+      expect(mockPrismaService.service.findMany).toHaveBeenCalledWith({
+        where: { businessId: 'bus-1', deletedAt: null },
+      });
+    });
+
+    it('should throw NotFoundException if business not found', async () => {
+      mockPrismaService.business.findUnique.mockResolvedValue(null);
+      await expect(service.findServices('bus-1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
