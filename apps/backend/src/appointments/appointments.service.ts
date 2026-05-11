@@ -43,51 +43,49 @@ export class AppointmentsService {
       throw new ForbiddenException('Provider does not work for this business');
     }
 
-    const end = new Date(start.getTime() + service.duration * 60000);
+    const end = new Date(start.getTime() + service.duration * 60_000);
 
-    // Check for double-booking
-    const overlapping = await this.prisma.appointment.findFirst({
-      where: {
-        providerId,
-        status: {
-          in: [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED],
-        },
-        OR: [
-          {
+    return this.prisma.$transaction(
+      async (tx) => {
+        const overlapping = await tx.appointment.findFirst({
+          where: {
+            providerId,
+            status: {
+              in: [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED],
+            },
             startTime: { lt: end },
             endTime: { gt: start },
+            deletedAt: null,
           },
-        ],
-        deletedAt: null,
-      },
-    });
+        });
 
-    if (overlapping) {
-      throw new ConflictException('Provider is already booked at this time');
-    }
+        if (overlapping) {
+          throw new ConflictException(
+            'Provider is already booked at this time',
+          );
+        }
 
-    return this.prisma.appointment.create({
-      data: {
-        startTime: start,
-        endTime: end,
-        clientId,
-        providerId,
-        serviceId,
-        businessId,
-        status: AppointmentStatus.PENDING,
-      },
-      include: {
-        service: true,
-        business: true,
-        provider: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
+        return tx.appointment.create({
+          data: {
+            startTime: start,
+            endTime: end,
+            clientId,
+            providerId,
+            serviceId,
+            businessId,
+            status: AppointmentStatus.PENDING,
           },
-        },
+          include: {
+            service: true,
+            business: true,
+            provider: {
+              select: { id: true, name: true, email: true },
+            },
+          },
+        });
       },
-    });
+      { isolationLevel: 'Serializable' },
+    );
   }
 
   async updateStatus(
@@ -97,7 +95,7 @@ export class AppointmentsService {
   ) {
     const appointment = await this.prisma.appointment.findUnique({
       where: { id },
-      include: { business: true },
+      include: { business: { include: { staff: true } } },
     });
 
     if (!appointment || appointment.deletedAt) {
@@ -107,27 +105,13 @@ export class AppointmentsService {
     const isClient = appointment.clientId === userId;
     const isBusinessOwner = appointment.business.ownerId === userId;
     const isProvider = appointment.providerId === userId;
+    const isStaff = appointment.business.staff.some((s) => s.userId === userId);
 
-    const staff = !isBusinessOwner
-      ? await this.prisma.businessStaff.findUnique({
-          where: {
-            businessId_userId: {
-              businessId: appointment.businessId,
-              userId,
-            },
-          },
-        })
-      : null;
-    const isStaff = !!staff;
-
-    // Expert Role-Based Access Control (RBAC) for Status Transitions
     if (isClient && !isBusinessOwner && !isStaff) {
       if (dto.status !== AppointmentStatus.CANCELLED) {
         throw new ForbiddenException('Clients can only cancel appointments');
       }
-    } else if (isBusinessOwner || isStaff || isProvider) {
-      // Business side can do anything, but let's keep it sane
-    } else {
+    } else if (!isBusinessOwner && !isStaff && !isProvider) {
       throw new ForbiddenException(
         'You do not have permission to update this appointment',
       );
@@ -146,7 +130,7 @@ export class AppointmentsService {
         client: { select: { id: true, name: true, email: true } },
         provider: { select: { id: true, name: true, email: true } },
         service: true,
-        business: true,
+        business: { include: { staff: true } },
       },
     });
 
@@ -154,25 +138,15 @@ export class AppointmentsService {
       throw new NotFoundException('Appointment not found');
     }
 
-    // Security: Only involved parties can view
     const isClient = appointment.clientId === userId;
     const isProvider = appointment.providerId === userId;
     const isBusinessOwner = appointment.business.ownerId === userId;
+    const isStaff = appointment.business.staff.some((s) => s.userId === userId);
 
-    if (!isClient && !isProvider && !isBusinessOwner) {
-      const staff = await this.prisma.businessStaff.findUnique({
-        where: {
-          businessId_userId: {
-            businessId: appointment.businessId,
-            userId,
-          },
-        },
-      });
-      if (!staff) {
-        throw new ForbiddenException(
-          'You do not have access to this appointment',
-        );
-      }
+    if (!isClient && !isProvider && !isBusinessOwner && !isStaff) {
+      throw new ForbiddenException(
+        'You do not have access to this appointment',
+      );
     }
 
     return appointment;

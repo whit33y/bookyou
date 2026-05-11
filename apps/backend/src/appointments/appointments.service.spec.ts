@@ -24,9 +24,7 @@ describe('AppointmentsService', () => {
     business: {
       findUnique: jest.fn(),
     },
-    businessStaff: {
-      findUnique: jest.fn(),
-    },
+    $transaction: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -39,6 +37,11 @@ describe('AppointmentsService', () => {
 
     service = module.get<AppointmentsService>(AppointmentsService);
     jest.clearAllMocks();
+
+    // Default: $transaction executes the callback with the same mock
+    mockPrismaService.$transaction.mockImplementation((cb) =>
+      cb(mockPrismaService),
+    );
   });
 
   it('should be defined', () => {
@@ -47,7 +50,7 @@ describe('AppointmentsService', () => {
 
   describe('create', () => {
     const dto = {
-      startTime: '2026-05-11T10:00:00Z',
+      startTime: '2030-01-01T10:00:00Z',
       serviceId: 'service-1',
       businessId: 'bus-1',
       providerId: 'provider-1',
@@ -73,6 +76,7 @@ describe('AppointmentsService', () => {
 
       const result = await service.create(clientId, dto);
       expect(result).toBeDefined();
+      expect(mockPrismaService.$transaction).toHaveBeenCalled();
       expect(mockPrismaService.appointment.create).toHaveBeenCalled();
     });
 
@@ -127,7 +131,7 @@ describe('AppointmentsService', () => {
         id: 'app-1',
         clientId: 'client-1',
         businessId: 'bus-1',
-        business: { ownerId: 'owner-1' },
+        business: { ownerId: 'owner-1', staff: [] },
       };
       mockPrismaService.appointment.findUnique.mockResolvedValue(appointment);
       mockPrismaService.appointment.update.mockResolvedValue({
@@ -146,7 +150,7 @@ describe('AppointmentsService', () => {
         id: 'app-1',
         clientId: 'client-1',
         businessId: 'bus-1',
-        business: { ownerId: 'owner-1' },
+        business: { ownerId: 'owner-1', staff: [] },
       };
       mockPrismaService.appointment.findUnique.mockResolvedValue(appointment);
 
@@ -162,7 +166,7 @@ describe('AppointmentsService', () => {
         id: 'app-1',
         clientId: 'client-1',
         businessId: 'bus-1',
-        business: { ownerId: 'owner-1' },
+        business: { ownerId: 'owner-1', staff: [] },
       };
       mockPrismaService.appointment.findUnique.mockResolvedValue(appointment);
       mockPrismaService.appointment.update.mockResolvedValue({
@@ -181,10 +185,9 @@ describe('AppointmentsService', () => {
         id: 'app-1',
         clientId: 'client-1',
         businessId: 'bus-1',
-        business: { ownerId: 'owner-1' },
+        business: { ownerId: 'owner-1', staff: [] },
       };
       mockPrismaService.appointment.findUnique.mockResolvedValue(appointment);
-      mockPrismaService.businessStaff.findUnique.mockResolvedValue(null);
 
       await expect(
         service.updateStatus('app-1', 'other-user', {
