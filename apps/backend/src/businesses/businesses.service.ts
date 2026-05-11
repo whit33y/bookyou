@@ -13,14 +13,15 @@ export class BusinessesService {
   constructor(private prisma: PrismaService) {}
 
   async create(ownerId: string, dto: CreateBusinessDto) {
-    const openingHours = dto.openingHours
-      ? instanceToPlain(dto.openingHours)
+    const { openingHours: openingHoursDto, ...rest } = dto;
+    const openingHours = openingHoursDto
+      ? instanceToPlain(openingHoursDto)
       : undefined;
 
     return this.prisma.business.create({
       data: {
-        ...dto,
-        openingHours,
+        ...rest,
+        openingHours: openingHours as any,
         ownerId,
       },
     });
@@ -94,15 +95,16 @@ export class BusinessesService {
       throw new ForbiddenException('You are not the owner of this business');
     }
 
-    const openingHours = dto.openingHours
-      ? instanceToPlain(dto.openingHours)
+    const { openingHours: openingHoursDto, ...rest } = dto;
+    const openingHours = openingHoursDto
+      ? instanceToPlain(openingHoursDto)
       : undefined;
 
     return this.prisma.business.update({
       where: { id },
       data: {
-        ...dto,
-        ...(openingHours && { openingHours }),
+        ...rest,
+        ...(openingHours && { openingHours: openingHours as any }),
       },
     });
   }
