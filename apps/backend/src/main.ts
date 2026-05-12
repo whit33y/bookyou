@@ -17,6 +17,7 @@ async function bootstrap() {
     }),
   );
 
+  app.enableCors({ origin: 'http://localhost:4200', credentials: true });
   app.setGlobalPrefix('api');
 
   // Enable Graceful Shutdown for Prisma
