@@ -50,6 +50,7 @@ export class AuthService {
 
   private getUserFromStorage(): User | null {
     try {
+      if (!localStorage.getItem(this.tokenKey)) return null;
       const user = localStorage.getItem(this.userKey);
       return user ? JSON.parse(user) : null;
     } catch {

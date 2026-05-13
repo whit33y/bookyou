@@ -60,7 +60,11 @@ import { AuthService } from '../../../core/services/auth.service';
             />
             @if (form.controls.password.touched && form.controls.password.errors) {
               <p id="password-error" class="mt-1 text-sm text-red-600">
-                Hasło musi mieć minimum 8 znaków.
+                @if (form.controls.password.errors['required']) {
+                  Hasło jest wymagane.
+                } @else if (form.controls.password.errors['minlength']) {
+                  Hasło musi mieć minimum 8 znaków.
+                }
               </p>
             }
           </div>
