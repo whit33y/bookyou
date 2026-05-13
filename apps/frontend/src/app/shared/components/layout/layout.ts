@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NavigationComponent } from '../navigation/navigation';
 import { FooterComponent } from '../footer/footer';
@@ -6,6 +6,7 @@ import { FooterComponent } from '../footer/footer';
 @Component({
   selector: 'app-layout',
   imports: [RouterOutlet, NavigationComponent, FooterComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex min-h-screen flex-col">
       <app-navigation />

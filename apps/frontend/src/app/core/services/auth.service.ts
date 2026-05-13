@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -7,15 +7,13 @@ import { AuthResponse, LoginRequest, RegisterRequest, User } from '../models/use
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
   private readonly apiUrl = `${environment.apiUrl}/auth`;
   private readonly tokenKey = 'access_token';
+  private readonly userKey = 'user';
 
   currentUser = signal<User | null>(this.getUserFromStorage());
-
-  constructor(
-    private http: HttpClient,
-    private router: Router,
-  ) {}
 
   login(data: LoginRequest) {
     return this.http
@@ -31,7 +29,7 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem(this.tokenKey);
-    localStorage.removeItem('user');
+    localStorage.removeItem(this.userKey);
     this.currentUser.set(null);
     this.router.navigate(['/login']);
   }
@@ -46,13 +44,13 @@ export class AuthService {
 
   private handleAuth(res: AuthResponse) {
     localStorage.setItem(this.tokenKey, res.accessToken);
-    localStorage.setItem('user', JSON.stringify(res.user));
+    localStorage.setItem(this.userKey, JSON.stringify(res.user));
     this.currentUser.set(res.user);
   }
 
   private getUserFromStorage(): User | null {
     try {
-      const user = localStorage.getItem('user');
+      const user = localStorage.getItem(this.userKey);
       return user ? JSON.parse(user) : null;
     } catch {
       return null;

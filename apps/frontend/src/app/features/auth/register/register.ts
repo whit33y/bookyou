@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -6,6 +6,7 @@ import { AuthService } from '../../../core/services/auth.service';
 @Component({
   selector: 'app-register',
   imports: [ReactiveFormsModule, RouterLink],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex min-h-[calc(100vh-10rem)] items-center justify-center px-4">
       <div class="w-full max-w-md space-y-6">
