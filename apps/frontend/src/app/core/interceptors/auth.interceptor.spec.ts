@@ -24,18 +24,26 @@ describe('authInterceptor', () => {
     localStorage.clear();
   });
 
-  it('should add Authorization header when token exists', () => {
+  it('should add Authorization header for API requests when token exists', () => {
     localStorage.setItem('access_token', 'my-token');
-    http.get('/test').subscribe();
+    http.get('http://localhost:3000/api/test').subscribe();
 
-    const req = httpMock.expectOne('/test');
+    const req = httpMock.expectOne('http://localhost:3000/api/test');
     expect(req.request.headers.get('Authorization')).toBe('Bearer my-token');
   });
 
-  it('should not add Authorization header when no token', () => {
-    http.get('/test').subscribe();
+  it('should not add Authorization header for non-API requests', () => {
+    localStorage.setItem('access_token', 'my-token');
+    http.get('https://external-api.com/data').subscribe();
 
-    const req = httpMock.expectOne('/test');
+    const req = httpMock.expectOne('https://external-api.com/data');
+    expect(req.request.headers.has('Authorization')).toBe(false);
+  });
+
+  it('should not add Authorization header when no token', () => {
+    http.get('http://localhost:3000/api/test').subscribe();
+
+    const req = httpMock.expectOne('http://localhost:3000/api/test');
     expect(req.request.headers.has('Authorization')).toBe(false);
   });
 });

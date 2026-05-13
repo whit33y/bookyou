@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.bookyou.pl',
+  apiUrl: 'https://api.bookyou.pl/api',
 };
