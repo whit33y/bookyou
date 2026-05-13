@@ -33,10 +33,16 @@ import { AuthService } from '../../../core/services/auth.service';
               id="email"
               type="email"
               formControlName="email"
+              [attr.aria-invalid]="
+                form.controls.email.touched && form.controls.email.errors ? true : null
+              "
+              aria-describedby="email-error"
               class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
             />
             @if (form.controls.email.touched && form.controls.email.errors) {
-              <p class="mt-1 text-sm text-red-600">Podaj prawidłowy adres email.</p>
+              <p id="email-error" class="mt-1 text-sm text-red-600">
+                Podaj prawidłowy adres email.
+              </p>
             }
           </div>
 
@@ -46,10 +52,16 @@ import { AuthService } from '../../../core/services/auth.service';
               id="password"
               type="password"
               formControlName="password"
+              [attr.aria-invalid]="
+                form.controls.password.touched && form.controls.password.errors ? true : null
+              "
+              aria-describedby="password-error"
               class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
             />
             @if (form.controls.password.touched && form.controls.password.errors) {
-              <p class="mt-1 text-sm text-red-600">Hasło musi mieć minimum 8 znaków.</p>
+              <p id="password-error" class="mt-1 text-sm text-red-600">
+                Hasło musi mieć minimum 8 znaków.
+              </p>
             }
           </div>
 
