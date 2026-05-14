@@ -7,8 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
-  HttpStatus,
-  HttpException,
+  NotFoundException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -67,13 +66,13 @@ export class BusinessesController {
     description: "Returns the provider's business with services.",
   })
   @ApiResponse({
-    status: 204,
+    status: 404,
     description: 'Provider has no business yet.',
   })
   async findMine(@CurrentUser('id') userId: string) {
     const business = await this.businessesService.findByOwner(userId);
     if (!business) {
-      throw new HttpException('', HttpStatus.NO_CONTENT);
+      throw new NotFoundException('Business not found for this provider');
     }
     return business;
   }

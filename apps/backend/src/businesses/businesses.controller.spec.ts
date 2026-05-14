@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { BusinessesController } from './businesses.controller';
 import { BusinessesService } from './businesses.service';
@@ -50,15 +50,12 @@ describe('BusinessesController', () => {
       expect(mockBusinessesService.findByOwner).toHaveBeenCalledWith('user-1');
     });
 
-    it('should throw HttpException with 204 when no business exists', async () => {
+    it('should throw NotFoundException when no business exists', async () => {
       mockBusinessesService.findByOwner.mockResolvedValue(null);
 
       await expect(controller.findMine('user-1')).rejects.toThrow(
-        HttpException,
+        NotFoundException,
       );
-      await expect(controller.findMine('user-1')).rejects.toMatchObject({
-        status: HttpStatus.NO_CONTENT,
-      });
     });
 
     it('should require PROVIDER role via RolesGuard', () => {
