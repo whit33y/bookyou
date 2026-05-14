@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -53,6 +54,27 @@ export class BusinessesController {
   @ApiResponse({ status: 200, description: 'Returns all active businesses.' })
   findAll() {
     return this.businessesService.findAll();
+  }
+
+  @Get('mine')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.PROVIDER)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Get the authenticated provider's business" })
+  @ApiResponse({
+    status: 200,
+    description: "Returns the provider's business with services.",
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Provider has no business yet.',
+  })
+  async findMine(@CurrentUser('id') userId: string) {
+    const business = await this.businessesService.findByOwner(userId);
+    if (!business) {
+      throw new NotFoundException('Business not found for this provider');
+    }
+    return business;
   }
 
   @Get(':id')

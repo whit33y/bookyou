@@ -11,6 +11,7 @@ describe('BusinessesService', () => {
       create: jest.fn(),
       findMany: jest.fn(),
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       update: jest.fn(),
     },
     service: {
@@ -89,6 +90,46 @@ describe('BusinessesService', () => {
       await expect(service.findServices('bus-1')).rejects.toThrow(
         NotFoundException,
       );
+    });
+  });
+
+  describe('findByOwner', () => {
+    it('should return business with services for the owner', async () => {
+      const business = {
+        id: 'bus-1',
+        name: 'Test Business',
+        ownerId: 'user-1',
+        deletedAt: null,
+        services: [{ id: 'ser-1', name: 'Haircut', deletedAt: null }],
+      };
+      mockPrismaService.business.findFirst.mockResolvedValue(business);
+
+      const result = await service.findByOwner('user-1');
+
+      expect(result).toEqual(business);
+      expect(mockPrismaService.business.findFirst).toHaveBeenCalledWith({
+        where: { ownerId: 'user-1', deletedAt: null },
+        include: {
+          owner: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          services: {
+            where: { deletedAt: null },
+          },
+        },
+      });
+    });
+
+    it('should return null if owner has no business', async () => {
+      mockPrismaService.business.findFirst.mockResolvedValue(null);
+
+      const result = await service.findByOwner('user-1');
+
+      expect(result).toBeNull();
     });
   });
 
