@@ -110,6 +110,13 @@ describe('BusinessesService', () => {
       expect(mockPrismaService.business.findFirst).toHaveBeenCalledWith({
         where: { ownerId: 'user-1', deletedAt: null },
         include: {
+          owner: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
           services: {
             where: { deletedAt: null },
           },

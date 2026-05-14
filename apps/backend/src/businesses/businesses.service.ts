@@ -46,6 +46,13 @@ export class BusinessesService {
     return this.prisma.business.findFirst({
       where: { ownerId, deletedAt: null },
       include: {
+        owner: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
         services: {
           where: { deletedAt: null },
         },
