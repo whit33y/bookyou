@@ -1,6 +1,6 @@
 export enum Role {
   CLIENT = 'CLIENT',
-  BUSINESS = 'BUSINESS',
+  PROVIDER = 'PROVIDER',
 }
 
 export interface User {
