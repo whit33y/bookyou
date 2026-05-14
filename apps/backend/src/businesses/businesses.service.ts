@@ -42,6 +42,17 @@ export class BusinessesService {
     });
   }
 
+  async findByOwner(ownerId: string) {
+    return this.prisma.business.findFirst({
+      where: { ownerId, deletedAt: null },
+      include: {
+        services: {
+          where: { deletedAt: null },
+        },
+      },
+    });
+  }
+
   async findOne(id: string) {
     const business = await this.prisma.business.findUnique({
       where: { id },

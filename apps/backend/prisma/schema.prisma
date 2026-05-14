@@ -65,6 +65,7 @@ model Business {
   staff        BusinessStaff[]
   appointments Appointment[]
 
+  @@unique([ownerId])
   @@map("businesses")
 }
 
