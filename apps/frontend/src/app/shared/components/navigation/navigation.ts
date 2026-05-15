@@ -14,7 +14,21 @@ import { Role } from '../../../core/models/user.model';
           <a routerLink="/" class="text-xl font-bold text-indigo-600">BookYou</a>
 
           <div class="flex items-center gap-4">
+            <a
+              routerLink="/businesses"
+              class="text-sm font-medium text-gray-700 hover:text-indigo-600"
+            >
+              Szukaj
+            </a>
             @if (authService.currentUser(); as user) {
+              @if (user.role === clientRole) {
+                <a
+                  routerLink="/my-appointments"
+                  class="text-sm font-medium text-gray-700 hover:text-indigo-600"
+                >
+                  Moje wizyty
+                </a>
+              }
               @if (user.role === providerRole) {
                 <a
                   routerLink="/dashboard"
@@ -53,4 +67,5 @@ import { Role } from '../../../core/models/user.model';
 export class NavigationComponent {
   protected authService = inject(AuthService);
   protected readonly providerRole = Role.PROVIDER;
+  protected readonly clientRole = Role.CLIENT;
 }
