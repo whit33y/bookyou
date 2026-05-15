@@ -29,6 +29,22 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/dashboard/dashboard').then((m) => m.DashboardComponent),
       },
+      {
+        path: 'businesses',
+        loadComponent: () =>
+          import('./features/businesses/businesses').then((m) => m.BusinessesComponent),
+      },
+      {
+        path: 'businesses/:id',
+        loadComponent: () =>
+          import('./features/businesses/business-details').then((m) => m.BusinessDetailsComponent),
+      },
+      {
+        path: 'my-appointments',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./features/appointments/my-appointments').then((m) => m.MyAppointmentsComponent),
+      },
     ],
   },
 ];
