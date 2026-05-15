@@ -7,20 +7,27 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { A11yModule } from '@angular/cdk/a11y';
 import { Business, OpeningHours, Service } from '../../core/models/business.model';
 import { AppointmentService } from '../../core/services/appointment.service';
 
+const SLOT_INTERVAL_MINUTES = 30;
+
 @Component({
   selector: 'app-booking-modal',
+  imports: [A11yModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       (click)="onBackdropClick($event)"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="booking-modal-title"
     >
-      <div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+      <div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl" cdkTrapFocus>
         <div class="flex items-center justify-between">
-          <h2 class="text-lg font-semibold text-gray-900">Rezerwacja</h2>
+          <h2 id="booking-modal-title" class="text-lg font-semibold text-gray-900">Rezerwacja</h2>
           <button
             (click)="closed.emit()"
             class="text-gray-400 hover:text-gray-600"
@@ -224,7 +231,7 @@ export class BookingModalComponent {
     const now = new Date();
     const isToday = this.formatDate(now) === dateStr;
 
-    for (let m = openMinutes; m + duration <= closeMinutes; m += 30) {
+    for (let m = openMinutes; m + duration <= closeMinutes; m += SLOT_INTERVAL_MINUTES) {
       if (isToday) {
         const slotDate = new Date(`${dateStr}T${this.minutesToTime(m)}:00`);
         if (slotDate <= now) continue;

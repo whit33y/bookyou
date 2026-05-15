@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { AppointmentService } from '../../core/services/appointment.service';
 import { Appointment, AppointmentStatus } from '../../core/models/appointment.model';
@@ -81,6 +89,7 @@ import { Appointment, AppointmentStatus } from '../../core/models/appointment.mo
 })
 export class MyAppointmentsComponent implements OnInit {
   protected readonly appointmentService = inject(AppointmentService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly upcoming = computed(() =>
     this.appointmentService
@@ -107,10 +116,13 @@ export class MyAppointmentsComponent implements OnInit {
 
   cancel(appointment: Appointment) {
     if (!confirm('Czy na pewno chcesz anulować tę wizytę?')) return;
-    this.appointmentService.updateStatus(appointment.id, AppointmentStatus.CANCELLED).subscribe({
-      next: () => this.appointmentService.loadMyAppointments(),
-      error: () => alert('Nie udało się anulować wizyty.'),
-    });
+    this.appointmentService
+      .updateStatus(appointment.id, AppointmentStatus.CANCELLED)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.appointmentService.loadMyAppointments(),
+        error: () => alert('Nie udało się anulować wizyty.'),
+      });
   }
 
   statusLabel(status: AppointmentStatus): string {
