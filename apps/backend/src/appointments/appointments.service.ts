@@ -138,6 +138,22 @@ export class AppointmentsService {
     });
   }
 
+  async findMyAppointments(userId: string) {
+    return this.prisma.appointment.findMany({
+      where: {
+        OR: [{ clientId: userId }, { providerId: userId }],
+        deletedAt: null,
+      },
+      orderBy: { startTime: 'desc' },
+      include: {
+        service: true,
+        business: true,
+        provider: { select: { id: true, name: true, email: true } },
+        client: { select: { id: true, name: true, email: true } },
+      },
+    });
+  }
+
   async findOne(id: string, userId: string) {
     const appointment = await this.prisma.appointment.findUnique({
       where: { id },
