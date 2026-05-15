@@ -15,6 +15,7 @@ describe('AppointmentsService', () => {
     appointment: {
       create: jest.fn(),
       findFirst: jest.fn(),
+      findMany: jest.fn(),
       findUnique: jest.fn(),
       update: jest.fn(),
     },
@@ -215,6 +216,43 @@ describe('AppointmentsService', () => {
           status: AppointmentStatus.CONFIRMED,
         }),
       ).rejects.toThrow(ConflictException);
+    });
+  });
+
+  describe('findMyAppointments', () => {
+    const userId = 'user-1';
+
+    it('should return appointments where user is client or provider', async () => {
+      const appointments = [
+        { id: 'app-1', clientId: userId, providerId: 'other' },
+        { id: 'app-2', clientId: 'other', providerId: userId },
+      ];
+      mockPrismaService.appointment.findMany.mockResolvedValue(appointments);
+
+      const result = await service.findMyAppointments(userId);
+
+      expect(result).toEqual(appointments);
+      expect(mockPrismaService.appointment.findMany).toHaveBeenCalledWith({
+        where: {
+          OR: [{ clientId: userId }, { providerId: userId }],
+          deletedAt: null,
+        },
+        orderBy: { startTime: 'desc' },
+        include: {
+          service: true,
+          business: true,
+          provider: { select: { id: true, name: true, email: true } },
+          client: { select: { id: true, name: true, email: true } },
+        },
+      });
+    });
+
+    it('should return empty array when user has no appointments', async () => {
+      mockPrismaService.appointment.findMany.mockResolvedValue([]);
+
+      const result = await service.findMyAppointments(userId);
+
+      expect(result).toEqual([]);
     });
   });
 });

@@ -41,6 +41,15 @@ export class AppointmentsController {
     return this.appointmentsService.create(userId, createAppointmentDto);
   }
 
+  @Get('my')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Get current user's appointments" })
+  @ApiResponse({ status: 200, description: "Returns user's appointments." })
+  findMy(@CurrentUser('id') userId: string) {
+    return this.appointmentsService.findMyAppointments(userId);
+  }
+
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
