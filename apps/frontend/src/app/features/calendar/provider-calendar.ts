@@ -15,11 +15,44 @@ import { Appointment, AppointmentStatus } from '../../core/models/appointment.mo
 
 type ViewMode = 'week' | 'day';
 
+interface ParsedAppointment extends Appointment {
+  parsedStart: Date;
+}
+
 interface DayColumn {
   dateKey: string;
   label: string;
-  appointments: Appointment[];
+  appointments: ParsedAppointment[];
 }
+
+const STATUS_LABELS: Record<AppointmentStatus, string> = {
+  [AppointmentStatus.PENDING]: 'Oczekująca',
+  [AppointmentStatus.CONFIRMED]: 'Potwierdzona',
+  [AppointmentStatus.CANCELLED]: 'Anulowana',
+  [AppointmentStatus.COMPLETED]: 'Zakończona',
+  [AppointmentStatus.NOSHOW]: 'Nieobecność',
+};
+
+const STATUS_BADGE_CLASSES: Record<AppointmentStatus, string> = {
+  [AppointmentStatus.PENDING]:
+    'inline-block shrink-0 rounded-full px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800',
+  [AppointmentStatus.CONFIRMED]:
+    'inline-block shrink-0 rounded-full px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800',
+  [AppointmentStatus.CANCELLED]:
+    'inline-block shrink-0 rounded-full px-2 py-0.5 text-xs font-medium bg-red-100 text-red-800',
+  [AppointmentStatus.COMPLETED]:
+    'inline-block shrink-0 rounded-full px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800',
+  [AppointmentStatus.NOSHOW]:
+    'inline-block shrink-0 rounded-full px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-800',
+};
+
+const STATUS_CARD_CLASSES: Record<AppointmentStatus, string> = {
+  [AppointmentStatus.PENDING]: 'border-yellow-200 bg-yellow-50',
+  [AppointmentStatus.CONFIRMED]: 'border-green-200 bg-green-50',
+  [AppointmentStatus.CANCELLED]: 'border-red-200 bg-red-50',
+  [AppointmentStatus.COMPLETED]: 'border-blue-200 bg-blue-50',
+  [AppointmentStatus.NOSHOW]: 'border-gray-200 bg-gray-50',
+};
 
 @Component({
   selector: 'app-provider-calendar',
@@ -56,22 +89,39 @@ interface DayColumn {
             {{ dateRangeLabel() }}
           </span>
 
-          <div class="ml-4 flex rounded-md border border-gray-300">
-            <button (click)="setView('day')" [class]="viewBtnClass('day')">Dzień</button>
-            <button (click)="setView('week')" [class]="viewBtnClass('week')">Tydzień</button>
+          <div
+            class="ml-4 flex rounded-md border border-gray-300"
+            role="group"
+            aria-label="Widok kalendarza"
+          >
+            <button
+              (click)="setView('day')"
+              [class]="dayBtnClass()"
+              [attr.aria-pressed]="viewMode() === 'day'"
+            >
+              Dzień
+            </button>
+            <button
+              (click)="setView('week')"
+              [class]="weekBtnClass()"
+              [attr.aria-pressed]="viewMode() === 'week'"
+            >
+              Tydzień
+            </button>
           </div>
         </div>
       </div>
 
       @if (loading()) {
-        <p class="mt-8 text-center text-gray-500">Ładowanie...</p>
+        <p class="mt-8 text-center text-gray-500" aria-live="polite">Ładowanie...</p>
       } @else {
-        <div class="mt-6 overflow-x-auto">
+        <div class="mt-6 overflow-x-auto" role="grid" aria-label="Kalendarz wizyt">
           <div class="grid min-w-[600px]" [style.grid-template-columns]="gridCols()">
             @for (day of dayColumns(); track day.dateKey) {
-              <div class="border-r border-gray-200 last:border-r-0">
+              <div class="border-r border-gray-200 last:border-r-0" role="gridcell">
                 <div
                   class="sticky top-0 border-b border-gray-200 bg-gray-50 px-3 py-2 text-center text-sm font-semibold text-gray-700"
+                  role="columnheader"
                 >
                   {{ day.label }}
                 </div>
@@ -139,7 +189,7 @@ export class ProviderCalendarComponent implements OnInit {
 
   readonly viewMode = signal<ViewMode>('week');
   readonly currentDate = signal(new Date());
-  readonly allAppointments = signal<Appointment[]>([]);
+  readonly allAppointments = signal<ParsedAppointment[]>([]);
   readonly loading = signal(false);
 
   private readonly providerAppointments = computed(() => {
@@ -185,10 +235,9 @@ export class ProviderCalendarComponent implements OnInit {
       const dayStart = this.startOfDay(current);
       const dayEnd = this.endOfDay(current);
 
-      const appointments = this.providerAppointments().filter((a) => {
-        const aStart = new Date(a.startTime);
-        return aStart >= dayStart && aStart <= dayEnd;
-      });
+      const appointments = this.providerAppointments().filter(
+        (a) => a.parsedStart >= dayStart && a.parsedStart <= dayEnd,
+      );
 
       days.push({ dateKey, label, appointments });
       current.setDate(current.getDate() + 1);
@@ -200,6 +249,20 @@ export class ProviderCalendarComponent implements OnInit {
   readonly gridCols = computed(() => {
     const count = this.dayColumns().length;
     return `repeat(${count}, minmax(180px, 1fr))`;
+  });
+
+  readonly dayBtnClass = computed(() => {
+    const base = 'px-3 py-2 text-sm font-medium';
+    return this.viewMode() === 'day'
+      ? `${base} bg-indigo-600 text-white`
+      : `${base} text-gray-700 hover:bg-gray-50`;
+  });
+
+  readonly weekBtnClass = computed(() => {
+    const base = 'px-3 py-2 text-sm font-medium';
+    return this.viewMode() === 'week'
+      ? `${base} bg-indigo-600 text-white`
+      : `${base} text-gray-700 hover:bg-gray-50`;
   });
 
   ngOnInit(): void {
@@ -237,7 +300,10 @@ export class ProviderCalendarComponent implements OnInit {
     this.appointmentService
       .updateStatus(appointment.id, AppointmentStatus.CONFIRMED)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({ next: () => this.loadAppointments() });
+      .subscribe({
+        next: () => this.loadAppointments(),
+        error: () => alert('Nie udało się potwierdzić wizyty.'),
+      });
   }
 
   cancelAppointment(appointment: Appointment): void {
@@ -245,48 +311,22 @@ export class ProviderCalendarComponent implements OnInit {
     this.appointmentService
       .updateStatus(appointment.id, AppointmentStatus.CANCELLED)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({ next: () => this.loadAppointments() });
-  }
-
-  viewBtnClass(mode: ViewMode): string {
-    const base = 'px-3 py-2 text-sm font-medium';
-    return this.viewMode() === mode
-      ? `${base} bg-indigo-600 text-white`
-      : `${base} text-gray-700 hover:bg-gray-50`;
+      .subscribe({
+        next: () => this.loadAppointments(),
+        error: () => alert('Nie udało się anulować wizyty.'),
+      });
   }
 
   statusLabel(status: AppointmentStatus): string {
-    const labels: Record<AppointmentStatus, string> = {
-      [AppointmentStatus.PENDING]: 'Oczekująca',
-      [AppointmentStatus.CONFIRMED]: 'Potwierdzona',
-      [AppointmentStatus.CANCELLED]: 'Anulowana',
-      [AppointmentStatus.COMPLETED]: 'Zakończona',
-      [AppointmentStatus.NOSHOW]: 'Nieobecność',
-    };
-    return labels[status];
+    return STATUS_LABELS[status];
   }
 
   statusBadgeClass(status: AppointmentStatus): string {
-    const base = 'inline-block shrink-0 rounded-full px-2 py-0.5 text-xs font-medium';
-    const variants: Record<AppointmentStatus, string> = {
-      [AppointmentStatus.PENDING]: `${base} bg-yellow-100 text-yellow-800`,
-      [AppointmentStatus.CONFIRMED]: `${base} bg-green-100 text-green-800`,
-      [AppointmentStatus.CANCELLED]: `${base} bg-red-100 text-red-800`,
-      [AppointmentStatus.COMPLETED]: `${base} bg-blue-100 text-blue-800`,
-      [AppointmentStatus.NOSHOW]: `${base} bg-gray-100 text-gray-800`,
-    };
-    return variants[status];
+    return STATUS_BADGE_CLASSES[status];
   }
 
   appointmentCardClass(status: AppointmentStatus): string {
-    const variants: Record<AppointmentStatus, string> = {
-      [AppointmentStatus.PENDING]: 'border-yellow-200 bg-yellow-50',
-      [AppointmentStatus.CONFIRMED]: 'border-green-200 bg-green-50',
-      [AppointmentStatus.CANCELLED]: 'border-red-200 bg-red-50',
-      [AppointmentStatus.COMPLETED]: 'border-blue-200 bg-blue-50',
-      [AppointmentStatus.NOSHOW]: 'border-gray-200 bg-gray-50',
-    };
-    return variants[status];
+    return STATUS_CARD_CLASSES[status];
   }
 
   private loadAppointments(): void {
@@ -296,7 +336,7 @@ export class ProviderCalendarComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data) => {
-          this.allAppointments.set(data);
+          this.allAppointments.set(data.map((a) => ({ ...a, parsedStart: new Date(a.startTime) })));
           this.loading.set(false);
         },
         error: () => {
