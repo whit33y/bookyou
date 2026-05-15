@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BusinessService } from '../../core/services/business.service';
 
@@ -122,7 +122,7 @@ import { BusinessService } from '../../core/services/business.service';
     </section>
   `,
 })
-export class BusinessSettingsComponent implements OnInit {
+export class BusinessSettingsComponent {
   private readonly fb = inject(FormBuilder);
   protected readonly businessService = inject(BusinessService);
 
@@ -139,18 +139,20 @@ export class BusinessSettingsComponent implements OnInit {
   error = '';
   success = '';
 
-  ngOnInit() {
-    const b = this.businessService.business();
-    if (b) {
-      this.form.patchValue({
-        name: b.name,
-        description: b.description ?? '',
-        street: b.street,
-        city: b.city,
-        zipCode: b.zipCode,
-        country: b.country,
-      });
-    }
+  constructor() {
+    effect(() => {
+      const b = this.businessService.business();
+      if (b) {
+        this.form.patchValue({
+          name: b.name,
+          description: b.description ?? '',
+          street: b.street,
+          city: b.city,
+          zipCode: b.zipCode,
+          country: b.country,
+        });
+      }
+    });
   }
 
   onSubmit() {

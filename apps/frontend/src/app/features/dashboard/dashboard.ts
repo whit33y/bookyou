@@ -136,6 +136,8 @@ export class DashboardComponent implements OnInit {
 
   deleteService(service: Service) {
     if (!confirm(`Czy na pewno chcesz usunąć usługę "${service.name}"?`)) return;
-    this.businessService.deleteService(service.id).subscribe();
+    this.businessService.deleteService(service.id).subscribe({
+      error: () => alert('Nie udało się usunąć usługi. Spróbuj ponownie.'),
+    });
   }
 }

@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AuthService } from './auth.service';
 import {
   Business,
   CreateBusinessRequest,
@@ -15,7 +14,6 @@ import {
 @Injectable({ providedIn: 'root' })
 export class BusinessService {
   private readonly http = inject(HttpClient);
-  private readonly authService = inject(AuthService);
   private readonly businessesUrl = `${environment.apiUrl}/businesses`;
   private readonly servicesUrl = `${environment.apiUrl}/services`;
 
@@ -25,21 +23,16 @@ export class BusinessService {
   readonly businessId = computed(() => this.business()?.id);
 
   loadMyBusiness() {
-    const user = this.authService.currentUser();
-    if (!user) return;
-
     this.loading.set(true);
-    this.http.get<Business[]>(this.businessesUrl).subscribe({
-      next: (businesses) => {
-        const mine = businesses.find((b) => b.ownerId === user.id) ?? null;
-        this.business.set(mine);
-        if (mine) {
-          this.loadServices(mine.id);
-        } else {
-          this.loading.set(false);
-        }
+    this.http.get<Business>(`${this.businessesUrl}/mine`).subscribe({
+      next: (business) => {
+        this.business.set(business);
+        this.loadServices(business.id);
       },
-      error: () => this.loading.set(false),
+      error: () => {
+        this.business.set(null);
+        this.loading.set(false);
+      },
     });
   }
 
