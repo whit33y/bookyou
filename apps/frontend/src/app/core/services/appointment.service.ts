@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, of, Subject, switchMap } from 'rxjs';
+import { Observable, Subject, switchMap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   Appointment,
@@ -25,30 +25,35 @@ export class AppointmentService {
       .pipe(
         switchMap(() => {
           this.loading.set(true);
-          return this.http.get<Appointment[]>(`${this.apiUrl}/my`).pipe(
-            catchError(() => {
-              this.loading.set(false);
-              return of([] as Appointment[]);
-            }),
-          );
+          return this.http.get<Appointment[]>(`${this.apiUrl}/my`);
         }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((data) => {
-        this.appointments.set(data);
-        this.loading.set(false);
+      .subscribe({
+        next: (data) => {
+          this.appointments.set(data);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.appointments.set([]);
+          this.loading.set(false);
+        },
       });
   }
 
-  loadMyAppointments() {
+  loadMyAppointments(): void {
     this.loadTrigger.next();
   }
 
-  create(data: CreateAppointmentRequest) {
+  getMyAppointments(): Observable<Appointment[]> {
+    return this.http.get<Appointment[]>(`${this.apiUrl}/my`);
+  }
+
+  create(data: CreateAppointmentRequest): Observable<Appointment> {
     return this.http.post<Appointment>(this.apiUrl, data);
   }
 
-  updateStatus(id: string, status: AppointmentStatus) {
+  updateStatus(id: string, status: AppointmentStatus): Observable<Appointment> {
     return this.http.patch<Appointment>(`${this.apiUrl}/${id}/status`, { status });
   }
 }

@@ -31,6 +31,12 @@ import { Role } from '../../../core/models/user.model';
               }
               @if (user.role === providerRole) {
                 <a
+                  routerLink="/calendar"
+                  class="text-sm font-medium text-gray-700 hover:text-indigo-600"
+                >
+                  Kalendarz
+                </a>
+                <a
                   routerLink="/dashboard"
                   class="text-sm font-medium text-gray-700 hover:text-indigo-600"
                 >
