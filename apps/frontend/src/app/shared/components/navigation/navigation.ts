@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { Role } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-navigation',
@@ -13,8 +14,16 @@ import { AuthService } from '../../../core/services/auth.service';
           <a routerLink="/" class="text-xl font-bold text-indigo-600">BookYou</a>
 
           <div class="flex items-center gap-4">
-            @if (authService.currentUser()) {
-              <span class="text-sm text-gray-700">{{ authService.currentUser()?.email }}</span>
+            @if (authService.currentUser(); as user) {
+              @if (user.role === providerRole) {
+                <a
+                  routerLink="/dashboard"
+                  class="text-sm font-medium text-gray-700 hover:text-indigo-600"
+                >
+                  Panel
+                </a>
+              }
+              <span class="text-sm text-gray-700">{{ user.email }}</span>
               <button
                 (click)="authService.logout()"
                 class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
@@ -43,4 +52,5 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class NavigationComponent {
   protected authService = inject(AuthService);
+  protected readonly providerRole = Role.PROVIDER;
 }
