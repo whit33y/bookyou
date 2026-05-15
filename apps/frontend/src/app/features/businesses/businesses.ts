@@ -21,6 +21,7 @@ import { DiscoveryService } from '../../core/services/discovery.service';
         <input
           type="text"
           placeholder="Szukaj po nazwie..."
+          aria-label="Szukaj po nazwie"
           [value]="searchQuery()"
           (input)="onSearchChange($event)"
           class="flex-1 rounded-md border border-gray-300 px-4 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
@@ -28,6 +29,7 @@ import { DiscoveryService } from '../../core/services/discovery.service';
         <input
           type="text"
           placeholder="Miasto..."
+          aria-label="Filtruj po mieście"
           [value]="cityFilter()"
           (input)="onCityChange($event)"
           class="rounded-md border border-gray-300 px-4 py-2 text-sm sm:w-48 focus:border-indigo-500 focus:ring-indigo-500"

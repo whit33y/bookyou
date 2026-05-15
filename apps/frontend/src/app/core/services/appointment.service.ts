@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject, switchMap } from 'rxjs';
+import { catchError, of, Subject, switchMap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   Appointment,
@@ -25,16 +25,18 @@ export class AppointmentService {
       .pipe(
         switchMap(() => {
           this.loading.set(true);
-          return this.http.get<Appointment[]>(`${this.apiUrl}/my`);
+          return this.http.get<Appointment[]>(`${this.apiUrl}/my`).pipe(
+            catchError(() => {
+              this.loading.set(false);
+              return of([] as Appointment[]);
+            }),
+          );
         }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe({
-        next: (data) => {
-          this.appointments.set(data);
-          this.loading.set(false);
-        },
-        error: () => this.loading.set(false),
+      .subscribe((data) => {
+        this.appointments.set(data);
+        this.loading.set(false);
       });
   }
 

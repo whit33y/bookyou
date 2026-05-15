@@ -2,11 +2,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   inject,
   input,
   output,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { A11yModule } from '@angular/cdk/a11y';
 import { Business, OpeningHours, Service } from '../../core/models/business.model';
 import { AppointmentService } from '../../core/services/appointment.service';
@@ -138,6 +140,7 @@ export class BookingModalComponent {
   readonly closed = output<void>();
 
   private readonly appointmentService = inject(AppointmentService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly step = signal<'date' | 'time' | 'confirm'>('date');
   readonly selectedDate = signal('');
@@ -194,6 +197,7 @@ export class BookingModalComponent {
         businessId: this.business().id,
         providerId: this.business().ownerId,
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.submitting.set(false);
