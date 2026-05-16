@@ -8,10 +8,12 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
+  AbstractControl,
   FormBuilder,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
+  ValidationErrors,
   Validators,
 } from '@angular/forms';
 import { BusinessService } from '../../core/services/business.service';
@@ -22,6 +24,15 @@ interface DayFormControls {
   enabled: FormControl<boolean>;
   open: FormControl<string>;
   close: FormControl<string>;
+}
+
+function closeAfterOpenValidator(group: AbstractControl): ValidationErrors | null {
+  const open = group.get('open')?.value as string | undefined;
+  const close = group.get('close')?.value as string | undefined;
+  if (!open || !close) {
+    return null;
+  }
+  return close > open ? null : { closeBeforeOpen: true };
 }
 
 @Component({
@@ -154,6 +165,9 @@ interface DayFormControls {
                   [attr.aria-label]="'Godzina zamknięcia ' + day.label"
                   class="rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:opacity-40"
                 />
+                @if (getDayGroup(day.key).hasError('closeBeforeOpen')) {
+                  <span class="text-xs text-red-600">Zamknięcie musi być po otwarciu</span>
+                }
               </div>
             }
           </div>
@@ -188,8 +202,6 @@ export class BusinessSettingsComponent {
   protected readonly error = signal('');
   protected readonly success = signal('');
 
-  private readonly dayGroups = new Map<string, FormGroup<DayFormControls>>();
-
   form = this.fb.nonNullable.group({
     name: ['', Validators.required],
     description: [''],
@@ -217,6 +229,10 @@ export class BusinessSettingsComponent {
         this.patchOpeningHours(b.openingHours);
       }
     });
+  }
+
+  protected getDayGroup(key: string): FormGroup<DayFormControls> {
+    return this.form.controls.openingHours.controls[key] as FormGroup<DayFormControls>;
   }
 
   onSubmit(): void {
@@ -261,19 +277,21 @@ export class BusinessSettingsComponent {
   private buildOpeningHoursGroup(): FormGroup {
     const groups: Record<string, FormGroup<DayFormControls>> = {};
     for (const day of WEEKDAYS) {
-      const group = this.fb.nonNullable.group({
-        enabled: [false],
-        open: [{ value: '09:00', disabled: true }],
-        close: [{ value: '17:00', disabled: true }],
-      });
-      groups[day.key] = group;
-      this.dayGroups.set(day.key, group);
+      groups[day.key] = this.fb.nonNullable.group(
+        {
+          enabled: [false],
+          open: [{ value: '09:00', disabled: true }],
+          close: [{ value: '17:00', disabled: true }],
+        },
+        { validators: closeAfterOpenValidator },
+      );
     }
     return this.fb.group(groups);
   }
 
   private registerDayToggleListeners(): void {
-    for (const [, group] of this.dayGroups) {
+    for (const day of WEEKDAYS) {
+      const group = this.getDayGroup(day.key);
       group.controls.enabled.valueChanges
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((enabled) => {
@@ -291,12 +309,9 @@ export class BusinessSettingsComponent {
   private collectOpeningHours(): OpeningHours {
     const result: OpeningHours = {};
     for (const day of WEEKDAYS) {
-      const group = this.dayGroups.get(day.key);
-      if (group) {
-        const raw = group.getRawValue();
-        if (raw.enabled) {
-          result[day.key] = { open: raw.open, close: raw.close };
-        }
+      const raw = this.getDayGroup(day.key).getRawValue();
+      if (raw.enabled) {
+        result[day.key] = { open: raw.open, close: raw.close };
       }
     }
     return result;
@@ -305,10 +320,7 @@ export class BusinessSettingsComponent {
   private patchOpeningHours(hours: OpeningHours | null): void {
     for (const day of WEEKDAYS) {
       const dayData: OpeningHoursDay | undefined = hours?.[day.key];
-      const group = this.dayGroups.get(day.key);
-      if (!group) {
-        continue;
-      }
+      const group = this.getDayGroup(day.key);
 
       if (dayData) {
         group.controls.enabled.setValue(true, { emitEvent: true });
