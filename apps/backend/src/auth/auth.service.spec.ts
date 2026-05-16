@@ -31,6 +31,7 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -38,7 +39,7 @@ describe('AuthService', () => {
   });
 
   describe('register', () => {
-    it('should register a new user', async () => {
+    it('should register a new user with default CLIENT role', async () => {
       const dto = {
         email: 'test@example.com',
         password: 'password123',
@@ -56,9 +57,72 @@ describe('AuthService', () => {
 
       expect(result).toHaveProperty('accessToken');
       expect(result.user.email).toBe(dto.email);
+      expect(result.user.role).toBe('CLIENT');
+      expect(mockPrismaService.user.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ role: 'CLIENT' }),
+        }),
+      );
     });
 
-    it('should re-activate a soft-deleted user', async () => {
+    it('should register a new user with PROVIDER role when specified', async () => {
+      const dto = {
+        email: 'provider@example.com',
+        password: 'password123',
+        name: 'Provider User',
+        role: 'PROVIDER' as const,
+      };
+      mockPrismaService.user.findUnique.mockResolvedValue(null);
+      mockPrismaService.user.create.mockResolvedValue({
+        id: '2',
+        email: dto.email,
+        name: dto.name,
+        role: 'PROVIDER',
+        deletedAt: null,
+      });
+
+      const result = await service.register(dto);
+
+      expect(result.user.role).toBe('PROVIDER');
+      expect(mockPrismaService.user.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ role: 'PROVIDER' }),
+        }),
+      );
+    });
+
+    it('should re-activate a soft-deleted user with selected role', async () => {
+      const dto = {
+        email: 'test@example.com',
+        password: 'password123',
+        name: 'Test User',
+        role: 'PROVIDER' as const,
+      };
+      mockPrismaService.user.findUnique.mockResolvedValue({
+        id: '1',
+        email: dto.email,
+        deletedAt: new Date(),
+      });
+      mockPrismaService.user.update.mockResolvedValue({
+        id: '1',
+        email: dto.email,
+        name: dto.name,
+        role: 'PROVIDER',
+        deletedAt: null,
+      });
+
+      const result = await service.register(dto);
+
+      expect(result).toHaveProperty('accessToken');
+      expect(result.user.role).toBe('PROVIDER');
+      expect(mockPrismaService.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ role: 'PROVIDER' }),
+        }),
+      );
+    });
+
+    it('should re-activate a soft-deleted user with default CLIENT role', async () => {
       const dto = {
         email: 'test@example.com',
         password: 'password123',
@@ -80,8 +144,11 @@ describe('AuthService', () => {
       const result = await service.register(dto);
 
       expect(result).toHaveProperty('accessToken');
-      expect(mockPrismaService.user.update).toHaveBeenCalled();
-      expect(result.user.email).toBe(dto.email);
+      expect(mockPrismaService.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ role: 'CLIENT' }),
+        }),
+      );
     });
 
     it('should throw ConflictException if user exists and is active', async () => {

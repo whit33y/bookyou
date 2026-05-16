@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { Role } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-register',
@@ -17,6 +18,38 @@ import { AuthService } from '../../../core/services/auth.service';
         }
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+          <fieldset>
+            <legend class="block text-sm font-medium text-gray-700">Typ konta</legend>
+            <div class="mt-2 flex gap-4">
+              <label
+                class="flex cursor-pointer items-center gap-2 rounded-md border px-4 py-2"
+                [class.border-indigo-600]="form.controls.role.value === roles.CLIENT"
+                [class.border-gray-300]="form.controls.role.value !== roles.CLIENT"
+              >
+                <input
+                  type="radio"
+                  formControlName="role"
+                  [value]="roles.CLIENT"
+                  class="text-indigo-600 focus:ring-indigo-500"
+                />
+                <span class="text-sm text-gray-700">Klient</span>
+              </label>
+              <label
+                class="flex cursor-pointer items-center gap-2 rounded-md border px-4 py-2"
+                [class.border-indigo-600]="form.controls.role.value === roles.PROVIDER"
+                [class.border-gray-300]="form.controls.role.value !== roles.PROVIDER"
+              >
+                <input
+                  type="radio"
+                  formControlName="role"
+                  [value]="roles.PROVIDER"
+                  class="text-indigo-600 focus:ring-indigo-500"
+                />
+                <span class="text-sm text-gray-700">Usługodawca</span>
+              </label>
+            </div>
+          </fieldset>
+
           <div>
             <label for="name" class="block text-sm font-medium text-gray-700">Imię</label>
             <input
@@ -89,11 +122,14 @@ import { AuthService } from '../../../core/services/auth.service';
   `,
 })
 export class RegisterComponent {
-  private fb = inject(FormBuilder);
-  private authService = inject(AuthService);
-  private router = inject(Router);
+  private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
-  form = this.fb.nonNullable.group({
+  protected readonly roles = Role;
+
+  readonly form = this.fb.nonNullable.group({
+    role: [Role.CLIENT, [Validators.required]],
     name: [''],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]],

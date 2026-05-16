@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 import {
   IsEmail,
+  IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -23,4 +25,9 @@ export class RegisterDto {
   @IsString()
   @IsOptional()
   name?: string;
+
+  @ApiProperty({ enum: Role, example: Role.CLIENT, required: false })
+  @IsEnum(Role)
+  @IsOptional()
+  role?: Role;
 }

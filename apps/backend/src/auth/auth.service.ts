@@ -35,13 +35,13 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(dto.password, BCRYPT_SALT_ROUNDS);
 
     if (existingUser) {
-      // Re-activate soft-deleted user and reset role to CLIENT for security
+      // Re-activate soft-deleted user with selected role (defaults to CLIENT)
       const updatedUser = await this.prisma.user.update({
         where: { id: existingUser.id },
         data: {
           password: hashedPassword,
           name: dto.name,
-          role: Role.CLIENT,
+          role: dto.role ?? Role.CLIENT,
           deletedAt: null,
         },
       });
@@ -64,6 +64,7 @@ export class AuthService {
         email: dto.email,
         password: hashedPassword,
         name: dto.name,
+        role: dto.role ?? Role.CLIENT,
       },
     });
 
