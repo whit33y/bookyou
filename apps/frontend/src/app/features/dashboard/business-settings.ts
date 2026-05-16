@@ -1,6 +1,39 @@
-import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { BusinessService } from '../../core/services/business.service';
+import { OpeningHours, OpeningHoursDay } from '../../core/models/business.model';
+import { DayKey, WEEKDAYS } from '../../core/constants/weekdays';
+
+interface DayFormControls {
+  enabled: FormControl<boolean>;
+  open: FormControl<string>;
+  close: FormControl<string>;
+}
+
+function closeAfterOpenValidator(group: AbstractControl): ValidationErrors | null {
+  const open = group.get('open')?.value as string | undefined;
+  const close = group.get('close')?.value as string | undefined;
+  if (!open || !close) {
+    return null;
+  }
+  return close > open ? null : { closeBeforeOpen: true };
+}
 
 @Component({
   selector: 'app-business-settings',
@@ -10,12 +43,12 @@ import { BusinessService } from '../../core/services/business.service';
     <section>
       <h2 class="text-xl font-semibold text-gray-900">Ustawienia biznesu</h2>
 
-      @if (error) {
-        <p class="mt-2 rounded-md bg-red-50 p-3 text-sm text-red-600">{{ error }}</p>
+      @if (error()) {
+        <p class="mt-2 rounded-md bg-red-50 p-3 text-sm text-red-600">{{ error() }}</p>
       }
 
-      @if (success) {
-        <p class="mt-2 rounded-md bg-green-50 p-3 text-sm text-green-600">{{ success }}</p>
+      @if (success()) {
+        <p class="mt-2 rounded-md bg-green-50 p-3 text-sm text-green-600">{{ success() }}</p>
       }
 
       <form
@@ -103,14 +136,51 @@ import { BusinessService } from '../../core/services/business.service';
           />
         </div>
 
+        <!-- Opening Hours -->
+        <fieldset class="sm:col-span-2 mt-2" formGroupName="openingHours">
+          <legend class="text-sm font-medium text-gray-700">Godziny otwarcia</legend>
+          <div class="mt-2 space-y-3">
+            @for (day of weekdays; track day.key) {
+              <div class="flex items-center gap-3" [formGroupName]="day.key">
+                <label class="w-28 text-sm text-gray-600" [attr.for]="'oh-' + day.key + '-enabled'">
+                  {{ day.label }}
+                </label>
+                <input
+                  type="checkbox"
+                  [id]="'oh-' + day.key + '-enabled'"
+                  formControlName="enabled"
+                  class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                  [attr.aria-label]="'Otwarte w ' + day.label"
+                />
+                <input
+                  type="time"
+                  formControlName="open"
+                  [attr.aria-label]="'Godzina otwarcia ' + day.label"
+                  class="rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:opacity-40"
+                />
+                <span class="text-sm text-gray-500">–</span>
+                <input
+                  type="time"
+                  formControlName="close"
+                  [attr.aria-label]="'Godzina zamknięcia ' + day.label"
+                  class="rounded-md border border-gray-300 px-2 py-1 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:opacity-40"
+                />
+                @if (getDayGroup(day.key).hasError('closeBeforeOpen')) {
+                  <span class="text-xs text-red-600">Zamknięcie musi być po otwarciu</span>
+                }
+              </div>
+            }
+          </div>
+        </fieldset>
+
         <div class="sm:col-span-2">
           <button
             type="submit"
-            [disabled]="form.invalid || loading"
+            [disabled]="form.invalid || loading()"
             class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
           >
             {{
-              loading
+              loading()
                 ? 'Zapisywanie...'
                 : businessService.business()
                   ? 'Zaktualizuj'
@@ -124,7 +194,13 @@ import { BusinessService } from '../../core/services/business.service';
 })
 export class BusinessSettingsComponent {
   private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
   protected readonly businessService = inject(BusinessService);
+  protected readonly weekdays = WEEKDAYS;
+
+  protected readonly loading = signal(false);
+  protected readonly error = signal('');
+  protected readonly success = signal('');
 
   form = this.fb.nonNullable.group({
     name: ['', Validators.required],
@@ -133,13 +209,12 @@ export class BusinessSettingsComponent {
     city: ['', Validators.required],
     zipCode: ['', [Validators.required, Validators.pattern(/^\d{2}-\d{3}$/)]],
     country: ['Poland'],
+    openingHours: this.buildOpeningHoursGroup(),
   });
 
-  loading = false;
-  error = '';
-  success = '';
-
   constructor() {
+    this.registerDayToggleListeners();
+
     effect(() => {
       const b = this.businessService.business();
       if (b) {
@@ -151,20 +226,36 @@ export class BusinessSettingsComponent {
           zipCode: b.zipCode,
           country: b.country,
         });
+        this.patchOpeningHours(b.openingHours);
       }
     });
   }
 
-  onSubmit() {
+  protected getDayGroup(key: DayKey): FormGroup<DayFormControls> {
+    return this.form.controls.openingHours.controls[key];
+  }
+
+  onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
-    this.loading = true;
-    this.error = '';
-    this.success = '';
-    const data = this.form.getRawValue();
+    this.loading.set(true);
+    this.error.set('');
+    this.success.set('');
+
+    const formValue = this.form.getRawValue();
+    const openingHours = this.collectOpeningHours();
+    const data = {
+      name: formValue.name,
+      description: formValue.description,
+      street: formValue.street,
+      city: formValue.city,
+      zipCode: formValue.zipCode,
+      country: formValue.country,
+      openingHours,
+    };
     const businessId = this.businessService.businessId();
 
     const request$ = businessId
@@ -173,13 +264,73 @@ export class BusinessSettingsComponent {
 
     request$.subscribe({
       next: () => {
-        this.success = businessId ? 'Profil zaktualizowany.' : 'Profil utworzony.';
-        this.loading = false;
+        this.success.set(businessId ? 'Profil zaktualizowany.' : 'Profil utworzony.');
+        this.loading.set(false);
       },
       error: () => {
-        this.error = 'Nie udało się zapisać profilu. Spróbuj ponownie.';
-        this.loading = false;
+        this.error.set('Nie udało się zapisać profilu. Spróbuj ponownie.');
+        this.loading.set(false);
       },
     });
+  }
+
+  private buildOpeningHoursGroup(): FormGroup<Record<DayKey, FormGroup<DayFormControls>>> {
+    const groups = {} as Record<DayKey, FormGroup<DayFormControls>>;
+    for (const day of WEEKDAYS) {
+      groups[day.key] = this.fb.nonNullable.group(
+        {
+          enabled: [false],
+          open: [{ value: '09:00', disabled: true }],
+          close: [{ value: '17:00', disabled: true }],
+        },
+        { validators: closeAfterOpenValidator },
+      );
+    }
+    return this.fb.group(groups) as FormGroup<Record<DayKey, FormGroup<DayFormControls>>>;
+  }
+
+  private registerDayToggleListeners(): void {
+    for (const day of WEEKDAYS) {
+      const group = this.getDayGroup(day.key);
+      group.controls.enabled.valueChanges
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((enabled) => {
+          if (enabled) {
+            group.controls.open.enable();
+            group.controls.close.enable();
+          } else {
+            group.controls.open.disable();
+            group.controls.close.disable();
+          }
+        });
+    }
+  }
+
+  private collectOpeningHours(): OpeningHours {
+    const result: OpeningHours = {};
+    for (const day of WEEKDAYS) {
+      const raw = this.getDayGroup(day.key).getRawValue();
+      if (raw.enabled) {
+        result[day.key] = { open: raw.open, close: raw.close };
+      }
+    }
+    return result;
+  }
+
+  private patchOpeningHours(hours: OpeningHours | null): void {
+    for (const day of WEEKDAYS) {
+      const dayData: OpeningHoursDay | undefined = hours?.[day.key];
+      const group = this.getDayGroup(day.key);
+
+      if (dayData) {
+        group.controls.enabled.setValue(true, { emitEvent: true });
+        group.controls.open.setValue(dayData.open);
+        group.controls.close.setValue(dayData.close);
+      } else {
+        group.controls.enabled.setValue(false, { emitEvent: true });
+        group.controls.open.setValue('09:00');
+        group.controls.close.setValue('17:00');
+      }
+    }
   }
 }
