@@ -128,7 +128,7 @@ export class RegisterComponent {
 
   protected readonly roles = Role;
 
-  form = this.fb.nonNullable.group({
+  readonly form = this.fb.nonNullable.group({
     role: [Role.CLIENT, [Validators.required]],
     name: [''],
     email: ['', [Validators.required, Validators.email]],
