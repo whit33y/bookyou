@@ -18,7 +18,7 @@ import {
 } from '@angular/forms';
 import { BusinessService } from '../../core/services/business.service';
 import { OpeningHours, OpeningHoursDay } from '../../core/models/business.model';
-import { WEEKDAYS } from '../../core/constants/weekdays';
+import { DayKey, WEEKDAYS } from '../../core/constants/weekdays';
 
 interface DayFormControls {
   enabled: FormControl<boolean>;
@@ -231,8 +231,8 @@ export class BusinessSettingsComponent {
     });
   }
 
-  protected getDayGroup(key: string): FormGroup<DayFormControls> {
-    return this.form.controls.openingHours.controls[key] as FormGroup<DayFormControls>;
+  protected getDayGroup(key: DayKey): FormGroup<DayFormControls> {
+    return this.form.controls.openingHours.controls[key];
   }
 
   onSubmit(): void {
@@ -274,8 +274,8 @@ export class BusinessSettingsComponent {
     });
   }
 
-  private buildOpeningHoursGroup(): FormGroup {
-    const groups: Record<string, FormGroup<DayFormControls>> = {};
+  private buildOpeningHoursGroup(): FormGroup<Record<DayKey, FormGroup<DayFormControls>>> {
+    const groups = {} as Record<DayKey, FormGroup<DayFormControls>>;
     for (const day of WEEKDAYS) {
       groups[day.key] = this.fb.nonNullable.group(
         {
@@ -286,7 +286,7 @@ export class BusinessSettingsComponent {
         { validators: closeAfterOpenValidator },
       );
     }
-    return this.fb.group(groups);
+    return this.fb.group(groups) as FormGroup<Record<DayKey, FormGroup<DayFormControls>>>;
   }
 
   private registerDayToggleListeners(): void {
