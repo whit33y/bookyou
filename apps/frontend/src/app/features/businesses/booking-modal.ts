@@ -10,10 +10,11 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { A11yModule } from '@angular/cdk/a11y';
+import { of, Subject, switchMap } from 'rxjs';
 import { Business, OpeningHours, Service } from '../../core/models/business.model';
 import { AppointmentService } from '../../core/services/appointment.service';
 
-const SLOT_INTERVAL_MINUTES = 30;
+const SLOT_INTERVAL_MINUTES = 15;
 
 @Component({
   selector: 'app-booking-modal',
@@ -34,6 +35,9 @@ export class BookingModalComponent {
   readonly selectedTime = signal('');
   readonly submitting = signal(false);
   readonly errorMessage = signal('');
+  readonly bookedRanges = signal<{ start: number; end: number }[]>([]);
+
+  private readonly dateChange$ = new Subject<string>();
 
   readonly minDate = this.formatDate(new Date());
 
@@ -43,15 +47,44 @@ export class BookingModalComponent {
     return this.generateSlots(date);
   });
 
+  constructor() {
+    this.dateChange$
+      .pipe(
+        switchMap((date) =>
+          date ? this.appointmentService.getBookedSlots(this.business().ownerId, date) : of([]),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (ranges) => {
+          const minutes = ranges.map((r) => ({
+            start: this.toMinutes(new Date(r.start)),
+            end: this.toMinutes(new Date(r.end)),
+          }));
+          this.bookedRanges.set(minutes);
+        },
+        error: () => this.bookedRanges.set([]),
+      });
+  }
+
   onDateChange(event: Event) {
     const value = (event.target as HTMLInputElement).value;
     this.selectedDate.set(value);
     this.selectedTime.set('');
     this.errorMessage.set('');
+    this.bookedRanges.set([]);
+    this.dateChange$.next(value);
   }
 
   selectTime(slot: string) {
     this.selectedTime.set(slot);
+  }
+
+  isSlotBooked(slot: string): boolean {
+    const [h, m] = slot.split(':').map(Number);
+    const slotStart = h * 60 + m;
+    const slotEnd = slotStart + this.service().duration;
+    return this.bookedRanges().some((r) => slotStart < r.end && slotEnd > r.start);
   }
 
   goToTime() {
@@ -158,5 +191,9 @@ export class BookingModalComponent {
     const m = (date.getMonth() + 1).toString().padStart(2, '0');
     const d = date.getDate().toString().padStart(2, '0');
     return `${y}-${m}-${d}`;
+  }
+
+  private toMinutes(date: Date): number {
+    return date.getHours() * 60 + date.getMinutes();
   }
 }

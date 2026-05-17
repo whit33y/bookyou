@@ -56,4 +56,10 @@ export class AppointmentService {
   updateStatus(id: string, status: AppointmentStatus): Observable<Appointment> {
     return this.http.patch<Appointment>(`${this.apiUrl}/${id}/status`, { status });
   }
+
+  getBookedSlots(providerId: string, date: string): Observable<{ start: string; end: string }[]> {
+    return this.http.get<{ start: string; end: string }[]>(`${this.apiUrl}/booked-slots`, {
+      params: { providerId, date },
+    });
+  }
 }

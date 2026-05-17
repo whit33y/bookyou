@@ -47,10 +47,14 @@
           @for (slot of availableSlots(); track slot) {
             <button
               (click)="selectTime(slot)"
+              [disabled]="isSlotBooked(slot)"
               [class.bg-indigo-600]="selectedTime() === slot"
               [class.text-white]="selectedTime() === slot"
               [class.border-indigo-600]="selectedTime() === slot"
-              class="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium hover:border-indigo-400"
+              [class.opacity-50]="isSlotBooked(slot)"
+              [class.cursor-not-allowed]="isSlotBooked(slot)"
+              [class.line-through]="isSlotBooked(slot)"
+              class="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium hover:border-indigo-400 disabled:hover:border-gray-300"
             >
               {{ slot }}
             </button>
