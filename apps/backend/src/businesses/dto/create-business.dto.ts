@@ -3,6 +3,8 @@ import {
   IsOptional,
   IsNotEmpty,
   IsNumber,
+  IsEmail,
+  IsUrl,
   Min,
   Max,
   IsObject,
@@ -132,6 +134,23 @@ export class CreateBusinessDto {
   @ValidateNested()
   @Type(() => OpeningHoursDto)
   openingHours?: OpeningHoursDto;
+
+  @IsOptional()
+  @IsString()
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  @Matches(/^\+?[0-9\s\-()]{7,20}$/, {
+    message: 'phone must be a valid phone number',
+  })
+  phone?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsUrl()
+  website?: string;
 
   @IsNumber()
   @IsOptional()

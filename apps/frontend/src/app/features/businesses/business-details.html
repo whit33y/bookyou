@@ -13,6 +13,49 @@
         }
       </section>
 
+      @if (business.email || business.phone || business.website) {
+        <section>
+          <h2 class="text-lg font-semibold text-gray-900">Kontakt</h2>
+          <dl class="mt-2 space-y-1 text-sm">
+            @if (business.email) {
+              <div class="flex gap-2">
+                <dt class="font-medium text-gray-700">Email:</dt>
+                <dd>
+                  <a [href]="'mailto:' + business.email" class="text-indigo-600 hover:underline">
+                    {{ business.email }}
+                  </a>
+                </dd>
+              </div>
+            }
+            @if (business.phone) {
+              <div class="flex gap-2">
+                <dt class="font-medium text-gray-700">Telefon:</dt>
+                <dd>
+                  <a [href]="'tel:' + business.phone" class="text-indigo-600 hover:underline">
+                    {{ business.phone }}
+                  </a>
+                </dd>
+              </div>
+            }
+            @if (business.website) {
+              <div class="flex gap-2">
+                <dt class="font-medium text-gray-700">Strona www:</dt>
+                <dd>
+                  <a
+                    [href]="business.website"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-indigo-600 hover:underline"
+                  >
+                    {{ business.website }}
+                  </a>
+                </dd>
+              </div>
+            }
+          </dl>
+        </section>
+      }
+
       @if (business.openingHours) {
         <section>
           <h2 class="text-lg font-semibold text-gray-900">Godziny otwarcia</h2>
