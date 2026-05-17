@@ -40,9 +40,9 @@ export interface CreateBusinessRequest {
   city: string;
   zipCode: string;
   country?: string;
-  email?: string;
-  phone?: string;
-  website?: string;
+  email?: string | null;
+  phone?: string | null;
+  website?: string | null;
   openingHours?: OpeningHours;
 }
 
@@ -53,9 +53,9 @@ export interface UpdateBusinessRequest {
   city?: string;
   zipCode?: string;
   country?: string;
-  email?: string;
-  phone?: string;
-  website?: string;
+  email?: string | null;
+  phone?: string | null;
+  website?: string | null;
   openingHours?: OpeningHours;
 }
 

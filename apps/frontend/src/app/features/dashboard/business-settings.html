@@ -98,7 +98,9 @@
         [attr.aria-invalid]="
           form.controls.email.touched && form.controls.email.errors ? true : null
         "
-        aria-describedby="email-error"
+        [attr.aria-describedby]="
+          form.controls.email.touched && form.controls.email.errors ? 'email-error' : null
+        "
         class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
       />
       @if (form.controls.email.touched && form.controls.email.errors) {
@@ -115,7 +117,9 @@
         [attr.aria-invalid]="
           form.controls.phone.touched && form.controls.phone.errors ? true : null
         "
-        aria-describedby="phone-error"
+        [attr.aria-describedby]="
+          form.controls.phone.touched && form.controls.phone.errors ? 'phone-error' : null
+        "
         class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
       />
       @if (form.controls.phone.touched && form.controls.phone.errors) {
@@ -133,7 +137,9 @@
         [attr.aria-invalid]="
           form.controls.website.touched && form.controls.website.errors ? true : null
         "
-        aria-describedby="website-error"
+        [attr.aria-describedby]="
+          form.controls.website.touched && form.controls.website.errors ? 'website-error' : null
+        "
         class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
       />
       @if (form.controls.website.touched && form.controls.website.errors) {

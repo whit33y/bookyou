@@ -136,16 +136,19 @@ export class CreateBusinessDto {
   openingHours?: OpeningHoursDto;
 
   @IsOptional()
+  @IsString()
   @IsEmail()
   email?: string;
 
   @IsOptional()
+  @IsString()
   @Matches(/^\+?[0-9\s\-()]{7,20}$/, {
     message: 'phone must be a valid phone number',
   })
   phone?: string;
 
   @IsOptional()
+  @IsString()
   @IsUrl()
   website?: string;
 

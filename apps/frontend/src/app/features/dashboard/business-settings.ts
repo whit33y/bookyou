@@ -109,9 +109,9 @@ export class BusinessSettingsComponent {
       city: formValue.city,
       zipCode: formValue.zipCode,
       country: formValue.country,
-      email: formValue.email || undefined,
-      phone: formValue.phone || undefined,
-      website: formValue.website || undefined,
+      email: formValue.email || null,
+      phone: formValue.phone || null,
+      website: formValue.website || null,
       openingHours,
     };
     const businessId = this.businessService.businessId();
