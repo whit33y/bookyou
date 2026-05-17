@@ -12,6 +12,7 @@ import { DatePipe } from '@angular/common';
 import { AppointmentService } from '../../core/services/appointment.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Appointment, AppointmentStatus } from '../../core/models/appointment.model';
+import { AppointmentStatusBadgeComponent } from '../../shared/components/status-badge/status-badge';
 
 type ViewMode = 'week' | 'day';
 
@@ -25,27 +26,6 @@ interface DayColumn {
   appointments: ParsedAppointment[];
 }
 
-const STATUS_LABELS: Record<AppointmentStatus, string> = {
-  [AppointmentStatus.PENDING]: 'Oczekująca',
-  [AppointmentStatus.CONFIRMED]: 'Potwierdzona',
-  [AppointmentStatus.CANCELLED]: 'Anulowana',
-  [AppointmentStatus.COMPLETED]: 'Zakończona',
-  [AppointmentStatus.NOSHOW]: 'Nieobecność',
-};
-
-const STATUS_BADGE_CLASSES: Record<AppointmentStatus, string> = {
-  [AppointmentStatus.PENDING]:
-    'inline-block shrink-0 rounded-full px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800',
-  [AppointmentStatus.CONFIRMED]:
-    'inline-block shrink-0 rounded-full px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800',
-  [AppointmentStatus.CANCELLED]:
-    'inline-block shrink-0 rounded-full px-2 py-0.5 text-xs font-medium bg-red-100 text-red-800',
-  [AppointmentStatus.COMPLETED]:
-    'inline-block shrink-0 rounded-full px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800',
-  [AppointmentStatus.NOSHOW]:
-    'inline-block shrink-0 rounded-full px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-800',
-};
-
 const STATUS_CARD_CLASSES: Record<AppointmentStatus, string> = {
   [AppointmentStatus.PENDING]: 'border-yellow-200 bg-yellow-50',
   [AppointmentStatus.CONFIRMED]: 'border-green-200 bg-green-50',
@@ -56,129 +36,9 @@ const STATUS_CARD_CLASSES: Record<AppointmentStatus, string> = {
 
 @Component({
   selector: 'app-provider-calendar',
-  imports: [DatePipe],
+  imports: [DatePipe, AppointmentStatusBadgeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="mx-auto max-w-7xl px-4 py-8">
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 class="text-2xl font-bold text-gray-900">Kalendarz</h1>
-
-        <div class="flex items-center gap-2">
-          <button
-            (click)="navigatePrev()"
-            class="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            aria-label="Poprzedni okres"
-          >
-            ←
-          </button>
-          <button
-            (click)="navigateToday()"
-            class="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            Dziś
-          </button>
-          <button
-            (click)="navigateNext()"
-            class="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            aria-label="Następny okres"
-          >
-            →
-          </button>
-
-          <span class="ml-2 text-sm font-medium text-gray-700">
-            {{ dateRangeLabel() }}
-          </span>
-
-          <div
-            class="ml-4 flex rounded-md border border-gray-300"
-            role="group"
-            aria-label="Widok kalendarza"
-          >
-            <button
-              (click)="setView('day')"
-              [class]="dayBtnClass()"
-              [attr.aria-pressed]="viewMode() === 'day'"
-            >
-              Dzień
-            </button>
-            <button
-              (click)="setView('week')"
-              [class]="weekBtnClass()"
-              [attr.aria-pressed]="viewMode() === 'week'"
-            >
-              Tydzień
-            </button>
-          </div>
-        </div>
-      </div>
-
-      @if (loading()) {
-        <p class="mt-8 text-center text-gray-500" aria-live="polite">Ładowanie...</p>
-      } @else {
-        <div class="mt-6 overflow-x-auto" role="grid" aria-label="Kalendarz wizyt">
-          <div class="grid min-w-[600px]" [style.grid-template-columns]="gridCols()">
-            @for (day of dayColumns(); track day.dateKey) {
-              <div class="border-r border-gray-200 last:border-r-0" role="gridcell">
-                <div
-                  class="sticky top-0 border-b border-gray-200 bg-gray-50 px-3 py-2 text-center text-sm font-semibold text-gray-700"
-                  role="columnheader"
-                >
-                  {{ day.label }}
-                </div>
-                <div class="space-y-2 p-2">
-                  @for (appointment of day.appointments; track appointment.id) {
-                    <div
-                      class="rounded-lg border p-3"
-                      [class]="appointmentCardClass(appointment.status)"
-                    >
-                      <div class="flex items-start justify-between gap-2">
-                        <div class="min-w-0 flex-1">
-                          <p class="truncate text-sm font-medium text-gray-900">
-                            {{ appointment.service.name }}
-                          </p>
-                          <p class="text-xs text-gray-600">
-                            {{ appointment.startTime | date: 'HH:mm' }} –
-                            {{ appointment.endTime | date: 'HH:mm' }}
-                          </p>
-                          <p class="mt-1 truncate text-xs text-gray-500">
-                            {{ appointment.client.name ?? appointment.client.email }}
-                          </p>
-                        </div>
-                        <span [class]="statusBadgeClass(appointment.status)">
-                          {{ statusLabel(appointment.status) }}
-                        </span>
-                      </div>
-
-                      @if (canUpdateStatus(appointment)) {
-                        <div class="mt-2 flex gap-2">
-                          @if (appointment.status === pendingStatus) {
-                            <button
-                              (click)="confirmAppointment(appointment)"
-                              class="rounded bg-green-600 px-2 py-1 text-xs font-medium text-white hover:bg-green-700"
-                            >
-                              Potwierdź
-                            </button>
-                          }
-                          <button
-                            (click)="cancelAppointment(appointment)"
-                            class="rounded bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700"
-                          >
-                            Anuluj
-                          </button>
-                        </div>
-                      }
-                    </div>
-                  } @empty {
-                    <p class="py-4 text-center text-xs text-gray-400">Brak wizyt</p>
-                  }
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-      }
-    </div>
-  `,
+  templateUrl: './provider-calendar.html',
 })
 export class ProviderCalendarComponent implements OnInit {
   private readonly appointmentService = inject(AppointmentService);
@@ -317,14 +177,6 @@ export class ProviderCalendarComponent implements OnInit {
         next: () => this.loadAppointments(),
         error: () => alert('Nie udało się anulować wizyty.'),
       });
-  }
-
-  statusLabel(status: AppointmentStatus): string {
-    return STATUS_LABELS[status];
-  }
-
-  statusBadgeClass(status: AppointmentStatus): string {
-    return STATUS_BADGE_CLASSES[status];
   }
 
   appointmentCardClass(status: AppointmentStatus): string {
