@@ -6,7 +6,7 @@
   aria-modal="true"
   [attr.aria-label]="service() ? 'Edytuj usługę' : 'Dodaj usługę'"
 >
-  <div #modalPanel class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+  <div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl" cdkTrapFocus>
     <h2 class="text-lg font-semibold text-gray-900">
       {{ service() ? 'Edytuj usługę' : 'Dodaj usługę' }}
     </h2>

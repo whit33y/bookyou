@@ -80,9 +80,9 @@
         />
         @if (form.controls.password.touched && form.controls.password.errors) {
           <p id="password-error" class="mt-1 text-sm text-red-600">
-            @if (form.controls.password.errors['required']) {
+            @if (form.controls.password.hasError('required')) {
               Hasło jest wymagane.
-            } @else if (form.controls.password.errors['minlength']) {
+            } @else if (form.controls.password.hasError('minlength')) {
               Hasło musi mieć minimum 8 znaków.
             }
           </p>
