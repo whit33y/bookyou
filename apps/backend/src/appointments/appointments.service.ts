@@ -141,7 +141,11 @@ export class AppointmentsService {
   async findMyAppointments(userId: string) {
     return this.prisma.appointment.findMany({
       where: {
-        OR: [{ clientId: userId }, { providerId: userId }],
+        OR: [
+          { clientId: userId },
+          { providerId: userId },
+          { business: { ownerId: userId } },
+        ],
         deletedAt: null,
       },
       orderBy: { startTime: 'desc' },

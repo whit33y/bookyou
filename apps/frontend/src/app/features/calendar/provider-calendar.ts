@@ -195,7 +195,9 @@ export class ProviderCalendarComponent implements OnInit {
   private readonly providerAppointments = computed(() => {
     const userId = this.authService.currentUser()?.id;
     if (!userId) return [];
-    return this.allAppointments().filter((a) => a.providerId === userId);
+    return this.allAppointments().filter(
+      (a) => a.providerId === userId || a.business.ownerId === userId,
+    );
   });
 
   readonly dateRange = computed(() => {

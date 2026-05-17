@@ -25,6 +25,7 @@ export interface AppointmentBusiness {
   street: string;
   city: string;
   zipCode: string;
+  ownerId: string;
 }
 
 export interface Appointment {
