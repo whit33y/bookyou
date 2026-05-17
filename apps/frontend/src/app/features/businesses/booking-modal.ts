@@ -14,7 +14,7 @@ import { of, Subject, switchMap } from 'rxjs';
 import { Business, OpeningHours, Service } from '../../core/models/business.model';
 import { AppointmentService } from '../../core/services/appointment.service';
 
-const SLOT_INTERVAL_MINUTES = 30;
+const SLOT_INTERVAL_MINUTES = 15;
 
 @Component({
   selector: 'app-booking-modal',
