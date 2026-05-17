@@ -158,7 +158,10 @@ export class AppointmentsService {
     });
   }
 
-  async findBookedSlots(providerId: string, date: string): Promise<string[]> {
+  async findBookedSlots(
+    providerId: string,
+    date: string,
+  ): Promise<{ start: string; end: string }[]> {
     const dayStart = new Date(`${date}T00:00:00Z`);
     const dayEnd = new Date(`${date}T23:59:59Z`);
 
@@ -171,10 +174,13 @@ export class AppointmentsService {
         startTime: { gte: dayStart, lte: dayEnd },
         deletedAt: null,
       },
-      select: { startTime: true },
+      select: { startTime: true, endTime: true },
     });
 
-    return appointments.map((a) => a.startTime.toISOString());
+    return appointments.map((a) => ({
+      start: a.startTime.toISOString(),
+      end: a.endTime.toISOString(),
+    }));
   }
 
   async findOne(id: string, userId: string) {

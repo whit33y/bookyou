@@ -35,8 +35,7 @@ export class BookingModalComponent {
   readonly selectedTime = signal('');
   readonly submitting = signal(false);
   readonly errorMessage = signal('');
-  readonly bookedSlots = signal<string[]>([]);
-  private readonly bookedSlotsSet = computed(() => new Set(this.bookedSlots()));
+  readonly bookedRanges = signal<{ start: number; end: number }[]>([]);
 
   private readonly dateChange$ = new Subject<string>();
 
@@ -57,14 +56,14 @@ export class BookingModalComponent {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: (isoStrings) => {
-          const localTimes = isoStrings.map((iso) => {
-            const d = new Date(iso);
-            return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
-          });
-          this.bookedSlots.set(localTimes);
+        next: (ranges) => {
+          const minutes = ranges.map((r) => ({
+            start: this.toMinutes(new Date(r.start)),
+            end: this.toMinutes(new Date(r.end)),
+          }));
+          this.bookedRanges.set(minutes);
         },
-        error: () => this.bookedSlots.set([]),
+        error: () => this.bookedRanges.set([]),
       });
   }
 
@@ -73,7 +72,7 @@ export class BookingModalComponent {
     this.selectedDate.set(value);
     this.selectedTime.set('');
     this.errorMessage.set('');
-    this.bookedSlots.set([]);
+    this.bookedRanges.set([]);
     this.dateChange$.next(value);
   }
 
@@ -82,7 +81,10 @@ export class BookingModalComponent {
   }
 
   isSlotBooked(slot: string): boolean {
-    return this.bookedSlotsSet().has(slot);
+    const [h, m] = slot.split(':').map(Number);
+    const slotStart = h * 60 + m;
+    const slotEnd = slotStart + this.service().duration;
+    return this.bookedRanges().some((r) => slotStart < r.end && slotEnd > r.start);
   }
 
   goToTime() {
@@ -189,5 +191,9 @@ export class BookingModalComponent {
     const m = (date.getMonth() + 1).toString().padStart(2, '0');
     const d = date.getDate().toString().padStart(2, '0');
     return `${y}-${m}-${d}`;
+  }
+
+  private toMinutes(date: Date): number {
+    return date.getHours() * 60 + date.getMinutes();
   }
 }
