@@ -36,6 +36,7 @@ export class BookingModalComponent {
   readonly submitting = signal(false);
   readonly errorMessage = signal('');
   readonly bookedSlots = signal<string[]>([]);
+  private readonly bookedSlotsSet = computed(() => new Set(this.bookedSlots()));
 
   private readonly dateChange$ = new Subject<string>();
 
@@ -56,7 +57,13 @@ export class BookingModalComponent {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: (slots) => this.bookedSlots.set(slots),
+        next: (isoStrings) => {
+          const localTimes = isoStrings.map((iso) => {
+            const d = new Date(iso);
+            return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+          });
+          this.bookedSlots.set(localTimes);
+        },
         error: () => this.bookedSlots.set([]),
       });
   }
@@ -75,7 +82,7 @@ export class BookingModalComponent {
   }
 
   isSlotBooked(slot: string): boolean {
-    return this.bookedSlots().includes(slot);
+    return this.bookedSlotsSet().has(slot);
   }
 
   goToTime() {

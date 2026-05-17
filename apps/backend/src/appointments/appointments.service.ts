@@ -174,10 +174,7 @@ export class AppointmentsService {
       select: { startTime: true },
     });
 
-    return appointments.map((a) => {
-      const d = new Date(a.startTime);
-      return `${d.getUTCHours().toString().padStart(2, '0')}:${d.getUTCMinutes().toString().padStart(2, '0')}`;
-    });
+    return appointments.map((a) => a.startTime.toISOString());
   }
 
   async findOne(id: string, userId: string) {
