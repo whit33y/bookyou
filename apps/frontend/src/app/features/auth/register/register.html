@@ -1,0 +1,108 @@
+<div class="flex min-h-[calc(100vh-10rem)] items-center justify-center px-4">
+  <div class="w-full max-w-md space-y-6">
+    <h1 class="text-center text-2xl font-bold text-gray-900">Rejestracja</h1>
+
+    @if (error) {
+      <p class="rounded-md bg-red-50 p-3 text-sm text-red-600">{{ error }}</p>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+      <fieldset>
+        <legend class="block text-sm font-medium text-gray-700">Typ konta</legend>
+        <div class="mt-2 flex gap-4">
+          <label
+            class="flex cursor-pointer items-center gap-2 rounded-md border px-4 py-2"
+            [class.border-indigo-600]="form.controls.role.value === roles.CLIENT"
+            [class.border-gray-300]="form.controls.role.value !== roles.CLIENT"
+          >
+            <input
+              type="radio"
+              formControlName="role"
+              [value]="roles.CLIENT"
+              class="text-indigo-600 focus:ring-indigo-500"
+            />
+            <span class="text-sm text-gray-700">Klient</span>
+          </label>
+          <label
+            class="flex cursor-pointer items-center gap-2 rounded-md border px-4 py-2"
+            [class.border-indigo-600]="form.controls.role.value === roles.PROVIDER"
+            [class.border-gray-300]="form.controls.role.value !== roles.PROVIDER"
+          >
+            <input
+              type="radio"
+              formControlName="role"
+              [value]="roles.PROVIDER"
+              class="text-indigo-600 focus:ring-indigo-500"
+            />
+            <span class="text-sm text-gray-700">Usługodawca</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <div>
+        <label for="name" class="block text-sm font-medium text-gray-700">Imię</label>
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+        />
+      </div>
+
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          [attr.aria-invalid]="
+            form.controls.email.touched && form.controls.email.errors ? true : null
+          "
+          aria-describedby="email-error"
+          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+        />
+        @if (form.controls.email.touched && form.controls.email.errors) {
+          <p id="email-error" class="mt-1 text-sm text-red-600">Podaj prawidłowy adres email.</p>
+        }
+      </div>
+
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700">Hasło</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          [attr.aria-invalid]="
+            form.controls.password.touched && form.controls.password.errors ? true : null
+          "
+          aria-describedby="password-error"
+          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+        />
+        @if (form.controls.password.touched && form.controls.password.errors) {
+          <p id="password-error" class="mt-1 text-sm text-red-600">
+            @if (form.controls.password.hasError('required')) {
+              Hasło jest wymagane.
+            } @else if (form.controls.password.hasError('minlength')) {
+              Hasło musi mieć minimum 8 znaków.
+            }
+          </p>
+        }
+      </div>
+
+      <button
+        type="submit"
+        [disabled]="form.invalid || loading"
+        class="w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+      >
+        {{ loading ? 'Rejestracja...' : 'Zarejestruj się' }}
+      </button>
+    </form>
+
+    <p class="text-center text-sm text-gray-600">
+      Masz już konto?
+      <a routerLink="/login" class="font-medium text-indigo-600 hover:text-indigo-500">
+        Zaloguj się
+      </a>
+    </p>
+  </div>
+</div>

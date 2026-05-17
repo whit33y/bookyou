@@ -1,0 +1,65 @@
+<div class="mx-auto max-w-7xl px-4 py-8">
+  <h1 class="text-2xl font-bold text-gray-900">Moje wizyty</h1>
+
+  @if (appointmentService.loading()) {
+    <p class="mt-8 text-center text-gray-500">Ładowanie...</p>
+  } @else if (appointmentService.appointments().length === 0) {
+    <p class="mt-8 text-center text-gray-500">Nie masz jeszcze żadnych wizyt.</p>
+  } @else {
+    @if (upcoming().length > 0) {
+      <section class="mt-8">
+        <h2 class="text-lg font-semibold text-gray-900">Nadchodzące</h2>
+        <div class="mt-4 space-y-4">
+          @for (appointment of upcoming(); track appointment.id) {
+            <div class="rounded-lg border border-gray-200 p-4">
+              <div class="flex items-start justify-between">
+                <div>
+                  <p class="font-medium text-gray-900">{{ appointment.service.name }}</p>
+                  <p class="text-sm text-gray-600">{{ appointment.business.name }}</p>
+                  <p class="mt-1 text-sm text-gray-500">
+                    {{ appointment.startTime | date: 'd MMM yyyy, HH:mm' }}
+                    · {{ appointment.service.duration }} min
+                  </p>
+                </div>
+                <div class="flex items-center gap-3">
+                  <app-status-badge [status]="appointment.status" />
+                  @if (canCancel(appointment)) {
+                    <button
+                      (click)="cancel(appointment)"
+                      class="text-sm font-medium text-red-600 hover:text-red-500"
+                    >
+                      Anuluj
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    @if (past().length > 0) {
+      <section class="mt-8">
+        <h2 class="text-lg font-semibold text-gray-900">Historia</h2>
+        <div class="mt-4 space-y-4">
+          @for (appointment of past(); track appointment.id) {
+            <div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <div class="flex items-start justify-between">
+                <div>
+                  <p class="font-medium text-gray-900">{{ appointment.service.name }}</p>
+                  <p class="text-sm text-gray-600">{{ appointment.business.name }}</p>
+                  <p class="mt-1 text-sm text-gray-500">
+                    {{ appointment.startTime | date: 'd MMM yyyy, HH:mm' }}
+                    · {{ appointment.service.duration }} min
+                  </p>
+                </div>
+                <app-status-badge [status]="appointment.status" />
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+  }
+</div>
