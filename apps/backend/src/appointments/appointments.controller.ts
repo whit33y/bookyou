@@ -5,6 +5,7 @@ import {
   Body,
   Patch,
   Param,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -23,6 +24,16 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 @Controller('appointments')
 export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
+
+  @Get('booked-slots')
+  @ApiOperation({ summary: 'Get booked time slots for a provider on a date' })
+  @ApiResponse({ status: 200, description: 'Returns booked time slots.' })
+  getBookedSlots(
+    @Query('providerId') providerId: string,
+    @Query('date') date: string,
+  ) {
+    return this.appointmentsService.findBookedSlots(providerId, date);
+  }
 
   @Post()
   @UseGuards(JwtAuthGuard)

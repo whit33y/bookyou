@@ -158,6 +158,28 @@ export class AppointmentsService {
     });
   }
 
+  async findBookedSlots(providerId: string, date: string): Promise<string[]> {
+    const dayStart = new Date(`${date}T00:00:00`);
+    const dayEnd = new Date(`${date}T23:59:59`);
+
+    const appointments = await this.prisma.appointment.findMany({
+      where: {
+        providerId,
+        status: {
+          in: [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED],
+        },
+        startTime: { gte: dayStart, lte: dayEnd },
+        deletedAt: null,
+      },
+      select: { startTime: true },
+    });
+
+    return appointments.map((a) => {
+      const d = new Date(a.startTime);
+      return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+    });
+  }
+
   async findOne(id: string, userId: string) {
     const appointment = await this.prisma.appointment.findUnique({
       where: { id },

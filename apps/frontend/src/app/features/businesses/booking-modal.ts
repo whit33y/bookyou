@@ -34,6 +34,7 @@ export class BookingModalComponent {
   readonly selectedTime = signal('');
   readonly submitting = signal(false);
   readonly errorMessage = signal('');
+  readonly bookedSlots = signal<string[]>([]);
 
   readonly minDate = this.formatDate(new Date());
 
@@ -48,10 +49,25 @@ export class BookingModalComponent {
     this.selectedDate.set(value);
     this.selectedTime.set('');
     this.errorMessage.set('');
+    this.bookedSlots.set([]);
+
+    if (value) {
+      this.appointmentService
+        .getBookedSlots(this.business().ownerId, value)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (slots) => this.bookedSlots.set(slots),
+          error: () => this.bookedSlots.set([]),
+        });
+    }
   }
 
   selectTime(slot: string) {
     this.selectedTime.set(slot);
+  }
+
+  isSlotBooked(slot: string): boolean {
+    return this.bookedSlots().includes(slot);
   }
 
   goToTime() {
