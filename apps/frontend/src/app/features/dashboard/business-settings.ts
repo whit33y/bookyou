@@ -58,6 +58,9 @@ export class BusinessSettingsComponent {
     city: ['', Validators.required],
     zipCode: ['', [Validators.required, Validators.pattern(/^\d{2}-\d{3}$/)]],
     country: ['Poland'],
+    email: ['', Validators.email],
+    phone: ['', Validators.pattern(/^$|^\+?[0-9\s\-()]{7,20}$/)],
+    website: ['', Validators.pattern(/^$|^https?:\/\/.+/)],
     openingHours: this.buildOpeningHoursGroup(),
   });
 
@@ -74,6 +77,9 @@ export class BusinessSettingsComponent {
           city: b.city,
           zipCode: b.zipCode,
           country: b.country,
+          email: b.email ?? '',
+          phone: b.phone ?? '',
+          website: b.website ?? '',
         });
         this.patchOpeningHours(b.openingHours);
       }
@@ -103,6 +109,9 @@ export class BusinessSettingsComponent {
       city: formValue.city,
       zipCode: formValue.zipCode,
       country: formValue.country,
+      email: formValue.email || undefined,
+      phone: formValue.phone || undefined,
+      website: formValue.website || undefined,
       openingHours,
     };
     const businessId = this.businessService.businessId();

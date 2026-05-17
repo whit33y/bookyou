@@ -50,6 +50,11 @@ model Business {
   zipCode      String    @map("zip_code")
   country      String    @default("Poland")
   
+  // Contact
+  email        String?
+  phone        String?
+  website      String?
+
   openingHours Json?     @map("opening_hours")
   latitude     Float?
   longitude    Float?
