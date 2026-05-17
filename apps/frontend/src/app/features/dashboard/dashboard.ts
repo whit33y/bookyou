@@ -1,12 +1,11 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
+  computed,
   inject,
   OnInit,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { BusinessService } from '../../core/services/business.service';
 import { AppointmentService } from '../../core/services/appointment.service';
@@ -38,9 +37,7 @@ import { ServiceModalComponent } from './service-modal';
                   <h2 class="text-lg font-semibold text-yellow-800">Oczekujące wizyty</h2>
                   <p class="mt-1 text-sm text-yellow-700">
                     @if (pendingCount() > 0) {
-                      Masz {{ pendingCount() }}
-                      {{ pendingCount() === 1 ? 'wizytę oczekującą' : 'wizyt oczekujących' }}
-                      na potwierdzenie.
+                      Masz {{ pendingCount() }} {{ pendingLabel() }} na potwierdzenie.
                     } @else {
                       Brak wizyt oczekujących na potwierdzenie.
                     }
@@ -158,15 +155,36 @@ export class DashboardComponent implements OnInit {
   protected readonly businessService = inject(BusinessService);
   private readonly appointmentService = inject(AppointmentService);
   private readonly authService = inject(AuthService);
-  private readonly destroyRef = inject(DestroyRef);
 
   readonly showServiceModal = signal(false);
   readonly editingService = signal<Service | null>(null);
-  readonly pendingCount = signal(0);
+
+  readonly pendingCount = computed(() => {
+    const userId = this.authService.currentUser()?.id;
+    if (!userId) return 0;
+    return this.appointmentService
+      .appointments()
+      .filter(
+        (a) =>
+          a.status === AppointmentStatus.PENDING &&
+          (a.providerId === userId || a.business.ownerId === userId),
+      ).length;
+  });
+
+  readonly pendingLabel = computed(() => {
+    const n = this.pendingCount();
+    if (n === 1) return 'wizytę oczekującą';
+    const lastDigit = n % 10;
+    const lastTwoDigits = n % 100;
+    if (lastDigit >= 2 && lastDigit <= 4 && (lastTwoDigits < 12 || lastTwoDigits > 14)) {
+      return 'wizyty oczekujące';
+    }
+    return 'wizyt oczekujących';
+  });
 
   ngOnInit() {
     this.businessService.loadMyBusiness();
-    this.loadPendingCount();
+    this.appointmentService.loadMyAppointments();
   }
 
   openServiceModal(service?: Service) {
@@ -184,24 +202,5 @@ export class DashboardComponent implements OnInit {
     this.businessService.deleteService(service.id).subscribe({
       error: () => alert('Nie udało się usunąć usługi. Spróbuj ponownie.'),
     });
-  }
-
-  private loadPendingCount(): void {
-    const userId = this.authService.currentUser()?.id;
-    if (!userId) return;
-
-    this.appointmentService
-      .getMyAppointments()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (appointments) => {
-          const count = appointments.filter(
-            (a) =>
-              a.status === AppointmentStatus.PENDING &&
-              (a.providerId === userId || a.business.ownerId === userId),
-          ).length;
-          this.pendingCount.set(count);
-        },
-      });
   }
 }

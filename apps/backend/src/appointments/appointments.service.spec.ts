@@ -226,7 +226,12 @@ describe('AppointmentsService', () => {
       const appointments = [
         { id: 'app-1', clientId: userId, providerId: 'other' },
         { id: 'app-2', clientId: 'other', providerId: userId },
-        { id: 'app-3', clientId: 'other', providerId: 'other' },
+        {
+          id: 'app-3',
+          clientId: 'other',
+          providerId: 'other',
+          business: { ownerId: userId },
+        },
       ];
       mockPrismaService.appointment.findMany.mockResolvedValue(appointments);
 
