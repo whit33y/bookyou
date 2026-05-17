@@ -1,12 +1,24 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import { BusinessService } from '../../core/services/business.service';
+import { AppointmentService } from '../../core/services/appointment.service';
+import { AuthService } from '../../core/services/auth.service';
+import { AppointmentStatus } from '../../core/models/appointment.model';
 import { Service } from '../../core/models/business.model';
 import { BusinessSettingsComponent } from './business-settings';
 import { ServiceModalComponent } from './service-modal';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [BusinessSettingsComponent, ServiceModalComponent],
+  imports: [BusinessSettingsComponent, ServiceModalComponent, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="mx-auto max-w-7xl px-4 py-8">
@@ -16,6 +28,34 @@ import { ServiceModalComponent } from './service-modal';
         <p class="mt-4 text-gray-600">Ładowanie...</p>
       } @else {
         <div class="mt-8 space-y-8">
+          @if (businessService.business()) {
+            <section
+              class="rounded-lg border border-yellow-200 bg-yellow-50 p-4"
+              aria-label="Oczekujące wizyty"
+            >
+              <div class="flex items-center justify-between">
+                <div>
+                  <h2 class="text-lg font-semibold text-yellow-800">Oczekujące wizyty</h2>
+                  <p class="mt-1 text-sm text-yellow-700">
+                    @if (pendingCount() > 0) {
+                      Masz {{ pendingCount() }}
+                      {{ pendingCount() === 1 ? 'wizytę oczekującą' : 'wizyt oczekujących' }}
+                      na potwierdzenie.
+                    } @else {
+                      Brak wizyt oczekujących na potwierdzenie.
+                    }
+                  </p>
+                </div>
+                <a
+                  routerLink="/calendar"
+                  class="rounded-md bg-yellow-600 px-4 py-2 text-sm font-medium text-white hover:bg-yellow-700"
+                >
+                  Przejdź do kalendarza
+                </a>
+              </div>
+            </section>
+          }
+
           <app-business-settings />
 
           <section>
@@ -116,12 +156,17 @@ import { ServiceModalComponent } from './service-modal';
 })
 export class DashboardComponent implements OnInit {
   protected readonly businessService = inject(BusinessService);
+  private readonly appointmentService = inject(AppointmentService);
+  private readonly authService = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  showServiceModal = signal(false);
-  editingService = signal<Service | null>(null);
+  readonly showServiceModal = signal(false);
+  readonly editingService = signal<Service | null>(null);
+  readonly pendingCount = signal(0);
 
   ngOnInit() {
     this.businessService.loadMyBusiness();
+    this.loadPendingCount();
   }
 
   openServiceModal(service?: Service) {
@@ -139,5 +184,24 @@ export class DashboardComponent implements OnInit {
     this.businessService.deleteService(service.id).subscribe({
       error: () => alert('Nie udało się usunąć usługi. Spróbuj ponownie.'),
     });
+  }
+
+  private loadPendingCount(): void {
+    const userId = this.authService.currentUser()?.id;
+    if (!userId) return;
+
+    this.appointmentService
+      .getMyAppointments()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (appointments) => {
+          const count = appointments.filter(
+            (a) =>
+              a.status === AppointmentStatus.PENDING &&
+              (a.providerId === userId || a.business.ownerId === userId),
+          ).length;
+          this.pendingCount.set(count);
+        },
+      });
   }
 }

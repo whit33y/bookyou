@@ -222,10 +222,11 @@ describe('AppointmentsService', () => {
   describe('findMyAppointments', () => {
     const userId = 'user-1';
 
-    it('should return appointments where user is client or provider', async () => {
+    it('should return appointments where user is client, provider, or business owner', async () => {
       const appointments = [
         { id: 'app-1', clientId: userId, providerId: 'other' },
         { id: 'app-2', clientId: 'other', providerId: userId },
+        { id: 'app-3', clientId: 'other', providerId: 'other' },
       ];
       mockPrismaService.appointment.findMany.mockResolvedValue(appointments);
 
@@ -234,7 +235,11 @@ describe('AppointmentsService', () => {
       expect(result).toEqual(appointments);
       expect(mockPrismaService.appointment.findMany).toHaveBeenCalledWith({
         where: {
-          OR: [{ clientId: userId }, { providerId: userId }],
+          OR: [
+            { clientId: userId },
+            { providerId: userId },
+            { business: { ownerId: userId } },
+          ],
           deletedAt: null,
         },
         orderBy: { startTime: 'desc' },
