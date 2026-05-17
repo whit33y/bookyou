@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { A11yModule } from '@angular/cdk/a11y';
+import { of, Subject, switchMap } from 'rxjs';
 import { Business, OpeningHours, Service } from '../../core/models/business.model';
 import { AppointmentService } from '../../core/services/appointment.service';
 
@@ -36,6 +37,8 @@ export class BookingModalComponent {
   readonly errorMessage = signal('');
   readonly bookedSlots = signal<string[]>([]);
 
+  private readonly dateChange$ = new Subject<string>();
+
   readonly minDate = this.formatDate(new Date());
 
   readonly availableSlots = computed(() => {
@@ -44,22 +47,27 @@ export class BookingModalComponent {
     return this.generateSlots(date);
   });
 
+  constructor() {
+    this.dateChange$
+      .pipe(
+        switchMap((date) =>
+          date ? this.appointmentService.getBookedSlots(this.business().ownerId, date) : of([]),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (slots) => this.bookedSlots.set(slots),
+        error: () => this.bookedSlots.set([]),
+      });
+  }
+
   onDateChange(event: Event) {
     const value = (event.target as HTMLInputElement).value;
     this.selectedDate.set(value);
     this.selectedTime.set('');
     this.errorMessage.set('');
     this.bookedSlots.set([]);
-
-    if (value) {
-      this.appointmentService
-        .getBookedSlots(this.business().ownerId, value)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (slots) => this.bookedSlots.set(slots),
-          error: () => this.bookedSlots.set([]),
-        });
-    }
+    this.dateChange$.next(value);
   }
 
   selectTime(slot: string) {

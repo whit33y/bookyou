@@ -159,8 +159,8 @@ export class AppointmentsService {
   }
 
   async findBookedSlots(providerId: string, date: string): Promise<string[]> {
-    const dayStart = new Date(`${date}T00:00:00`);
-    const dayEnd = new Date(`${date}T23:59:59`);
+    const dayStart = new Date(`${date}T00:00:00Z`);
+    const dayEnd = new Date(`${date}T23:59:59Z`);
 
     const appointments = await this.prisma.appointment.findMany({
       where: {
@@ -176,7 +176,7 @@ export class AppointmentsService {
 
     return appointments.map((a) => {
       const d = new Date(a.startTime);
-      return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+      return `${d.getUTCHours().toString().padStart(2, '0')}:${d.getUTCMinutes().toString().padStart(2, '0')}`;
     });
   }
 

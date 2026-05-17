@@ -17,6 +17,7 @@ import {
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentStatusDto } from './dto/update-appointment-status.dto';
+import { GetBookedSlotsDto } from './dto/get-booked-slots.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
@@ -28,11 +29,8 @@ export class AppointmentsController {
   @Get('booked-slots')
   @ApiOperation({ summary: 'Get booked time slots for a provider on a date' })
   @ApiResponse({ status: 200, description: 'Returns booked time slots.' })
-  getBookedSlots(
-    @Query('providerId') providerId: string,
-    @Query('date') date: string,
-  ) {
-    return this.appointmentsService.findBookedSlots(providerId, date);
+  getBookedSlots(@Query() dto: GetBookedSlotsDto) {
+    return this.appointmentsService.findBookedSlots(dto.providerId, dto.date);
   }
 
   @Post()
