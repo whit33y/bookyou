@@ -173,13 +173,13 @@ export class DashboardComponent implements OnInit {
 
   readonly pendingLabel = computed(() => {
     const n = this.pendingCount();
-    if (n === 1) return 'wizytę oczekującą';
-    const lastDigit = n % 10;
-    const lastTwoDigits = n % 100;
-    if (lastDigit >= 2 && lastDigit <= 4 && (lastTwoDigits < 12 || lastTwoDigits > 14)) {
-      return 'wizyty oczekujące';
-    }
-    return 'wizyt oczekujących';
+    const category = new Intl.PluralRules('pl-PL').select(n);
+    const labels: Record<string, string> = {
+      one: 'wizytę oczekującą',
+      few: 'wizyty oczekujące',
+      many: 'wizyt oczekujących',
+    };
+    return labels[category] ?? labels['many'];
   });
 
   ngOnInit() {
