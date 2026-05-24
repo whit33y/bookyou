@@ -18,10 +18,11 @@ import { A11yModule } from '@angular/cdk/a11y';
         role="dialog"
         aria-modal="true"
         aria-labelledby="confirm-modal-title"
+        aria-describedby="confirm-modal-message"
         (keydown.escape)="cancelled.emit()"
       >
         <h2 id="confirm-modal-title" class="text-lg font-semibold text-gray-900">{{ title() }}</h2>
-        <p class="mt-2 text-sm text-gray-600">{{ message() }}</p>
+        <p id="confirm-modal-message" class="mt-2 text-sm text-gray-600">{{ message() }}</p>
 
         <div class="mt-6 flex justify-end gap-3">
           <button
