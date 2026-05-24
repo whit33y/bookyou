@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 
 import { Appointment, AppointmentStatus } from '../../../core/models/appointment.model';
 import { AppointmentStatusBadgeComponent } from '../../../shared/components/status-badge/status-badge';
+import { canCancelAppointment } from '../../../core/utils/appointment.utils';
 
 @Component({
   selector: 'app-upcoming-appointments',
@@ -102,9 +103,6 @@ export class UpcomingAppointmentsComponent {
   protected readonly pendingStatus = AppointmentStatus.PENDING;
 
   canCancel(appointment: Appointment): boolean {
-    return (
-      appointment.status === AppointmentStatus.PENDING ||
-      appointment.status === AppointmentStatus.CONFIRMED
-    );
+    return canCancelAppointment(appointment);
   }
 }

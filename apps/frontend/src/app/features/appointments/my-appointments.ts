@@ -14,6 +14,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { Appointment, AppointmentStatus } from '../../core/models/appointment.model';
 import { Role } from '../../core/models/user.model';
+import { canCancelAppointment } from '../../core/utils/appointment.utils';
 import { AppointmentStatusBadgeComponent } from '../../shared/components/status-badge/status-badge';
 import { ConfirmModalComponent } from '../../shared/components/confirm-modal/confirm-modal';
 
@@ -50,10 +51,7 @@ export class MyAppointmentsComponent implements OnInit {
   }
 
   canCancel(appointment: Appointment): boolean {
-    return (
-      appointment.status === AppointmentStatus.PENDING ||
-      appointment.status === AppointmentStatus.CONFIRMED
-    );
+    return canCancelAppointment(appointment);
   }
 
   canConfirm(appointment: Appointment): boolean {

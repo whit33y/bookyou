@@ -10,12 +10,15 @@ import { A11yModule } from '@angular/cdk/a11y';
     <div
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       (click)="onBackdropClick($event)"
-      (keydown.escape)="cancelled.emit()"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="confirm-modal-title"
     >
-      <div class="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl" cdkTrapFocus>
+      <div
+        class="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl"
+        cdkTrapFocus
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-modal-title"
+        (keydown.escape)="cancelled.emit()"
+      >
         <h2 id="confirm-modal-title" class="text-lg font-semibold text-gray-900">{{ title() }}</h2>
         <p class="mt-2 text-sm text-gray-600">{{ message() }}</p>
 

@@ -8,6 +8,7 @@ export interface Notification {
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
   readonly notification = signal<Notification | null>(null);
+  private timeoutId?: ReturnType<typeof setTimeout>;
 
   success(message: string): void {
     this.show({ message, type: 'success' });
@@ -22,7 +23,11 @@ export class NotificationService {
   }
 
   private show(notification: Notification): void {
+    if (this.timeoutId) clearTimeout(this.timeoutId);
     this.notification.set(notification);
-    setTimeout(() => this.notification.set(null), 4000);
+    this.timeoutId = setTimeout(() => {
+      this.notification.set(null);
+      this.timeoutId = undefined;
+    }, 4000);
   }
 }

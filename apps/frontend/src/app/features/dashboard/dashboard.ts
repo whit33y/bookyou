@@ -2,10 +2,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   inject,
   OnInit,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { BusinessService } from '../../core/services/business.service';
 import { AppointmentService } from '../../core/services/appointment.service';
@@ -28,6 +30,7 @@ export class DashboardComponent implements OnInit {
   private readonly appointmentService = inject(AppointmentService);
   private readonly authService = inject(AuthService);
   private readonly notify = inject(NotificationService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly showServiceModal = signal(false);
   readonly editingService = signal<Service | null>(null);
@@ -84,9 +87,12 @@ export class DashboardComponent implements OnInit {
     const service = this.serviceToDelete();
     if (!service) return;
     this.serviceToDelete.set(null);
-    this.businessService.deleteService(service.id).subscribe({
-      error: () => this.notify.error('Nie udało się usunąć usługi.'),
-    });
+    this.businessService
+      .deleteService(service.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        error: () => this.notify.error('Nie udało się usunąć usługi.'),
+      });
   }
 
   dismissDeleteService(): void {
