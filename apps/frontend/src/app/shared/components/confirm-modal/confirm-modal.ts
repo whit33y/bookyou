@@ -13,10 +13,10 @@ import { A11yModule } from '@angular/cdk/a11y';
       (keydown.escape)="cancelled.emit()"
       role="dialog"
       aria-modal="true"
-      [attr.aria-label]="title()"
+      aria-labelledby="confirm-modal-title"
     >
       <div class="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl" cdkTrapFocus>
-        <h2 class="text-lg font-semibold text-gray-900">{{ title() }}</h2>
+        <h2 id="confirm-modal-title" class="text-lg font-semibold text-gray-900">{{ title() }}</h2>
         <p class="mt-2 text-sm text-gray-600">{{ message() }}</p>
 
         <div class="mt-6 flex justify-end gap-3">

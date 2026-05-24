@@ -11,6 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { AppointmentService } from '../../core/services/appointment.service';
 import { AuthService } from '../../core/services/auth.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { Appointment, AppointmentStatus } from '../../core/models/appointment.model';
 import { Role } from '../../core/models/user.model';
 import { AppointmentStatusBadgeComponent } from '../../shared/components/status-badge/status-badge';
@@ -26,6 +27,7 @@ export class MyAppointmentsComponent implements OnInit {
   protected readonly appointmentService = inject(AppointmentService);
   private readonly authService = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly notify = inject(NotificationService);
 
   readonly appointmentToCancel = signal<Appointment | null>(null);
   readonly isProvider = computed(() => this.authService.currentUser()?.role === Role.PROVIDER);
@@ -64,6 +66,7 @@ export class MyAppointmentsComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.appointmentService.loadMyAppointments(),
+        error: () => this.notify.error('Nie udało się potwierdzić wizyty.'),
       });
   }
 
@@ -80,6 +83,7 @@ export class MyAppointmentsComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.appointmentService.loadMyAppointments(),
+        error: () => this.notify.error('Nie udało się anulować wizyty.'),
       });
   }
 

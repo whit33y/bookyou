@@ -10,6 +10,7 @@ import { RouterLink } from '@angular/router';
 import { BusinessService } from '../../core/services/business.service';
 import { AppointmentService } from '../../core/services/appointment.service';
 import { AuthService } from '../../core/services/auth.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { AppointmentStatus } from '../../core/models/appointment.model';
 import { Service } from '../../core/models/business.model';
 import { BusinessSettingsComponent } from './business-settings';
@@ -26,6 +27,7 @@ export class DashboardComponent implements OnInit {
   protected readonly businessService = inject(BusinessService);
   private readonly appointmentService = inject(AppointmentService);
   private readonly authService = inject(AuthService);
+  private readonly notify = inject(NotificationService);
 
   readonly showServiceModal = signal(false);
   readonly editingService = signal<Service | null>(null);
@@ -82,7 +84,9 @@ export class DashboardComponent implements OnInit {
     const service = this.serviceToDelete();
     if (!service) return;
     this.serviceToDelete.set(null);
-    this.businessService.deleteService(service.id).subscribe();
+    this.businessService.deleteService(service.id).subscribe({
+      error: () => this.notify.error('Nie udało się usunąć usługi.'),
+    });
   }
 
   dismissDeleteService(): void {

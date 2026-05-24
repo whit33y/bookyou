@@ -16,6 +16,7 @@ import { Role } from '../../../core/models/user.model';
 import { AppointmentService } from '../../../core/services/appointment.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { DiscoveryService } from '../../../core/services/discovery.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal';
 import { RecommendationsComponent } from './recommendations';
 import { UpcomingAppointmentsComponent } from './upcoming-appointments';
@@ -77,6 +78,7 @@ export class HomeAuthenticatedComponent implements OnInit {
   private readonly appointmentService = inject(AppointmentService);
   private readonly authService = inject(AuthService);
   private readonly discoveryService = inject(DiscoveryService);
+  private readonly notify = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly now = signal(new Date());
@@ -119,6 +121,7 @@ export class HomeAuthenticatedComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.appointmentService.loadMyAppointments(),
+        error: () => this.notify.error('Nie udało się potwierdzić wizyty.'),
       });
   }
 
@@ -135,6 +138,7 @@ export class HomeAuthenticatedComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.appointmentService.loadMyAppointments(),
+        error: () => this.notify.error('Nie udało się anulować wizyty.'),
       });
   }
 

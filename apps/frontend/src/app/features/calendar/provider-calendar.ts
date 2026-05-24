@@ -11,6 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { AppointmentService } from '../../core/services/appointment.service';
 import { AuthService } from '../../core/services/auth.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { Appointment, AppointmentStatus } from '../../core/models/appointment.model';
 import { AppointmentStatusBadgeComponent } from '../../shared/components/status-badge/status-badge';
 import { ConfirmModalComponent } from '../../shared/components/confirm-modal/confirm-modal';
@@ -44,6 +45,7 @@ const STATUS_CARD_CLASSES: Record<AppointmentStatus, string> = {
 export class ProviderCalendarComponent implements OnInit {
   private readonly appointmentService = inject(AppointmentService);
   private readonly authService = inject(AuthService);
+  private readonly notify = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly pendingStatus = AppointmentStatus.PENDING;
@@ -166,6 +168,7 @@ export class ProviderCalendarComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.loadAppointments(),
+        error: () => this.notify.error('Nie udało się potwierdzić wizyty.'),
       });
   }
 
@@ -182,6 +185,7 @@ export class ProviderCalendarComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.loadAppointments(),
+        error: () => this.notify.error('Nie udało się anulować wizyty.'),
       });
   }
 
