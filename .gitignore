@@ -26,3 +26,8 @@ yarn-error.log*
 
 
 .angular
+.gemini/GEMINI.md
+.kiro/specs/homepage-redesign/.config.kiro
+.kiro/specs/homepage-redesign/design.md
+.kiro/specs/homepage-redesign/requirements.md
+.kiro/specs/homepage-redesign/tasks.md

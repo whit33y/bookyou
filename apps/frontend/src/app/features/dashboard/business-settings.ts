@@ -60,7 +60,12 @@ export class BusinessSettingsComponent {
     country: ['Poland'],
     email: ['', Validators.email],
     phone: ['', Validators.pattern(/^$|^\+?[0-9\s\-()]{7,20}$/)],
-    website: ['', Validators.pattern(/^$|^https?:\/\/.+/)],
+    website: [
+      '',
+      Validators.pattern(
+        /^$|^https?:\/\/[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})+([\/\w\-.~:?#[\]@!$&'()*+,;=]*)$/,
+      ),
+    ],
     openingHours: this.buildOpeningHoursGroup(),
   });
 

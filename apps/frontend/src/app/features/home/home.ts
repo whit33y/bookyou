@@ -1,15 +1,22 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+
+import { AuthService } from '../../core/services/auth.service';
+import { HomeAuthenticatedComponent } from './components/home-authenticated';
+import { HomeGuestComponent } from './components/home-guest';
 
 @Component({
   selector: 'app-home',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [HomeGuestComponent, HomeAuthenticatedComponent],
   template: `
-    <div class="mx-auto max-w-7xl px-4 py-16 text-center">
-      <h1 class="text-4xl font-bold text-gray-900">Witaj w BookYou</h1>
-      <p class="mt-4 text-lg text-gray-600">
-        Platforma do rezerwacji usług beauty, wellness i zdrowotnych.
-      </p>
-    </div>
+    @if (currentUser()) {
+      <app-home-authenticated />
+    } @else {
+      <app-home-guest />
+    }
   `,
 })
-export class HomeComponent {}
+export class HomeComponent {
+  private readonly authService = inject(AuthService);
+  readonly currentUser = this.authService.currentUser;
+}
