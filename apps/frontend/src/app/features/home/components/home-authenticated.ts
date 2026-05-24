@@ -1,0 +1,71 @@
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
+
+import { AppointmentStatus } from '../../../core/models/appointment.model';
+import { AppointmentService } from '../../../core/services/appointment.service';
+import { DiscoveryService } from '../../../core/services/discovery.service';
+import { RecommendationsComponent } from './recommendations';
+import { UpcomingAppointmentsComponent } from './upcoming-appointments';
+import { UrgentBannerComponent } from './urgent-banner';
+
+@Component({
+  selector: 'app-home-authenticated',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    RouterLink,
+    UrgentBannerComponent,
+    UpcomingAppointmentsComponent,
+    RecommendationsComponent,
+  ],
+  template: `
+    <div class="flex flex-col gap-6 px-4 py-6 sm:gap-8 sm:px-6 sm:py-8">
+      @if (urgentAppointment(); as urgent) {
+        <app-urgent-banner [appointment]="urgent" />
+      }
+
+      <app-upcoming-appointments [appointments]="upcomingAppointments()" [loading]="loading()" />
+
+      <div class="flex justify-center">
+        <a
+          routerLink="/businesses"
+          class="inline-block rounded-md bg-indigo-600 px-6 py-3 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        >
+          Zarezerwuj wizytę
+        </a>
+      </div>
+
+      <app-recommendations [businesses]="recommendations()" />
+    </div>
+  `,
+})
+export class HomeAuthenticatedComponent implements OnInit {
+  private readonly appointmentService = inject(AppointmentService);
+  private readonly discoveryService = inject(DiscoveryService);
+
+  readonly loading = this.appointmentService.loading;
+  readonly recommendations = this.discoveryService.businesses;
+
+  readonly upcomingAppointments = computed(() => {
+    const now = new Date();
+    return this.appointmentService
+      .appointments()
+      .filter(
+        (a) =>
+          (a.status === AppointmentStatus.CONFIRMED || a.status === AppointmentStatus.PENDING) &&
+          new Date(a.startTime) > now,
+      )
+      .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+  });
+
+  readonly urgentAppointment = computed(() => {
+    const now = new Date();
+    const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    return this.upcomingAppointments().find((a) => new Date(a.startTime) <= in24h) ?? null;
+  });
+
+  ngOnInit(): void {
+    this.appointmentService.loadMyAppointments();
+    this.discoveryService.loadBusinesses();
+  }
+}
