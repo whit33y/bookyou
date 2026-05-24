@@ -19,6 +19,7 @@ export class NotificationService {
   }
 
   dismiss(): void {
+    if (this.timeoutId) clearTimeout(this.timeoutId);
     this.notification.set(null);
   }
 

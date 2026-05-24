@@ -14,6 +14,7 @@ import { A11yModule } from '@angular/cdk/a11y';
       <div
         class="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl"
         cdkTrapFocus
+        [cdkTrapFocusAutoCapture]="true"
         role="dialog"
         aria-modal="true"
         aria-labelledby="confirm-modal-title"

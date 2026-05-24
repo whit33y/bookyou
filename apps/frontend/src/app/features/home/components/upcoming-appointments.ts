@@ -74,7 +74,7 @@ import { canCancelAppointment } from '../../../core/utils/appointment.utils';
                       Potwierdź
                     </button>
                   }
-                  @if (isProvider() && canCancel(appointment)) {
+                  @if (canCancel(appointment)) {
                     <button
                       (click)="cancelRequested.emit(appointment)"
                       class="text-xs font-medium text-red-600 hover:text-red-500"
