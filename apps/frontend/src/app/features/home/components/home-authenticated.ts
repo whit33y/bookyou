@@ -55,7 +55,7 @@ export class HomeAuthenticatedComponent implements OnInit {
           (a.status === AppointmentStatus.CONFIRMED || a.status === AppointmentStatus.PENDING) &&
           new Date(a.startTime) > now,
       )
-      .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+      .sort((a, b) => a.startTime.localeCompare(b.startTime));
   });
 
   readonly urgentAppointment = computed(() => {

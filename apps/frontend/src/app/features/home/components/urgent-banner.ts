@@ -61,14 +61,18 @@ export class UrgentBannerComponent {
   });
 
   private pluralizeHours(count: number): string {
+    const mod10 = count % 10;
+    const mod100 = count % 100;
     if (count === 1) return 'godzinę';
-    if (count >= 2 && count <= 4) return 'godziny';
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'godziny';
     return 'godzin';
   }
 
   private pluralizeMinutes(count: number): string {
+    const mod10 = count % 10;
+    const mod100 = count % 100;
     if (count === 1) return 'minutę';
-    if (count >= 2 && count <= 4) return 'minuty';
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'minuty';
     return 'minut';
   }
 }
