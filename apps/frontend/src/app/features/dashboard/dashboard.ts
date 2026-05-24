@@ -91,6 +91,7 @@ export class DashboardComponent implements OnInit {
       .deleteService(service.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
+        next: () => this.businessService.loadMyBusiness(),
         error: () => this.notify.error('Nie udało się usunąć usługi.'),
       });
   }

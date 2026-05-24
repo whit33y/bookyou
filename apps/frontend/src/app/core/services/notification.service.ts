@@ -1,13 +1,15 @@
 import { Injectable, signal } from '@angular/core';
 
-export interface Notification {
+export interface AppNotification {
   message: string;
   type: 'success' | 'error';
 }
 
+const NOTIFICATION_DURATION_MS = 4000;
+
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
-  readonly notification = signal<Notification | null>(null);
+  readonly notification = signal<AppNotification | null>(null);
   private timeoutId?: ReturnType<typeof setTimeout>;
 
   success(message: string): void {
@@ -23,12 +25,12 @@ export class NotificationService {
     this.notification.set(null);
   }
 
-  private show(notification: Notification): void {
+  private show(notification: AppNotification): void {
     if (this.timeoutId) clearTimeout(this.timeoutId);
     this.notification.set(notification);
     this.timeoutId = setTimeout(() => {
       this.notification.set(null);
       this.timeoutId = undefined;
-    }, 4000);
+    }, NOTIFICATION_DURATION_MS);
   }
 }
