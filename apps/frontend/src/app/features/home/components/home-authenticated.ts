@@ -1,5 +1,15 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
+import { interval } from 'rxjs';
 
 import { AppointmentStatus } from '../../../core/models/appointment.model';
 import { AppointmentService } from '../../../core/services/appointment.service';
@@ -21,7 +31,7 @@ import { UrgentBannerComponent } from './urgent-banner';
   template: `
     <div class="flex flex-col gap-6 px-4 py-6 sm:gap-8 sm:px-6 sm:py-8">
       @if (urgentAppointment(); as urgent) {
-        <app-urgent-banner [appointment]="urgent" />
+        <app-urgent-banner [appointment]="urgent" [now]="now()" />
       }
 
       <app-upcoming-appointments [appointments]="upcomingAppointments()" [loading]="loading()" />
@@ -42,12 +52,14 @@ import { UrgentBannerComponent } from './urgent-banner';
 export class HomeAuthenticatedComponent implements OnInit {
   private readonly appointmentService = inject(AppointmentService);
   private readonly discoveryService = inject(DiscoveryService);
+  private readonly destroyRef = inject(DestroyRef);
 
+  readonly now = signal(new Date());
   readonly loading = this.appointmentService.loading;
   readonly recommendations = this.discoveryService.businesses;
 
   readonly upcomingAppointments = computed(() => {
-    const now = new Date();
+    const now = this.now();
     return this.appointmentService
       .appointments()
       .filter(
@@ -59,7 +71,7 @@ export class HomeAuthenticatedComponent implements OnInit {
   });
 
   readonly urgentAppointment = computed(() => {
-    const now = new Date();
+    const now = this.now();
     const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
     return this.upcomingAppointments().find((a) => new Date(a.startTime) <= in24h) ?? null;
   });
@@ -67,5 +79,8 @@ export class HomeAuthenticatedComponent implements OnInit {
   ngOnInit(): void {
     this.appointmentService.loadMyAppointments();
     this.discoveryService.loadBusinesses();
+    interval(60_000)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.now.set(new Date()));
   }
 }

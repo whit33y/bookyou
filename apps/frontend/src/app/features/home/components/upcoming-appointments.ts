@@ -41,7 +41,7 @@ import { Appointment } from '../../../core/models/appointment.model';
             >
               <div class="flex flex-col gap-1">
                 <p class="text-sm font-medium text-gray-700">
-                  {{ appointment.startTime | date: 'd MMMM yyyy' : '' : 'pl' }}
+                  {{ appointment.startTime | date: 'd MMMM yyyy' }}
                   · {{ appointment.startTime | date: 'HH:mm' }} –
                   {{ appointment.endTime | date: 'HH:mm' }}
                 </p>

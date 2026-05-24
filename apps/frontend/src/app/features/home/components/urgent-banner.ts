@@ -28,6 +28,7 @@ import { Appointment } from '../../../core/models/appointment.model';
 })
 export class UrgentBannerComponent {
   readonly appointment = input.required<Appointment>();
+  readonly now = input.required<Date>();
 
   readonly specialistName = computed(() => {
     const name = this.appointment().provider.name;
@@ -35,7 +36,7 @@ export class UrgentBannerComponent {
   });
 
   readonly timeUntil = computed(() => {
-    const now = new Date();
+    const now = this.now();
     const start = new Date(this.appointment().startTime);
     const diffMs = start.getTime() - now.getTime();
 
@@ -43,7 +44,7 @@ export class UrgentBannerComponent {
       return 'teraz';
     }
 
-    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    const diffMinutes = Math.ceil(diffMs / (1000 * 60));
     const diffHours = Math.floor(diffMinutes / 60);
 
     if (diffMinutes < 60) {

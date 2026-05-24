@@ -34,10 +34,11 @@ function createMockAppointment(overrides: Partial<Appointment> = {}): Appointmen
 @Component({
   standalone: true,
   imports: [UrgentBannerComponent],
-  template: `<app-urgent-banner [appointment]="appointment" />`,
+  template: `<app-urgent-banner [appointment]="appointment" [now]="now" />`,
 })
 class TestHostComponent {
   appointment = createMockAppointment();
+  now = new Date();
 }
 
 describe('UrgentBannerComponent', () => {
