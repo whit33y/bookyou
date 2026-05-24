@@ -97,7 +97,7 @@
                         </button>
                       }
                       <button
-                        (click)="cancelAppointment(appointment)"
+                        (click)="requestCancelAppointment(appointment)"
                         class="rounded bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700"
                       >
                         Anuluj
@@ -115,3 +115,14 @@
     </div>
   }
 </div>
+
+@if (appointmentToCancel()) {
+  <app-confirm-modal
+    title="Anulowanie wizyty"
+    message="Czy na pewno chcesz anulować tę wizytę?"
+    confirmLabel="Anuluj wizytę"
+    cancelLabel="Wróć"
+    (confirmed)="confirmCancel()"
+    (cancelled)="dismissCancel()"
+  />
+}

@@ -5,22 +5,34 @@ import {
   DestroyRef,
   inject,
   OnInit,
+  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { AppointmentService } from '../../core/services/appointment.service';
+import { AuthService } from '../../core/services/auth.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { Appointment, AppointmentStatus } from '../../core/models/appointment.model';
+import { Role } from '../../core/models/user.model';
+import { canCancelAppointment } from '../../core/utils/appointment.utils';
 import { AppointmentStatusBadgeComponent } from '../../shared/components/status-badge/status-badge';
+import { ConfirmModalComponent } from '../../shared/components/confirm-modal/confirm-modal';
 
 @Component({
   selector: 'app-my-appointments',
-  imports: [DatePipe, AppointmentStatusBadgeComponent],
+  imports: [DatePipe, AppointmentStatusBadgeComponent, ConfirmModalComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './my-appointments.html',
 })
 export class MyAppointmentsComponent implements OnInit {
   protected readonly appointmentService = inject(AppointmentService);
+  private readonly authService = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly notify = inject(NotificationService);
+
+  readonly appointmentToCancel = signal<Appointment | null>(null);
+  readonly isProvider = computed(() => this.authService.currentUser()?.role === Role.PROVIDER);
+  protected readonly pendingStatus = AppointmentStatus.PENDING;
 
   readonly upcoming = computed(() =>
     this.appointmentService
@@ -39,21 +51,42 @@ export class MyAppointmentsComponent implements OnInit {
   }
 
   canCancel(appointment: Appointment): boolean {
-    return (
-      appointment.status === AppointmentStatus.PENDING ||
-      appointment.status === AppointmentStatus.CONFIRMED
-    );
+    return canCancelAppointment(appointment);
   }
 
-  cancel(appointment: Appointment) {
-    if (!confirm('Czy na pewno chcesz anulować tę wizytę?')) return;
+  canConfirm(appointment: Appointment): boolean {
+    return this.isProvider() && appointment.status === AppointmentStatus.PENDING;
+  }
+
+  confirmAppointment(appointment: Appointment): void {
+    this.appointmentService
+      .updateStatus(appointment.id, AppointmentStatus.CONFIRMED)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.appointmentService.loadMyAppointments(),
+        error: () => this.notify.error('Nie udało się potwierdzić wizyty.'),
+      });
+  }
+
+  requestCancel(appointment: Appointment): void {
+    this.appointmentToCancel.set(appointment);
+  }
+
+  confirmCancel(): void {
+    const appointment = this.appointmentToCancel();
+    if (!appointment) return;
+    this.appointmentToCancel.set(null);
     this.appointmentService
       .updateStatus(appointment.id, AppointmentStatus.CANCELLED)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.appointmentService.loadMyAppointments(),
-        error: () => alert('Nie udało się anulować wizyty.'),
+        error: () => this.notify.error('Nie udało się anulować wizyty.'),
       });
+  }
+
+  dismissCancel(): void {
+    this.appointmentToCancel.set(null);
   }
 
   private isTerminal(status: AppointmentStatus): boolean {

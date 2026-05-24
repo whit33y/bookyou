@@ -103,7 +103,7 @@
                         Edytuj
                       </button>
                       <button
-                        (click)="deleteService(service)"
+                        (click)="requestDeleteService(service)"
                         class="ml-4 font-medium text-red-600 hover:text-red-500"
                       >
                         Usuń
@@ -124,6 +124,17 @@
       [service]="editingService()"
       (closed)="closeServiceModal()"
       (saved)="closeServiceModal()"
+    />
+  }
+
+  @if (serviceToDelete()) {
+    <app-confirm-modal
+      title="Usuwanie usługi"
+      [message]="deleteMessage()"
+      confirmLabel="Usuń"
+      cancelLabel="Wróć"
+      (confirmed)="confirmDeleteService()"
+      (cancelled)="dismissDeleteService()"
     />
   }
 </div>

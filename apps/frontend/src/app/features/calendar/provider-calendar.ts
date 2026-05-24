@@ -11,8 +11,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { AppointmentService } from '../../core/services/appointment.service';
 import { AuthService } from '../../core/services/auth.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { Appointment, AppointmentStatus } from '../../core/models/appointment.model';
 import { AppointmentStatusBadgeComponent } from '../../shared/components/status-badge/status-badge';
+import { ConfirmModalComponent } from '../../shared/components/confirm-modal/confirm-modal';
 
 type ViewMode = 'week' | 'day';
 
@@ -36,13 +38,14 @@ const STATUS_CARD_CLASSES: Record<AppointmentStatus, string> = {
 
 @Component({
   selector: 'app-provider-calendar',
-  imports: [DatePipe, AppointmentStatusBadgeComponent],
+  imports: [DatePipe, AppointmentStatusBadgeComponent, ConfirmModalComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './provider-calendar.html',
 })
 export class ProviderCalendarComponent implements OnInit {
   private readonly appointmentService = inject(AppointmentService);
   private readonly authService = inject(AuthService);
+  private readonly notify = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly pendingStatus = AppointmentStatus.PENDING;
@@ -51,6 +54,7 @@ export class ProviderCalendarComponent implements OnInit {
   readonly currentDate = signal(new Date());
   readonly allAppointments = signal<ParsedAppointment[]>([]);
   readonly loading = signal(false);
+  readonly appointmentToCancel = signal<Appointment | null>(null);
 
   private readonly providerAppointments = computed(() => {
     const userId = this.authService.currentUser()?.id;
@@ -164,19 +168,29 @@ export class ProviderCalendarComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.loadAppointments(),
-        error: () => alert('Nie udało się potwierdzić wizyty.'),
+        error: () => this.notify.error('Nie udało się potwierdzić wizyty.'),
       });
   }
 
-  cancelAppointment(appointment: Appointment): void {
-    if (!confirm('Czy na pewno chcesz anulować tę wizytę?')) return;
+  requestCancelAppointment(appointment: Appointment): void {
+    this.appointmentToCancel.set(appointment);
+  }
+
+  confirmCancel(): void {
+    const appointment = this.appointmentToCancel();
+    if (!appointment) return;
+    this.appointmentToCancel.set(null);
     this.appointmentService
       .updateStatus(appointment.id, AppointmentStatus.CANCELLED)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.loadAppointments(),
-        error: () => alert('Nie udało się anulować wizyty.'),
+        error: () => this.notify.error('Nie udało się anulować wizyty.'),
       });
+  }
+
+  dismissCancel(): void {
+    this.appointmentToCancel.set(null);
   }
 
   appointmentCardClass(status: AppointmentStatus): string {
