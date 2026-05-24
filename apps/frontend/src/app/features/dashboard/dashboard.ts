@@ -14,10 +14,11 @@ import { AppointmentStatus } from '../../core/models/appointment.model';
 import { Service } from '../../core/models/business.model';
 import { BusinessSettingsComponent } from './business-settings';
 import { ServiceModalComponent } from './service-modal';
+import { ConfirmModalComponent } from '../../shared/components/confirm-modal/confirm-modal';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [BusinessSettingsComponent, ServiceModalComponent, RouterLink],
+  imports: [BusinessSettingsComponent, ServiceModalComponent, ConfirmModalComponent, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dashboard.html',
 })
@@ -28,6 +29,12 @@ export class DashboardComponent implements OnInit {
 
   readonly showServiceModal = signal(false);
   readonly editingService = signal<Service | null>(null);
+  readonly serviceToDelete = signal<Service | null>(null);
+
+  readonly deleteMessage = computed(() => {
+    const service = this.serviceToDelete();
+    return service ? `Czy na pewno chcesz usunąć usługę "${service.name}"?` : '';
+  });
 
   readonly pendingCount = computed(() => {
     const userId = this.authService.currentUser()?.id;
@@ -67,10 +74,18 @@ export class DashboardComponent implements OnInit {
     this.editingService.set(null);
   }
 
-  deleteService(service: Service) {
-    if (!confirm(`Czy na pewno chcesz usunąć usługę "${service.name}"?`)) return;
-    this.businessService.deleteService(service.id).subscribe({
-      error: () => alert('Nie udało się usunąć usługi. Spróbuj ponownie.'),
-    });
+  requestDeleteService(service: Service): void {
+    this.serviceToDelete.set(service);
+  }
+
+  confirmDeleteService(): void {
+    const service = this.serviceToDelete();
+    if (!service) return;
+    this.serviceToDelete.set(null);
+    this.businessService.deleteService(service.id).subscribe();
+  }
+
+  dismissDeleteService(): void {
+    this.serviceToDelete.set(null);
   }
 }

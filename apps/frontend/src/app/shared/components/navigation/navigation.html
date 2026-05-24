@@ -4,11 +4,14 @@
       <a routerLink="/" class="text-xl font-bold text-indigo-600">BookYou</a>
 
       <div class="flex items-center gap-4">
-        <a routerLink="/businesses" class="text-sm font-medium text-gray-700 hover:text-indigo-600">
-          Szukaj
-        </a>
         @if (authService.currentUser(); as user) {
           @if (user.role === clientRole) {
+            <a
+              routerLink="/businesses"
+              class="text-sm font-medium text-gray-700 hover:text-indigo-600"
+            >
+              Szukaj
+            </a>
             <a
               routerLink="/my-appointments"
               class="text-sm font-medium text-gray-700 hover:text-indigo-600"
@@ -17,6 +20,12 @@
             </a>
           }
           @if (user.role === providerRole) {
+            <a
+              routerLink="/my-appointments"
+              class="text-sm font-medium text-gray-700 hover:text-indigo-600"
+            >
+              Moje wizyty
+            </a>
             <a
               routerLink="/calendar"
               class="text-sm font-medium text-gray-700 hover:text-indigo-600"
@@ -38,6 +47,12 @@
             Wyloguj
           </button>
         } @else {
+          <a
+            routerLink="/businesses"
+            class="text-sm font-medium text-gray-700 hover:text-indigo-600"
+          >
+            Szukaj
+          </a>
           <a routerLink="/login" class="text-sm font-medium text-gray-700 hover:text-indigo-600">
             Logowanie
           </a>

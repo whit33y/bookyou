@@ -16,6 +16,15 @@
                 <div>
                   <p class="font-medium text-gray-900">{{ appointment.service.name }}</p>
                   <p class="text-sm text-gray-600">{{ appointment.business.name }}</p>
+                  @if (isProvider()) {
+                    <p class="mt-1 text-sm text-gray-600">
+                      Klient: {{ appointment.client.name ?? appointment.client.email }}
+                    </p>
+                  } @else {
+                    <p class="mt-1 text-sm text-gray-600">
+                      {{ appointment.provider.name ?? 'Specjalista' }}
+                    </p>
+                  }
                   <p class="mt-1 text-sm text-gray-500">
                     {{ appointment.startTime | date: 'd MMM yyyy, HH:mm' }}
                     · {{ appointment.service.duration }} min
@@ -23,9 +32,17 @@
                 </div>
                 <div class="flex items-center gap-3">
                   <app-status-badge [status]="appointment.status" />
+                  @if (canConfirm(appointment)) {
+                    <button
+                      (click)="confirmAppointment(appointment)"
+                      class="text-sm font-medium text-green-600 hover:text-green-500"
+                    >
+                      Potwierdź
+                    </button>
+                  }
                   @if (canCancel(appointment)) {
                     <button
-                      (click)="cancel(appointment)"
+                      (click)="requestCancel(appointment)"
                       class="text-sm font-medium text-red-600 hover:text-red-500"
                     >
                       Anuluj
@@ -49,6 +66,15 @@
                 <div>
                   <p class="font-medium text-gray-900">{{ appointment.service.name }}</p>
                   <p class="text-sm text-gray-600">{{ appointment.business.name }}</p>
+                  @if (isProvider()) {
+                    <p class="mt-1 text-sm text-gray-600">
+                      Klient: {{ appointment.client.name ?? appointment.client.email }}
+                    </p>
+                  } @else {
+                    <p class="mt-1 text-sm text-gray-600">
+                      {{ appointment.provider.name ?? 'Specjalista' }}
+                    </p>
+                  }
                   <p class="mt-1 text-sm text-gray-500">
                     {{ appointment.startTime | date: 'd MMM yyyy, HH:mm' }}
                     · {{ appointment.service.duration }} min
@@ -63,3 +89,14 @@
     }
   }
 </div>
+
+@if (appointmentToCancel()) {
+  <app-confirm-modal
+    title="Anulowanie wizyty"
+    message="Czy na pewno chcesz anulować tę wizytę?"
+    confirmLabel="Anuluj wizytę"
+    cancelLabel="Wróć"
+    (confirmed)="confirmCancel()"
+    (cancelled)="dismissCancel()"
+  />
+}
