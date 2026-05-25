@@ -3,9 +3,11 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
+import { FindAllBusinessesQueryDto } from './dto/find-all-businesses-query.dto';
 import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
@@ -27,19 +29,42 @@ export class BusinessesService {
     });
   }
 
-  async findAll() {
-    return this.prisma.business.findMany({
-      where: { deletedAt: null },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
+  async findAll(query: FindAllBusinessesQueryDto) {
+    const { search, city, category, limit = 20, offset = 0 } = query;
+
+    const where: Prisma.BusinessWhereInput = { deletedAt: null };
+
+    if (search) {
+      where.name = { contains: search, mode: 'insensitive' };
+    }
+
+    if (city) {
+      where.city = { contains: city, mode: 'insensitive' };
+    }
+
+    if (category) {
+      where.services = {
+        some: {
+          name: { contains: category, mode: 'insensitive' },
+          deletedAt: null,
         },
-      },
-    });
+      };
+    }
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.business.findMany({
+        where,
+        include: {
+          owner: { select: { id: true, name: true, email: true } },
+        },
+        skip: offset,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.business.count({ where }),
+    ]);
+
+    return { data, total, limit, offset };
   }
 
   async findByOwner(ownerId: string) {

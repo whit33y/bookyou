@@ -1,3 +1,18 @@
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface BusinessSearchParams {
+  search?: string;
+  city?: string;
+  category?: string;
+  limit?: number;
+  offset?: number;
+}
+
 export interface OpeningHoursDay {
   open: string;
   close: string;

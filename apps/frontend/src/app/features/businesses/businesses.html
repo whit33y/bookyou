@@ -7,26 +7,55 @@
       placeholder="Szukaj po nazwie..."
       aria-label="Szukaj po nazwie"
       [value]="searchQuery()"
-      (input)="onSearchChange($event)"
+      (input)="onSearchInput($event)"
       class="flex-1 rounded-md border border-gray-300 px-4 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
     />
-    <input
-      type="text"
-      placeholder="Miasto..."
+    <select
       aria-label="Filtruj po mieście"
       [value]="cityFilter()"
-      (input)="onCityChange($event)"
+      (change)="onCityChange($event)"
       class="rounded-md border border-gray-300 px-4 py-2 text-sm sm:w-48 focus:border-indigo-500 focus:ring-indigo-500"
-    />
+    >
+      <option value="">Wszystkie miasta</option>
+      <option value="Warszawa">Warszawa</option>
+      <option value="Kraków">Kraków</option>
+      <option value="Wrocław">Wrocław</option>
+      <option value="Poznań">Poznań</option>
+      <option value="Gdańsk">Gdańsk</option>
+      <option value="Łódź">Łódź</option>
+      <option value="Katowice">Katowice</option>
+    </select>
   </div>
 
+  @if (!discoveryService.loading() && discoveryService.total() > 0) {
+    <p class="mt-4 text-sm text-gray-600">
+      Znaleziono: {{ discoveryService.total() }}
+      {{ discoveryService.total() === 1 ? 'wynik' : 'wyników' }}
+    </p>
+  }
+
   @if (discoveryService.loading()) {
-    <p class="mt-8 text-center text-gray-500">Ładowanie...</p>
-  } @else if (filteredBusinesses().length === 0) {
-    <p class="mt-8 text-center text-gray-500">Nie znaleziono usługodawców.</p>
+    <div
+      class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+      aria-busy="true"
+      aria-label="Ładowanie wyników"
+    >
+      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+        <div class="animate-pulse rounded-lg border border-gray-200 p-6">
+          <div class="h-5 w-3/4 rounded bg-gray-200"></div>
+          <div class="mt-3 h-4 w-1/2 rounded bg-gray-200"></div>
+          <div class="mt-3 h-4 w-full rounded bg-gray-200"></div>
+        </div>
+      }
+    </div>
+  } @else if (discoveryService.businesses().length === 0) {
+    <div class="mt-8 text-center">
+      <p class="text-gray-500">Nie znaleziono biznesów</p>
+      <p class="mt-1 text-sm text-gray-400">Spróbuj zmienić kryteria wyszukiwania</p>
+    </div>
   } @else {
     <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      @for (business of filteredBusinesses(); track business.id) {
+      @for (business of discoveryService.businesses(); track business.id) {
         <a
           [routerLink]="['/businesses', business.id]"
           class="block rounded-lg border border-gray-200 p-6 transition hover:border-indigo-300 hover:shadow-md"

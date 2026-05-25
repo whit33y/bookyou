@@ -1,9 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, of, Subject, switchMap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Business } from '../models/business.model';
+import { Business, BusinessSearchParams, PaginatedResponse } from '../models/business.model';
 
 @Injectable({ providedIn: 'root' })
 export class DiscoveryService {
@@ -11,29 +11,39 @@ export class DiscoveryService {
   private readonly destroyRef = inject(DestroyRef);
   private readonly apiUrl = `${environment.apiUrl}/businesses`;
 
-  private readonly loadAllTrigger = new Subject<void>();
+  private readonly loadAllTrigger = new Subject<BusinessSearchParams>();
   private readonly loadOneTrigger = new Subject<string>();
 
   readonly businesses = signal<Business[]>([]);
+  readonly total = signal(0);
   readonly selectedBusiness = signal<Business | null>(null);
   readonly loading = signal(false);
 
   constructor() {
     this.loadAllTrigger
       .pipe(
-        switchMap(() => {
+        switchMap((params) => {
           this.loading.set(true);
-          return this.http.get<Business[]>(this.apiUrl).pipe(
-            catchError(() => {
-              this.loading.set(false);
-              return of([] as Business[]);
-            }),
-          );
+          const httpParams = this.buildParams(params);
+          return this.http
+            .get<PaginatedResponse<Business>>(this.apiUrl, { params: httpParams })
+            .pipe(
+              catchError(() => {
+                this.loading.set(false);
+                return of({
+                  data: [],
+                  total: 0,
+                  limit: 20,
+                  offset: 0,
+                } as PaginatedResponse<Business>);
+              }),
+            );
         }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((data) => {
-        this.businesses.set(data);
+      .subscribe((response) => {
+        this.businesses.set(response.data);
+        this.total.set(response.total);
         this.loading.set(false);
       });
 
@@ -57,11 +67,21 @@ export class DiscoveryService {
       });
   }
 
-  loadBusinesses() {
-    this.loadAllTrigger.next();
+  loadBusinesses(params: BusinessSearchParams = {}) {
+    this.loadAllTrigger.next(params);
   }
 
   loadBusiness(id: string) {
     this.loadOneTrigger.next(id);
+  }
+
+  private buildParams(params: BusinessSearchParams): HttpParams {
+    let httpParams = new HttpParams();
+    if (params.search) httpParams = httpParams.set('search', params.search);
+    if (params.city) httpParams = httpParams.set('city', params.city);
+    if (params.category) httpParams = httpParams.set('category', params.category);
+    if (params.limit != null) httpParams = httpParams.set('limit', params.limit.toString());
+    if (params.offset != null) httpParams = httpParams.set('offset', params.offset.toString());
+    return httpParams;
   }
 }
