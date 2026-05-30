@@ -41,7 +41,11 @@ export class BusinessesComponent implements OnInit {
   readonly resultLabel = computed(() => {
     const total = this.discoveryService.total();
     if (total === 1) return '1 wynik';
-    if (total >= 2 && total <= 4) return `${total} wyniki`;
+    const lastDigit = total % 10;
+    const lastTwoDigits = total % 100;
+    if (lastDigit >= 2 && lastDigit <= 4 && !(lastTwoDigits >= 12 && lastTwoDigits <= 14)) {
+      return `${total} wyniki`;
+    }
     return `${total} wyników`;
   });
 

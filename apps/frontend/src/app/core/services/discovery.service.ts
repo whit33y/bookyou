@@ -30,7 +30,6 @@ export class DiscoveryService {
             .get<PaginatedResponse<Business>>(this.apiUrl, { params: httpParams })
             .pipe(
               catchError(() => {
-                this.loading.set(false);
                 return of({
                   data: [],
                   total: 0,

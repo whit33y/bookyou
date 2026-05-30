@@ -49,7 +49,7 @@ export class BusinessesService {
     }
 
     if (city) {
-      where.city = { contains: city, mode: 'insensitive' };
+      where.city = { equals: city, mode: 'insensitive' };
     }
 
     if (category) {
@@ -61,7 +61,7 @@ export class BusinessesService {
       };
     }
 
-    const [data, total] = await this.prisma.$transaction([
+    const [data, total] = await Promise.all([
       this.prisma.business.findMany({
         where,
         include: {
