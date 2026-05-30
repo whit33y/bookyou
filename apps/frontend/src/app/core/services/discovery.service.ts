@@ -16,6 +16,7 @@ export class DiscoveryService {
 
   readonly businesses = signal<Business[]>([]);
   readonly total = signal(0);
+  readonly cities = signal<string[]>([]);
   readonly selectedBusiness = signal<Business | null>(null);
   readonly loading = signal(false);
 
@@ -69,6 +70,13 @@ export class DiscoveryService {
 
   loadBusinesses(params: BusinessSearchParams = {}) {
     this.loadAllTrigger.next(params);
+  }
+
+  loadCities() {
+    this.http
+      .get<string[]>(`${this.apiUrl}/cities`)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((cities) => this.cities.set(cities));
   }
 
   loadBusiness(id: string) {

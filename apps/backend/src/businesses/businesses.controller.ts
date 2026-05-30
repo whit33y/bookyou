@@ -58,6 +58,13 @@ export class BusinessesController {
     return this.businessesService.findAll(query);
   }
 
+  @Get('cities')
+  @ApiOperation({ summary: 'Get distinct cities from active businesses' })
+  @ApiResponse({ status: 200, description: 'Returns list of distinct cities.' })
+  findCities() {
+    return this.businessesService.findCities();
+  }
+
   @Get('mine')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.PROVIDER)

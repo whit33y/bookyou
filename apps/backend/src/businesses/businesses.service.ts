@@ -29,8 +29,18 @@ export class BusinessesService {
     });
   }
 
+  async findCities(): Promise<string[]> {
+    const results = await this.prisma.business.findMany({
+      where: { deletedAt: null },
+      select: { city: true },
+      distinct: ['city'],
+      orderBy: { city: 'asc' },
+    });
+    return results.map((r) => r.city);
+  }
+
   async findAll(query: FindAllBusinessesQueryDto) {
-    const { search, city, category, limit = 20, offset = 0 } = query;
+    const { search, city, category, limit, offset } = query;
 
     const where: Prisma.BusinessWhereInput = { deletedAt: null };
 

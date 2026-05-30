@@ -10,28 +10,68 @@
       (input)="onSearchInput($event)"
       class="flex-1 rounded-md border border-gray-300 px-4 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
     />
-    <select
-      aria-label="Filtruj po mieście"
-      [value]="cityFilter()"
-      (change)="onCityChange($event)"
+
+    <!-- City combobox -->
+    <div class="relative sm:w-52">
+      <input
+        type="text"
+        placeholder="Miasto..."
+        aria-label="Filtruj po mieście"
+        [value]="citySearch()"
+        (input)="onCitySearchInput($event)"
+        (focus)="cityDropdownOpen.set(true)"
+        class="w-full rounded-md border border-gray-300 px-4 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+      />
+      @if (cityFilter()) {
+        <button
+          type="button"
+          (click)="clearCity()"
+          class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          aria-label="Wyczyść miasto"
+        >
+          ✕
+        </button>
+      }
+      @if (cityDropdownOpen() && filteredCities().length > 0) {
+        <ul
+          class="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-md border border-gray-200 bg-white shadow-lg"
+          role="listbox"
+        >
+          @if (cityFilter()) {
+            <li
+              (click)="clearCity()"
+              class="cursor-pointer px-4 py-2 text-sm text-gray-500 hover:bg-indigo-50"
+              role="option"
+            >
+              Wszystkie miasta
+            </li>
+          }
+          @for (city of filteredCities(); track city) {
+            <li
+              (click)="selectCity(city)"
+              class="cursor-pointer px-4 py-2 text-sm hover:bg-indigo-50"
+              role="option"
+            >
+              {{ city }}
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <!-- Category filter -->
+    <input
+      type="text"
+      placeholder="Kategoria usługi..."
+      aria-label="Filtruj po kategorii"
+      [value]="categoryFilter()"
+      (input)="onCategoryInput($event)"
       class="rounded-md border border-gray-300 px-4 py-2 text-sm sm:w-48 focus:border-indigo-500 focus:ring-indigo-500"
-    >
-      <option value="">Wszystkie miasta</option>
-      <option value="Warszawa">Warszawa</option>
-      <option value="Kraków">Kraków</option>
-      <option value="Wrocław">Wrocław</option>
-      <option value="Poznań">Poznań</option>
-      <option value="Gdańsk">Gdańsk</option>
-      <option value="Łódź">Łódź</option>
-      <option value="Katowice">Katowice</option>
-    </select>
+    />
   </div>
 
   @if (!discoveryService.loading() && discoveryService.total() > 0) {
-    <p class="mt-4 text-sm text-gray-600">
-      Znaleziono: {{ discoveryService.total() }}
-      {{ discoveryService.total() === 1 ? 'wynik' : 'wyników' }}
-    </p>
+    <p class="mt-4 text-sm text-gray-600">Znaleziono: {{ resultLabel() }}</p>
   }
 
   @if (discoveryService.loading()) {
