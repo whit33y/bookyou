@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
   UseGuards,
   NotFoundException,
 } from '@nestjs/common';
@@ -19,6 +20,7 @@ import { Role } from '@prisma/client';
 import { BusinessesService } from './businesses.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
+import { FindAllBusinessesQueryDto } from './dto/find-all-businesses-query.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -52,8 +54,15 @@ export class BusinessesController {
   @Get()
   @ApiOperation({ summary: 'Get all businesses' })
   @ApiResponse({ status: 200, description: 'Returns all active businesses.' })
-  findAll() {
-    return this.businessesService.findAll();
+  findAll(@Query() query: FindAllBusinessesQueryDto) {
+    return this.businessesService.findAll(query);
+  }
+
+  @Get('cities')
+  @ApiOperation({ summary: 'Get distinct cities from active businesses' })
+  @ApiResponse({ status: 200, description: 'Returns list of distinct cities.' })
+  findCities() {
+    return this.businessesService.findCities();
   }
 
   @Get('mine')

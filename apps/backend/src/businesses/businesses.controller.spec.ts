@@ -28,10 +28,24 @@ describe('BusinessesController', () => {
     }).compile();
 
     controller = module.get<BusinessesController>(BusinessesController);
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  describe('findAll', () => {
+    it('should pass query params to the service', async () => {
+      const query = { search: 'salon', city: 'Warsaw', limit: 10, offset: 0 };
+      const paginatedResult = { data: [], total: 0, limit: 10, offset: 0 };
+      mockBusinessesService.findAll.mockResolvedValue(paginatedResult);
+
+      const result = await controller.findAll(query);
+
+      expect(result).toEqual(paginatedResult);
+      expect(mockBusinessesService.findAll).toHaveBeenCalledWith(query);
+    });
   });
 
   describe('findMine', () => {

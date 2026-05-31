@@ -13,10 +13,12 @@ describe('BusinessesService', () => {
       findUnique: jest.fn(),
       findFirst: jest.fn(),
       update: jest.fn(),
+      count: jest.fn(),
     },
     service: {
       findMany: jest.fn(),
     },
+    $transaction: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -28,6 +30,7 @@ describe('BusinessesService', () => {
     }).compile();
 
     service = module.get<BusinessesService>(BusinessesService);
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -53,6 +56,69 @@ describe('BusinessesService', () => {
 
       expect(result).toHaveProperty('id');
       expect(result.ownerId).toBe(ownerId);
+    });
+  });
+
+  describe('findAll', () => {
+    const businesses = [
+      { id: 'bus-1', name: 'Salon A', city: 'Warsaw' },
+      { id: 'bus-2', name: 'Salon B', city: 'Krakow' },
+    ];
+
+    it('should return paginated results with no filters', async () => {
+      mockPrismaService.business.findMany.mockResolvedValue(businesses);
+      mockPrismaService.business.count.mockResolvedValue(2);
+
+      const result = await service.findAll({});
+
+      expect(result).toEqual({
+        data: businesses,
+        total: 2,
+        limit: 20,
+        offset: 0,
+      });
+      expect(mockPrismaService.business.findMany).toHaveBeenCalled();
+      expect(mockPrismaService.business.count).toHaveBeenCalled();
+    });
+
+    it('should apply search filter on name', async () => {
+      mockPrismaService.business.findMany.mockResolvedValue([businesses[0]]);
+      mockPrismaService.business.count.mockResolvedValue(1);
+
+      const result = await service.findAll({ search: 'Salon A' });
+
+      expect(result.data).toHaveLength(1);
+      expect(result.total).toBe(1);
+    });
+
+    it('should apply city filter', async () => {
+      mockPrismaService.business.findMany.mockResolvedValue([businesses[1]]);
+      mockPrismaService.business.count.mockResolvedValue(1);
+
+      const result = await service.findAll({ city: 'Krakow' });
+
+      expect(result.data).toHaveLength(1);
+      expect(result.total).toBe(1);
+    });
+
+    it('should apply category filter via services relation', async () => {
+      mockPrismaService.business.findMany.mockResolvedValue([businesses[0]]);
+      mockPrismaService.business.count.mockResolvedValue(1);
+
+      const result = await service.findAll({ category: 'Haircut' });
+
+      expect(result.data).toHaveLength(1);
+    });
+
+    it('should respect limit and offset', async () => {
+      mockPrismaService.business.findMany.mockResolvedValue([businesses[0]]);
+      mockPrismaService.business.count.mockResolvedValue(2);
+
+      const result = await service.findAll({ limit: 1, offset: 0 });
+
+      expect(result.limit).toBe(1);
+      expect(result.offset).toBe(0);
+      expect(result.data).toHaveLength(1);
     });
   });
 
