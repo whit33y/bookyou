@@ -17,6 +17,10 @@
         type="text"
         placeholder="Miasto..."
         aria-label="Filtruj po mieście"
+        role="combobox"
+        aria-autocomplete="list"
+        aria-controls="city-listbox"
+        [attr.aria-expanded]="cityDropdownOpen()"
         [value]="citySearch()"
         (input)="onCitySearchInput($event)"
         (focus)="cityDropdownOpen.set(true)"
@@ -34,6 +38,7 @@
       }
       @if (cityDropdownOpen() && filteredCities().length > 0) {
         <ul
+          id="city-listbox"
           class="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-md border border-gray-200 bg-white shadow-lg"
           role="listbox"
         >

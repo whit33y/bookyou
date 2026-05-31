@@ -72,6 +72,9 @@ export class DiscoveryService {
   }
 
   loadCities() {
+    if (this.cities().length > 0) {
+      return;
+    }
     this.http
       .get<string[]>(`${this.apiUrl}/cities`)
       .pipe(takeUntilDestroyed(this.destroyRef))

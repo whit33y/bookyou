@@ -2,6 +2,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
+  HostListener,
   inject,
   OnInit,
   signal,
@@ -22,6 +24,7 @@ import { DiscoveryService } from '../../core/services/discovery.service';
 export class BusinessesComponent implements OnInit {
   protected readonly discoveryService = inject(DiscoveryService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly elementRef = inject(ElementRef);
 
   readonly searchQuery = signal('');
   readonly cityFilter = signal('');
@@ -58,6 +61,13 @@ export class BusinessesComponent implements OnInit {
     this.fetchBusinesses();
   }
 
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      this.cityDropdownOpen.set(false);
+    }
+  }
+
   onSearchInput(event: Event) {
     const target = event.target as HTMLInputElement;
     this.searchQuery.set(target.value);
@@ -66,7 +76,12 @@ export class BusinessesComponent implements OnInit {
 
   onCitySearchInput(event: Event) {
     const target = event.target as HTMLInputElement;
-    this.citySearch.set(target.value);
+    const value = target.value;
+    this.citySearch.set(value);
+    if (!value) {
+      this.cityFilter.set('');
+      this.fetchBusinesses();
+    }
     this.cityDropdownOpen.set(true);
   }
 
@@ -88,10 +103,6 @@ export class BusinessesComponent implements OnInit {
     this.citySearch.set('');
     this.cityDropdownOpen.set(false);
     this.fetchBusinesses();
-  }
-
-  toggleCityDropdown() {
-    this.cityDropdownOpen.set(!this.cityDropdownOpen());
   }
 
   private fetchBusinesses() {

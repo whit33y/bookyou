@@ -40,7 +40,7 @@ export class BusinessesService {
   }
 
   async findAll(query: FindAllBusinessesQueryDto) {
-    const { search, city, category, limit, offset } = query;
+    const { search, city, category, limit = 20, offset = 0 } = query;
 
     const where: Prisma.BusinessWhereInput = { deletedAt: null };
 

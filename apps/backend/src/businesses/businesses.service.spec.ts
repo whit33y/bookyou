@@ -66,7 +66,8 @@ describe('BusinessesService', () => {
     ];
 
     it('should return paginated results with no filters', async () => {
-      mockPrismaService.$transaction.mockResolvedValue([businesses, 2]);
+      mockPrismaService.business.findMany.mockResolvedValue(businesses);
+      mockPrismaService.business.count.mockResolvedValue(2);
 
       const result = await service.findAll({});
 
@@ -76,11 +77,13 @@ describe('BusinessesService', () => {
         limit: 20,
         offset: 0,
       });
-      expect(mockPrismaService.$transaction).toHaveBeenCalled();
+      expect(mockPrismaService.business.findMany).toHaveBeenCalled();
+      expect(mockPrismaService.business.count).toHaveBeenCalled();
     });
 
     it('should apply search filter on name', async () => {
-      mockPrismaService.$transaction.mockResolvedValue([[businesses[0]], 1]);
+      mockPrismaService.business.findMany.mockResolvedValue([businesses[0]]);
+      mockPrismaService.business.count.mockResolvedValue(1);
 
       const result = await service.findAll({ search: 'Salon A' });
 
@@ -89,7 +92,8 @@ describe('BusinessesService', () => {
     });
 
     it('should apply city filter', async () => {
-      mockPrismaService.$transaction.mockResolvedValue([[businesses[1]], 1]);
+      mockPrismaService.business.findMany.mockResolvedValue([businesses[1]]);
+      mockPrismaService.business.count.mockResolvedValue(1);
 
       const result = await service.findAll({ city: 'Krakow' });
 
@@ -98,7 +102,8 @@ describe('BusinessesService', () => {
     });
 
     it('should apply category filter via services relation', async () => {
-      mockPrismaService.$transaction.mockResolvedValue([[businesses[0]], 1]);
+      mockPrismaService.business.findMany.mockResolvedValue([businesses[0]]);
+      mockPrismaService.business.count.mockResolvedValue(1);
 
       const result = await service.findAll({ category: 'Haircut' });
 
@@ -106,7 +111,8 @@ describe('BusinessesService', () => {
     });
 
     it('should respect limit and offset', async () => {
-      mockPrismaService.$transaction.mockResolvedValue([[businesses[0]], 2]);
+      mockPrismaService.business.findMany.mockResolvedValue([businesses[0]]);
+      mockPrismaService.business.count.mockResolvedValue(2);
 
       const result = await service.findAll({ limit: 1, offset: 0 });
 
