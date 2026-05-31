@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty } from 'class-validator';
-import { AppointmentStatus } from '@prisma/client';
+import { AppointmentStatus } from '../../generated/prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateAppointmentStatusDto {

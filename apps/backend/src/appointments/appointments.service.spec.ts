@@ -6,7 +6,7 @@ import {
   ConflictException,
   ForbiddenException,
 } from '@nestjs/common';
-import { AppointmentStatus } from '@prisma/client';
+import { AppointmentStatus } from '../generated/prisma/client';
 
 describe('AppointmentsService', () => {
   let service: AppointmentsService;

@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { UnauthorizedException } from '@nestjs/common';
 import { JwtStrategy } from './jwt.strategy';
 import { AuthService } from '../auth.service';
-import { Role } from '@prisma/client';
+import { Role } from '../../generated/prisma/client';
 
 describe('JwtStrategy', () => {
   let strategy: JwtStrategy;
