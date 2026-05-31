@@ -1,0 +1,143 @@
+<div class="mx-auto max-w-2xl px-4 py-8">
+  <h1 class="mb-8 text-2xl font-bold text-gray-900">Mój profil</h1>
+
+  <!-- Profile edit form -->
+  <section class="mb-8 rounded-lg border border-gray-200 bg-white p-6">
+    <h2 class="mb-4 text-lg font-semibold text-gray-900">Dane osobowe</h2>
+
+    @if (profileError()) {
+      <p class="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-600">{{ profileError() }}</p>
+    }
+
+    <form [formGroup]="profileForm" (ngSubmit)="onProfileSubmit()" class="space-y-4">
+      <div>
+        <label for="name" class="block text-sm font-medium text-gray-700">Imię</label>
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+        />
+      </div>
+
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          [attr.aria-invalid]="
+            profileForm.controls.email.touched && profileForm.controls.email.errors ? true : null
+          "
+          aria-describedby="email-error"
+          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+        />
+        @if (profileForm.controls.email.touched && profileForm.controls.email.errors) {
+          <p id="email-error" class="mt-1 text-sm text-red-600">Podaj prawidłowy adres email.</p>
+        }
+      </div>
+
+      <button
+        type="submit"
+        [disabled]="profileForm.invalid || profileLoading()"
+        class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+      >
+        {{ profileLoading() ? 'Zapisywanie...' : 'Zapisz zmiany' }}
+      </button>
+    </form>
+  </section>
+
+  <!-- Password change form -->
+  <section class="rounded-lg border border-gray-200 bg-white p-6">
+    <h2 class="mb-4 text-lg font-semibold text-gray-900">Zmiana hasła</h2>
+
+    @if (passwordError()) {
+      <p class="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-600">{{ passwordError() }}</p>
+    }
+
+    <form [formGroup]="passwordForm" (ngSubmit)="onPasswordSubmit()" class="space-y-4">
+      <div>
+        <label for="oldPassword" class="block text-sm font-medium text-gray-700"
+          >Aktualne hasło</label
+        >
+        <input
+          id="oldPassword"
+          type="password"
+          formControlName="oldPassword"
+          [attr.aria-invalid]="
+            passwordForm.controls.oldPassword.touched && passwordForm.controls.oldPassword.errors
+              ? true
+              : null
+          "
+          aria-describedby="oldPassword-error"
+          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+        />
+        @if (
+          passwordForm.controls.oldPassword.touched && passwordForm.controls.oldPassword.errors
+        ) {
+          <p id="oldPassword-error" class="mt-1 text-sm text-red-600">
+            Aktualne hasło jest wymagane.
+          </p>
+        }
+      </div>
+
+      <div>
+        <label for="newPassword" class="block text-sm font-medium text-gray-700">Nowe hasło</label>
+        <input
+          id="newPassword"
+          type="password"
+          formControlName="newPassword"
+          [attr.aria-invalid]="
+            passwordForm.controls.newPassword.touched && passwordForm.controls.newPassword.errors
+              ? true
+              : null
+          "
+          aria-describedby="newPassword-error"
+          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+        />
+        @if (
+          passwordForm.controls.newPassword.touched && passwordForm.controls.newPassword.errors
+        ) {
+          <p id="newPassword-error" class="mt-1 text-sm text-red-600">
+            Hasło musi mieć minimum 8 znaków.
+          </p>
+        }
+      </div>
+
+      <div>
+        <label for="confirmPassword" class="block text-sm font-medium text-gray-700"
+          >Potwierdź nowe hasło</label
+        >
+        <input
+          id="confirmPassword"
+          type="password"
+          formControlName="confirmPassword"
+          [attr.aria-invalid]="
+            passwordForm.controls.confirmPassword.touched &&
+            passwordForm.controls.confirmPassword.errors
+              ? true
+              : null
+          "
+          aria-describedby="confirmPassword-error"
+          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+        />
+        @if (
+          passwordForm.controls.confirmPassword.touched &&
+          passwordForm.controls.confirmPassword.errors
+        ) {
+          <p id="confirmPassword-error" class="mt-1 text-sm text-red-600">
+            Potwierdzenie hasła jest wymagane.
+          </p>
+        }
+      </div>
+
+      <button
+        type="submit"
+        [disabled]="passwordForm.invalid || passwordLoading()"
+        class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+      >
+        {{ passwordLoading() ? 'Zmieniam...' : 'Zmień hasło' }}
+      </button>
+    </form>
+  </section>
+</div>

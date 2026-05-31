@@ -27,6 +27,19 @@ export class AuthService {
       .pipe(tap((res) => this.handleAuth(res)));
   }
 
+  updateProfile(data: { name?: string; email?: string }) {
+    return this.http.patch<User>(`${this.apiUrl}/me`, data).pipe(
+      tap((user) => {
+        localStorage.setItem(this.userKey, JSON.stringify(user));
+        this.currentUser.set(user);
+      }),
+    );
+  }
+
+  changePassword(data: { oldPassword: string; newPassword: string }) {
+    return this.http.patch<void>(`${this.apiUrl}/me/password`, data);
+  }
+
   logout() {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userKey);
