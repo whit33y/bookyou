@@ -55,7 +55,7 @@ export class BusinessesService {
     if (category) {
       where.services = {
         some: {
-          name: { contains: category, mode: 'insensitive' },
+          category: { slug: { equals: category, mode: 'insensitive' } },
           deletedAt: null,
         },
       };

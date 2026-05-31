@@ -57,6 +57,7 @@ export const ModelName = {
   User: 'User',
   Business: 'Business',
   BusinessStaff: 'BusinessStaff',
+  Category: 'Category',
   Service: 'Service',
   Appointment: 'Appointment',
 } as const;
@@ -122,12 +123,23 @@ export const BusinessStaffScalarFieldEnum = {
 export type BusinessStaffScalarFieldEnum =
   (typeof BusinessStaffScalarFieldEnum)[keyof typeof BusinessStaffScalarFieldEnum];
 
+export const CategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  icon: 'icon',
+} as const;
+
+export type CategoryScalarFieldEnum =
+  (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum];
+
 export const ServiceScalarFieldEnum = {
   id: 'id',
   name: 'name',
   duration: 'duration',
   price: 'price',
   businessId: 'businessId',
+  categoryId: 'categoryId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt',

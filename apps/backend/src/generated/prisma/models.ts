@@ -10,6 +10,7 @@
 export type * from './models/User';
 export type * from './models/Business';
 export type * from './models/BusinessStaff';
+export type * from './models/Category';
 export type * from './models/Service';
 export type * from './models/Appointment';
 export type * from './commonInputTypes';

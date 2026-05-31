@@ -8,7 +8,7 @@ import {
   signal,
   computed,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -27,6 +27,7 @@ export class BusinessesComponent implements OnInit {
   protected readonly discoveryService = inject(DiscoveryService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly elementRef = inject(ElementRef);
+  private readonly route = inject(ActivatedRoute);
 
   readonly searchQuery = signal('');
   readonly cityFilter = signal('');
@@ -61,6 +62,11 @@ export class BusinessesComponent implements OnInit {
   });
 
   ngOnInit() {
+    const categoryParam = this.route.snapshot.queryParamMap.get('category');
+    if (categoryParam) {
+      this.categoryFilter.set(categoryParam);
+    }
+
     this.searchSubject
       .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.fetchBusinesses());
