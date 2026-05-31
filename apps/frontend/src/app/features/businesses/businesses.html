@@ -65,13 +65,14 @@
     <!-- Category filter -->
     <select
       aria-label="Filtruj po kategorii"
-      [value]="categoryFilter()"
       (change)="onCategoryChange($event)"
       class="rounded-md border border-gray-300 px-4 py-2 text-sm sm:w-48 focus:border-indigo-500 focus:ring-indigo-500"
     >
-      <option value="">Wszystkie kategorie</option>
+      <option value="" [selected]="!categoryFilter()">Wszystkie kategorie</option>
       @for (cat of categoryService.categories(); track cat.id) {
-        <option [value]="cat.slug">{{ cat.icon }} {{ cat.name }}</option>
+        <option [value]="cat.slug" [selected]="cat.slug === categoryFilter()">
+          {{ cat.icon }} {{ cat.name }}
+        </option>
       }
     </select>
   </div>

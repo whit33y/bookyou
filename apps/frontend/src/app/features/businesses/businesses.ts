@@ -64,10 +64,10 @@ export class BusinessesComponent implements OnInit {
   });
 
   ngOnInit() {
-    const categoryParam = this.route.snapshot.queryParamMap.get('category');
-    if (categoryParam) {
-      this.categoryFilter.set(categoryParam);
-    }
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      this.categoryFilter.set(params.get('category') ?? '');
+      this.fetchBusinesses();
+    });
 
     this.searchSubject
       .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
@@ -75,7 +75,6 @@ export class BusinessesComponent implements OnInit {
 
     this.categoryService.loadCategories();
     this.discoveryService.loadCities();
-    this.fetchBusinesses();
   }
 
   onDocumentClick(event: MouseEvent) {

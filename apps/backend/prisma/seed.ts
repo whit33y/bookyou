@@ -7,7 +7,9 @@ import { PrismaClient } from '../src/generated/prisma/client';
 
 const pool = new Pool({ connectionString: process.env['DATABASE_URL'] });
 const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter } as any);
+const prisma = new PrismaClient({ adapter } as unknown as ConstructorParameters<
+  typeof PrismaClient
+>[0]);
 
 const categories = [
   { name: 'Fryzjer', slug: 'fryzjer', icon: '💇‍♀️' },
