@@ -44,6 +44,11 @@ export class BusinessesComponent implements OnInit {
     return cities.filter((c) => c.toLowerCase().includes(search));
   });
 
+  readonly dropdownOptions = computed(() => {
+    const cities = this.filteredCities();
+    return this.cityFilter() ? ['Wszystkie miasta', ...cities] : cities;
+  });
+
   readonly resultLabel = computed(() => {
     const total = this.discoveryService.total();
     if (total === 1) return '1 wynik';
@@ -65,7 +70,7 @@ export class BusinessesComponent implements OnInit {
   }
 
   onDocumentClick(event: MouseEvent) {
-    if (!this.elementRef.nativeElement.contains(event.target)) {
+    if (!this.elementRef.nativeElement.contains(event.target as Node)) {
       this.cityDropdownOpen.set(false);
       this.citySearch.set(this.cityFilter());
       this.activeCityIndex.set(-1);
@@ -91,8 +96,8 @@ export class BusinessesComponent implements OnInit {
   }
 
   onCityKeydown(event: KeyboardEvent) {
-    const cities = this.filteredCities();
-    if (!this.cityDropdownOpen() || cities.length === 0) {
+    const options = this.dropdownOptions();
+    if (!this.cityDropdownOpen() || options.length === 0) {
       if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
         this.cityDropdownOpen.set(true);
         this.activeCityIndex.set(0);
@@ -104,7 +109,7 @@ export class BusinessesComponent implements OnInit {
     switch (event.key) {
       case 'ArrowDown':
         event.preventDefault();
-        this.activeCityIndex.set(Math.min(this.activeCityIndex() + 1, cities.length - 1));
+        this.activeCityIndex.set(Math.min(this.activeCityIndex() + 1, options.length - 1));
         break;
       case 'ArrowUp':
         event.preventDefault();
@@ -113,7 +118,7 @@ export class BusinessesComponent implements OnInit {
       case 'Enter':
         event.preventDefault();
         if (this.activeCityIndex() >= 0) {
-          this.selectCity(cities[this.activeCityIndex()]);
+          this.selectCity(options[this.activeCityIndex()]);
         }
         break;
       case 'Escape':
@@ -131,6 +136,10 @@ export class BusinessesComponent implements OnInit {
   }
 
   selectCity(city: string) {
+    if (city === 'Wszystkie miasta') {
+      this.clearCity();
+      return;
+    }
     this.cityFilter.set(city);
     this.citySearch.set(city);
     this.cityDropdownOpen.set(false);

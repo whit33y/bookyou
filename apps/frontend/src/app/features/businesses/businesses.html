@@ -40,22 +40,13 @@
           ✕
         </button>
       }
-      @if (cityDropdownOpen() && filteredCities().length > 0) {
+      @if (cityDropdownOpen() && dropdownOptions().length > 0) {
         <ul
           id="city-listbox"
           class="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-md border border-gray-200 bg-white shadow-lg"
           role="listbox"
         >
-          @if (cityFilter()) {
-            <li
-              (click)="clearCity()"
-              class="cursor-pointer px-4 py-2 text-sm text-gray-500 hover:bg-indigo-50"
-              role="option"
-            >
-              Wszystkie miasta
-            </li>
-          }
-          @for (city of filteredCities(); track city; let i = $index) {
+          @for (city of dropdownOptions(); track city; let i = $index) {
             <li
               [id]="'city-option-' + i"
               (click)="selectCity(city)"
