@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { BusinessesModule } from './businesses/businesses.module';
+import { CategoriesModule } from './categories/categories.module';
 import { ServicesModule } from './services/services.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 
@@ -14,6 +15,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
     PrismaModule,
     AuthModule,
     BusinessesModule,
+    CategoriesModule,
     ServicesModule,
     AppointmentsModule,
   ],

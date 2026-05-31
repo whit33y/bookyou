@@ -60,6 +60,11 @@ export type Business = Prisma.BusinessModel;
  */
 export type BusinessStaff = Prisma.BusinessStaffModel;
 /**
+ * Model Category
+ *
+ */
+export type Category = Prisma.CategoryModel;
+/**
  * Model Service
  *
  */

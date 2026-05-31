@@ -8,11 +8,12 @@ import {
   signal,
   computed,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DiscoveryService } from '../../core/services/discovery.service';
+import { CategoryService } from '../../core/services/category.service';
 
 @Component({
   selector: 'app-businesses',
@@ -25,8 +26,10 @@ import { DiscoveryService } from '../../core/services/discovery.service';
 })
 export class BusinessesComponent implements OnInit {
   protected readonly discoveryService = inject(DiscoveryService);
+  protected readonly categoryService = inject(CategoryService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly elementRef = inject(ElementRef);
+  private readonly route = inject(ActivatedRoute);
 
   readonly searchQuery = signal('');
   readonly cityFilter = signal('');
@@ -61,12 +64,17 @@ export class BusinessesComponent implements OnInit {
   });
 
   ngOnInit() {
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      this.categoryFilter.set(params.get('category') ?? '');
+      this.fetchBusinesses();
+    });
+
     this.searchSubject
       .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.fetchBusinesses());
 
+    this.categoryService.loadCategories();
     this.discoveryService.loadCities();
-    this.fetchBusinesses();
   }
 
   onDocumentClick(event: MouseEvent) {
@@ -129,10 +137,10 @@ export class BusinessesComponent implements OnInit {
     }
   }
 
-  onCategoryInput(event: Event) {
-    const target = event.target as HTMLInputElement;
+  onCategoryChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
     this.categoryFilter.set(target.value);
-    this.searchSubject.next();
+    this.fetchBusinesses();
   }
 
   selectCity(city: string) {

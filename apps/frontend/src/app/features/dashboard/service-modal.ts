@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, input, OnInit, output } fro
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { A11yModule } from '@angular/cdk/a11y';
 import { BusinessService } from '../../core/services/business.service';
+import { CategoryService } from '../../core/services/category.service';
 import { Service } from '../../core/models/business.model';
 
 @Component({
@@ -13,6 +14,7 @@ import { Service } from '../../core/models/business.model';
 export class ServiceModalComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly businessService = inject(BusinessService);
+  protected readonly categoryService = inject(CategoryService);
 
   service = input<Service | null>(null);
   closed = output<void>();
@@ -22,15 +24,22 @@ export class ServiceModalComponent implements OnInit {
     name: ['', Validators.required],
     duration: [30, [Validators.required, Validators.min(1)]],
     price: [0, [Validators.required, Validators.min(0.01)]],
+    categoryId: [''],
   });
 
   loading = false;
   error = '';
 
   ngOnInit() {
+    this.categoryService.loadCategories();
     const s = this.service();
     if (s) {
-      this.form.patchValue({ name: s.name, duration: s.duration, price: s.price });
+      this.form.patchValue({
+        name: s.name,
+        duration: s.duration,
+        price: Number(s.price),
+        categoryId: s.categoryId ?? '',
+      });
     }
   }
 
@@ -42,7 +51,8 @@ export class ServiceModalComponent implements OnInit {
 
     this.loading = true;
     this.error = '';
-    const data = this.form.getRawValue();
+    const { categoryId, ...rest } = this.form.getRawValue();
+    const data = { ...rest, categoryId: categoryId || null };
     const s = this.service();
     const businessId = this.businessService.businessId();
 
