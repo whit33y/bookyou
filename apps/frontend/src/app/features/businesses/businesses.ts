@@ -3,7 +3,6 @@ import {
   Component,
   DestroyRef,
   ElementRef,
-  HostListener,
   inject,
   OnInit,
   signal,
@@ -20,6 +19,9 @@ import { DiscoveryService } from '../../core/services/discovery.service';
   imports: [RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './businesses.html',
+  host: {
+    '(document:click)': 'onDocumentClick($event)',
+  },
 })
 export class BusinessesComponent implements OnInit {
   protected readonly discoveryService = inject(DiscoveryService);
@@ -31,6 +33,7 @@ export class BusinessesComponent implements OnInit {
   readonly citySearch = signal('');
   readonly categoryFilter = signal('');
   readonly cityDropdownOpen = signal(false);
+  readonly activeCityIndex = signal(-1);
 
   private readonly searchSubject = new Subject<void>();
 
@@ -61,10 +64,11 @@ export class BusinessesComponent implements OnInit {
     this.fetchBusinesses();
   }
 
-  @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     if (!this.elementRef.nativeElement.contains(event.target)) {
       this.cityDropdownOpen.set(false);
+      this.citySearch.set(this.cityFilter());
+      this.activeCityIndex.set(-1);
     }
   }
 
@@ -78,11 +82,46 @@ export class BusinessesComponent implements OnInit {
     const target = event.target as HTMLInputElement;
     const value = target.value;
     this.citySearch.set(value);
+    this.activeCityIndex.set(-1);
     if (!value) {
       this.cityFilter.set('');
       this.fetchBusinesses();
     }
     this.cityDropdownOpen.set(true);
+  }
+
+  onCityKeydown(event: KeyboardEvent) {
+    const cities = this.filteredCities();
+    if (!this.cityDropdownOpen() || cities.length === 0) {
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        this.cityDropdownOpen.set(true);
+        this.activeCityIndex.set(0);
+        event.preventDefault();
+      }
+      return;
+    }
+
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        this.activeCityIndex.set(Math.min(this.activeCityIndex() + 1, cities.length - 1));
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        this.activeCityIndex.set(Math.max(this.activeCityIndex() - 1, 0));
+        break;
+      case 'Enter':
+        event.preventDefault();
+        if (this.activeCityIndex() >= 0) {
+          this.selectCity(cities[this.activeCityIndex()]);
+        }
+        break;
+      case 'Escape':
+        this.cityDropdownOpen.set(false);
+        this.citySearch.set(this.cityFilter());
+        this.activeCityIndex.set(-1);
+        break;
+    }
   }
 
   onCategoryInput(event: Event) {
@@ -95,6 +134,7 @@ export class BusinessesComponent implements OnInit {
     this.cityFilter.set(city);
     this.citySearch.set(city);
     this.cityDropdownOpen.set(false);
+    this.activeCityIndex.set(-1);
     this.fetchBusinesses();
   }
 
@@ -102,6 +142,7 @@ export class BusinessesComponent implements OnInit {
     this.cityFilter.set('');
     this.citySearch.set('');
     this.cityDropdownOpen.set(false);
+    this.activeCityIndex.set(-1);
     this.fetchBusinesses();
   }
 
