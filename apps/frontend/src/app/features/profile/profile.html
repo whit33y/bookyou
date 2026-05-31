@@ -29,7 +29,11 @@
           [attr.aria-invalid]="
             profileForm.controls.email.touched && profileForm.controls.email.errors ? true : null
           "
-          aria-describedby="email-error"
+          [attr.aria-describedby]="
+            profileForm.controls.email.touched && profileForm.controls.email.errors
+              ? 'email-error'
+              : null
+          "
           class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
         />
         @if (profileForm.controls.email.touched && profileForm.controls.email.errors) {
@@ -55,6 +59,12 @@
       <p class="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-600">{{ passwordError() }}</p>
     }
 
+    @if (
+      passwordForm.hasError('passwordMismatch') && passwordForm.controls.confirmPassword.touched
+    ) {
+      <p class="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-600">Hasła nie są identyczne.</p>
+    }
+
     <form [formGroup]="passwordForm" (ngSubmit)="onPasswordSubmit()" class="space-y-4">
       <div>
         <label for="oldPassword" class="block text-sm font-medium text-gray-700"
@@ -69,7 +79,11 @@
               ? true
               : null
           "
-          aria-describedby="oldPassword-error"
+          [attr.aria-describedby]="
+            passwordForm.controls.oldPassword.touched && passwordForm.controls.oldPassword.errors
+              ? 'oldPassword-error'
+              : null
+          "
           class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
         />
         @if (
@@ -92,7 +106,11 @@
               ? true
               : null
           "
-          aria-describedby="newPassword-error"
+          [attr.aria-describedby]="
+            passwordForm.controls.newPassword.touched && passwordForm.controls.newPassword.errors
+              ? 'newPassword-error'
+              : null
+          "
           class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
         />
         @if (
@@ -118,7 +136,12 @@
               ? true
               : null
           "
-          aria-describedby="confirmPassword-error"
+          [attr.aria-describedby]="
+            passwordForm.controls.confirmPassword.touched &&
+            passwordForm.controls.confirmPassword.errors
+              ? 'confirmPassword-error'
+              : null
+          "
           class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
         />
         @if (

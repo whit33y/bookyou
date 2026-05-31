@@ -144,8 +144,8 @@ export class AuthService {
       const user = await this.prisma.user.update({
         where: { id: userId },
         data: {
-          ...(dto.name !== undefined && { name: dto.name }),
-          ...(dto.email !== undefined && { email: dto.email }),
+          name: dto.name,
+          email: dto.email,
         },
       });
 

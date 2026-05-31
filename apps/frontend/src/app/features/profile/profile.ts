@@ -1,7 +1,20 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
+
+function passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
+  const newPassword = group.get('newPassword')?.value;
+  const confirmPassword = group.get('confirmPassword')?.value;
+  if (!newPassword || !confirmPassword) return null;
+  return newPassword !== confirmPassword ? { passwordMismatch: true } : null;
+}
 
 @Component({
   selector: 'app-profile',
@@ -19,11 +32,14 @@ export class ProfileComponent implements OnInit {
     email: ['', [Validators.required, Validators.email]],
   });
 
-  passwordForm = this.fb.nonNullable.group({
-    oldPassword: ['', Validators.required],
-    newPassword: ['', [Validators.required, Validators.minLength(8)]],
-    confirmPassword: ['', Validators.required],
-  });
+  passwordForm = this.fb.nonNullable.group(
+    {
+      oldPassword: ['', Validators.required],
+      newPassword: ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword: ['', Validators.required],
+    },
+    { validators: passwordMatchValidator },
+  );
 
   profileLoading = signal(false);
   passwordLoading = signal(false);
@@ -71,15 +87,10 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
-    const { oldPassword, newPassword, confirmPassword } = this.passwordForm.getRawValue();
-
-    if (newPassword !== confirmPassword) {
-      this.passwordError.set('Hasła nie są identyczne.');
-      return;
-    }
-
     this.passwordLoading.set(true);
     this.passwordError.set('');
+
+    const { oldPassword, newPassword } = this.passwordForm.getRawValue();
 
     this.authService.changePassword({ oldPassword, newPassword }).subscribe({
       next: () => {
