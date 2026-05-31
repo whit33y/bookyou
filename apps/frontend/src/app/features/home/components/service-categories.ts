@@ -19,19 +19,20 @@ import { CategoryService } from '../../../core/services/category.service';
         >
           Nasi specjaliści
         </h2>
-        <div class="mt-8 grid grid-cols-2 gap-4 sm:mt-10 sm:grid-cols-3 md:grid-cols-6" role="list">
+        <ul class="mt-8 grid grid-cols-2 gap-4 sm:mt-10 sm:grid-cols-3 md:grid-cols-6">
           @for (category of categoryService.categories(); track category.id) {
-            <a
-              role="listitem"
-              [routerLink]="['/businesses']"
-              [queryParams]="{ category: category.slug }"
-              class="flex flex-col items-center gap-2 rounded-lg bg-white p-4 shadow-sm transition hover:shadow-md hover:border-indigo-300 border border-transparent"
-            >
-              <span class="text-3xl" aria-hidden="true">{{ category.icon }}</span>
-              <span class="text-sm font-medium text-gray-700">{{ category.name }}</span>
-            </a>
+            <li>
+              <a
+                [routerLink]="['/businesses']"
+                [queryParams]="{ category: category.slug }"
+                class="flex flex-col items-center gap-2 rounded-lg bg-white p-4 shadow-sm transition hover:shadow-md hover:border-indigo-300 border border-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500"
+              >
+                <span class="text-3xl" aria-hidden="true">{{ category.icon }}</span>
+                <span class="text-sm font-medium text-gray-700">{{ category.name }}</span>
+              </a>
+            </li>
           }
-        </div>
+        </ul>
       </div>
     </section>
   `,

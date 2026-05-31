@@ -7,6 +7,7 @@ import {
   IsPositive,
   IsOptional,
   IsUUID,
+  ValidateIf,
 } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -23,8 +24,11 @@ export class CreateServiceDto {
   @IsPositive()
   price: number;
 
-  @ApiPropertyOptional({ description: 'Category ID to assign to this service' })
+  @ApiPropertyOptional({
+    description: 'Category ID to assign to this service, or null to clear',
+  })
   @IsOptional()
+  @ValidateIf((o: CreateServiceDto) => o.categoryId !== null)
   @IsUUID()
-  categoryId?: string;
+  categoryId?: string | null;
 }

@@ -72,9 +72,13 @@ export class DashboardComponent implements OnInit {
     this.categoryService.loadCategories();
   }
 
+  readonly categoryMap = computed(
+    () => new Map(this.categoryService.categories().map((c) => [c.id, c.name])),
+  );
+
   categoryName(categoryId: string | null): string {
     if (!categoryId) return '—';
-    return this.categoryService.categories().find((c) => c.id === categoryId)?.name ?? '—';
+    return this.categoryMap().get(categoryId) ?? '—';
   }
 
   openServiceModal(service?: Service) {

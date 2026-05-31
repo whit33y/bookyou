@@ -15,7 +15,7 @@ export class CategoryService {
   readonly loading = signal(false);
 
   loadCategories() {
-    if (this.categories().length > 0) return;
+    if (this.categories().length > 0 || this.loading()) return;
     this.loading.set(true);
     this.http
       .get<Category[]>(this.apiUrl)

@@ -89,12 +89,12 @@ export interface CreateServiceRequest {
   name: string;
   duration: number;
   price: number;
-  categoryId?: string;
+  categoryId?: string | null;
 }
 
 export interface UpdateServiceRequest {
   name?: string;
   duration?: number;
   price?: number;
-  categoryId?: string;
+  categoryId?: string | null;
 }

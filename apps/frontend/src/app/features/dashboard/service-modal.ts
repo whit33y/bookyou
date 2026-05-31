@@ -52,7 +52,7 @@ export class ServiceModalComponent implements OnInit {
     this.loading = true;
     this.error = '';
     const { categoryId, ...rest } = this.form.getRawValue();
-    const data = { ...rest, categoryId: categoryId || undefined };
+    const data = { ...rest, categoryId: categoryId || null };
     const s = this.service();
     const businessId = this.businessService.businessId();
 
