@@ -13,6 +13,7 @@ import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DiscoveryService } from '../../core/services/discovery.service';
+import { CategoryService } from '../../core/services/category.service';
 
 @Component({
   selector: 'app-businesses',
@@ -25,6 +26,7 @@ import { DiscoveryService } from '../../core/services/discovery.service';
 })
 export class BusinessesComponent implements OnInit {
   protected readonly discoveryService = inject(DiscoveryService);
+  protected readonly categoryService = inject(CategoryService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly elementRef = inject(ElementRef);
   private readonly route = inject(ActivatedRoute);
@@ -71,6 +73,7 @@ export class BusinessesComponent implements OnInit {
       .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.fetchBusinesses());
 
+    this.categoryService.loadCategories();
     this.discoveryService.loadCities();
     this.fetchBusinesses();
   }
@@ -135,10 +138,10 @@ export class BusinessesComponent implements OnInit {
     }
   }
 
-  onCategoryInput(event: Event) {
-    const target = event.target as HTMLInputElement;
+  onCategoryChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
     this.categoryFilter.set(target.value);
-    this.searchSubject.next();
+    this.fetchBusinesses();
   }
 
   selectCity(city: string) {

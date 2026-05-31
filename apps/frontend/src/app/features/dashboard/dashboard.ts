@@ -15,6 +15,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { AppointmentStatus } from '../../core/models/appointment.model';
 import { Service } from '../../core/models/business.model';
+import { CategoryService } from '../../core/services/category.service';
 import { BusinessSettingsComponent } from './business-settings';
 import { ServiceModalComponent } from './service-modal';
 import { ConfirmModalComponent } from '../../shared/components/confirm-modal/confirm-modal';
@@ -31,6 +32,7 @@ export class DashboardComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly notify = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly categoryService = inject(CategoryService);
 
   readonly showServiceModal = signal(false);
   readonly editingService = signal<Service | null>(null);
@@ -67,6 +69,12 @@ export class DashboardComponent implements OnInit {
   ngOnInit() {
     this.businessService.loadMyBusiness();
     this.appointmentService.loadMyAppointments();
+    this.categoryService.loadCategories();
+  }
+
+  categoryName(categoryId: string | null): string {
+    if (!categoryId) return '—';
+    return this.categoryService.categories().find((c) => c.id === categoryId)?.name ?? '—';
   }
 
   openServiceModal(service?: Service) {

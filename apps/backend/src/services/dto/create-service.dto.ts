@@ -5,7 +5,10 @@ import {
   Min,
   IsNumber,
   IsPositive,
+  IsOptional,
+  IsUUID,
 } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateServiceDto {
   @IsString()
@@ -19,4 +22,9 @@ export class CreateServiceDto {
   @IsNumber({ maxDecimalPlaces: 2 })
   @IsPositive()
   price: number;
+
+  @ApiPropertyOptional({ description: 'Category ID to assign to this service' })
+  @IsOptional()
+  @IsUUID()
+  categoryId?: string;
 }

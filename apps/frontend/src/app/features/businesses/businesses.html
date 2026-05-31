@@ -63,14 +63,17 @@
     </div>
 
     <!-- Category filter -->
-    <input
-      type="text"
-      placeholder="Kategoria usługi..."
+    <select
       aria-label="Filtruj po kategorii"
       [value]="categoryFilter()"
-      (input)="onCategoryInput($event)"
+      (change)="onCategoryChange($event)"
       class="rounded-md border border-gray-300 px-4 py-2 text-sm sm:w-48 focus:border-indigo-500 focus:ring-indigo-500"
-    />
+    >
+      <option value="">Wszystkie kategorie</option>
+      @for (cat of categoryService.categories(); track cat.id) {
+        <option [value]="cat.slug">{{ cat.icon }} {{ cat.name }}</option>
+      }
+    </select>
   </div>
 
   @if (!discoveryService.loading() && discoveryService.total() > 0) {

@@ -80,6 +80,7 @@ export interface Service {
   duration: number;
   price: number;
   businessId: string;
+  categoryId: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -88,10 +89,12 @@ export interface CreateServiceRequest {
   name: string;
   duration: number;
   price: number;
+  categoryId?: string;
 }
 
 export interface UpdateServiceRequest {
   name?: string;
   duration?: number;
   price?: number;
+  categoryId?: string;
 }
