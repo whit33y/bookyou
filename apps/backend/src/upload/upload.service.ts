@@ -1,10 +1,10 @@
 import {
-  ForbiddenException,
+  BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { existsSync, mkdirSync, unlinkSync } from 'fs';
+import { mkdir, unlink, access } from 'fs/promises';
 import { extname, join } from 'path';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthUserResponse } from '../auth/dto/auth-response.dto';
@@ -17,17 +17,15 @@ const UPLOADS_DIR = join(process.cwd(), 'uploads');
 @Injectable()
 export class UploadService {
   constructor(private readonly prisma: PrismaService) {
-    if (!existsSync(UPLOADS_DIR)) {
-      mkdirSync(UPLOADS_DIR, { recursive: true });
-    }
+    mkdir(UPLOADS_DIR, { recursive: true }).catch(() => undefined);
   }
 
   static validateFile(file: Express.Multer.File): void {
     if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
-      throw new ForbiddenException('Dozwolone formaty: JPG, PNG, WebP');
+      throw new BadRequestException('Dozwolone formaty: JPG, PNG, WebP');
     }
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      throw new ForbiddenException('Maksymalny rozmiar pliku to 5MB');
+      throw new BadRequestException('Maksymalny rozmiar pliku to 5MB');
     }
   }
 
@@ -39,14 +37,14 @@ export class UploadService {
     return `/uploads/${filename}`;
   }
 
-  private deleteOldFile(url: string | null): void {
+  private async deleteOldFile(url: string | null): Promise<void> {
     if (!url) return;
     const filename = url.split('/').pop();
     if (!filename) return;
     const filepath = join(UPLOADS_DIR, filename);
-    if (existsSync(filepath)) {
-      unlinkSync(filepath);
-    }
+    await access(filepath)
+      .then(() => unlink(filepath))
+      .catch(() => undefined);
   }
 
   async updateUserAvatar(
@@ -58,7 +56,7 @@ export class UploadService {
       select: { avatarUrl: true },
     });
 
-    this.deleteOldFile(user?.avatarUrl ?? null);
+    await this.deleteOldFile(user?.avatarUrl ?? null);
 
     const updated = await this.prisma.user.update({
       where: { id: userId },
@@ -88,7 +86,7 @@ export class UploadService {
       );
     }
 
-    this.deleteOldFile(business.logoUrl);
+    await this.deleteOldFile(business.logoUrl);
 
     return this.prisma.business.update({
       where: { id: business.id },
@@ -110,7 +108,7 @@ export class UploadService {
       );
     }
 
-    this.deleteOldFile(business.coverUrl);
+    await this.deleteOldFile(business.coverUrl);
 
     return this.prisma.business.update({
       where: { id: business.id },

@@ -1,12 +1,9 @@
 import {
   BadRequestException,
   Controller,
-  Get,
   HttpCode,
   HttpStatus,
-  Param,
   Post,
-  Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -21,9 +18,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { diskStorage } from 'multer';
-import { existsSync } from 'fs';
 import { join } from 'path';
-import type { Response } from 'express';
 import { Role } from '../generated/prisma/client';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -72,7 +67,10 @@ export class UploadController {
     },
   })
   @ApiResponse({ status: 200, description: 'Avatar uploaded successfully.' })
-  @ApiResponse({ status: 400, description: 'No file provided.' })
+  @ApiResponse({
+    status: 400,
+    description: 'No file provided or invalid file.',
+  })
   async uploadAvatar(
     @UploadedFile() file: Express.Multer.File | undefined,
     @CurrentUser('id') userId: string,
@@ -101,7 +99,10 @@ export class UploadController {
     },
   })
   @ApiResponse({ status: 200, description: 'Logo uploaded successfully.' })
-  @ApiResponse({ status: 400, description: 'No file provided.' })
+  @ApiResponse({
+    status: 400,
+    description: 'No file provided or invalid file.',
+  })
   async uploadBusinessLogo(
     @UploadedFile() file: Express.Multer.File | undefined,
     @CurrentUser('id') ownerId: string,
@@ -130,7 +131,10 @@ export class UploadController {
     },
   })
   @ApiResponse({ status: 200, description: 'Cover uploaded successfully.' })
-  @ApiResponse({ status: 400, description: 'No file provided.' })
+  @ApiResponse({
+    status: 400,
+    description: 'No file provided or invalid file.',
+  })
   async uploadBusinessCover(
     @UploadedFile() file: Express.Multer.File | undefined,
     @CurrentUser('id') ownerId: string,
@@ -140,21 +144,5 @@ export class UploadController {
     }
     const url = UploadService.buildUrl(file.filename);
     return this.uploadService.updateBusinessCover(ownerId, url);
-  }
-
-  @Get('file/:filename')
-  @ApiOperation({ summary: 'Serve an uploaded file' })
-  @ApiResponse({ status: 200, description: 'Returns the file.' })
-  @ApiResponse({ status: 404, description: 'File not found.' })
-  serveFile(@Param('filename') filename: string, @Res() res: Response) {
-    // Prevent path traversal — only allow safe filename characters
-    if (!/^[\w-]+\.(jpg|jpeg|png|webp)$/i.test(filename)) {
-      return res.status(404).send();
-    }
-    const filepath = join(process.cwd(), 'uploads', filename);
-    if (!existsSync(filepath)) {
-      return res.status(404).send();
-    }
-    return res.sendFile(filepath);
   }
 }
