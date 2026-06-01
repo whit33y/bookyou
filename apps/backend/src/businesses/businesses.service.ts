@@ -216,11 +216,7 @@ export class BusinessesService {
     }));
 
     const now = new Date();
-    const todayStr = [
-      now.getUTCFullYear(),
-      String(now.getUTCMonth() + 1).padStart(2, '0'),
-      String(now.getUTCDate()).padStart(2, '0'),
-    ].join('-');
+    const todayStr = now.toISOString().split('T')[0];
     const isToday = todayStr === date;
     const nowMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
 
