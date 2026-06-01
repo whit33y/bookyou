@@ -8,6 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import {
   AbstractControl,
   FormBuilder,
@@ -113,30 +114,24 @@ export class BusinessSettingsComponent {
 
   onLogoSelected(file: File): void {
     this.logoUploading.set(true);
-    this.businessService.uploadLogo(file).subscribe({
-      next: () => {
-        this.notifications.success('Logo zostało zaktualizowane.');
-        this.logoUploading.set(false);
-      },
-      error: () => {
-        this.notifications.error('Nie udało się przesłać logo.');
-        this.logoUploading.set(false);
-      },
-    });
+    this.businessService
+      .uploadLogo(file)
+      .pipe(finalize(() => this.logoUploading.set(false)))
+      .subscribe({
+        next: () => this.notifications.success('Logo zostało zaktualizowane.'),
+        error: () => this.notifications.error('Nie udało się przesłać logo.'),
+      });
   }
 
   onCoverSelected(file: File): void {
     this.coverUploading.set(true);
-    this.businessService.uploadCover(file).subscribe({
-      next: () => {
-        this.notifications.success('Zdjęcie okładkowe zostało zaktualizowane.');
-        this.coverUploading.set(false);
-      },
-      error: () => {
-        this.notifications.error('Nie udało się przesłać zdjęcia okładkowego.');
-        this.coverUploading.set(false);
-      },
-    });
+    this.businessService
+      .uploadCover(file)
+      .pipe(finalize(() => this.coverUploading.set(false)))
+      .subscribe({
+        next: () => this.notifications.success('Zdjęcie okładkowe zostało zaktualizowane.'),
+        error: () => this.notifications.error('Nie udało się przesłać zdjęcia okładkowego.'),
+      });
   }
 
   onSubmit(): void {
