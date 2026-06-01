@@ -14,12 +14,18 @@ export class UploadService {
     return this.http.post<User>(`${this.uploadUrl}/avatar`, this.toFormData(file));
   }
 
-  uploadBusinessLogo(file: File): Observable<Business> {
-    return this.http.post<Business>(`${this.uploadUrl}/business-logo`, this.toFormData(file));
+  uploadBusinessLogo(file: File, businessId: string): Observable<Business> {
+    return this.http.post<Business>(
+      `${this.uploadUrl}/business-logo/${businessId}`,
+      this.toFormData(file),
+    );
   }
 
-  uploadBusinessCover(file: File): Observable<Business> {
-    return this.http.post<Business>(`${this.uploadUrl}/business-cover`, this.toFormData(file));
+  uploadBusinessCover(file: File, businessId: string): Observable<Business> {
+    return this.http.post<Business>(
+      `${this.uploadUrl}/business-cover/${businessId}`,
+      this.toFormData(file),
+    );
   }
 
   resolveUrl(path: string | null | undefined): string | null {

@@ -3,6 +3,7 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   UploadedFile,
   UseGuards,
@@ -14,6 +15,7 @@ import {
   ApiBody,
   ApiConsumes,
   ApiOperation,
+  ApiParam,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -84,7 +86,7 @@ export class UploadController {
     return this.uploadService.updateUserAvatar(userId, url);
   }
 
-  @Post('business-logo')
+  @Post('business-logo/:businessId')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.PROVIDER)
@@ -92,6 +94,7 @@ export class UploadController {
   @UseInterceptors(FileInterceptor('file', multerOptions))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Upload business logo' })
+  @ApiParam({ name: 'businessId', description: 'ID of the business to update' })
   @ApiBody({
     schema: {
       type: 'object',
@@ -103,7 +106,10 @@ export class UploadController {
     status: 400,
     description: 'No file provided or invalid file.',
   })
+  @ApiResponse({ status: 403, description: 'Not the owner of this business.' })
+  @ApiResponse({ status: 404, description: 'Business not found.' })
   async uploadBusinessLogo(
+    @Param('businessId') businessId: string,
     @UploadedFile() file: Express.Multer.File | undefined,
     @CurrentUser('id') ownerId: string,
   ) {
@@ -111,10 +117,10 @@ export class UploadController {
       throw new BadRequestException('Nie przesłano pliku');
     }
     const url = UploadService.buildUrl(file.filename);
-    return this.uploadService.updateBusinessLogo(ownerId, url);
+    return this.uploadService.updateBusinessLogo(ownerId, businessId, url);
   }
 
-  @Post('business-cover')
+  @Post('business-cover/:businessId')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.PROVIDER)
@@ -122,6 +128,7 @@ export class UploadController {
   @UseInterceptors(FileInterceptor('file', multerOptions))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Upload business cover image' })
+  @ApiParam({ name: 'businessId', description: 'ID of the business to update' })
   @ApiBody({
     schema: {
       type: 'object',
@@ -133,7 +140,10 @@ export class UploadController {
     status: 400,
     description: 'No file provided or invalid file.',
   })
+  @ApiResponse({ status: 403, description: 'Not the owner of this business.' })
+  @ApiResponse({ status: 404, description: 'Business not found.' })
   async uploadBusinessCover(
+    @Param('businessId') businessId: string,
     @UploadedFile() file: Express.Multer.File | undefined,
     @CurrentUser('id') ownerId: string,
   ) {
@@ -141,6 +151,6 @@ export class UploadController {
       throw new BadRequestException('Nie przesłano pliku');
     }
     const url = UploadService.buildUrl(file.filename);
-    return this.uploadService.updateBusinessCover(ownerId, url);
+    return this.uploadService.updateBusinessCover(ownerId, businessId, url);
   }
 }

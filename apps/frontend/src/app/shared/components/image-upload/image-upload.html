@@ -42,6 +42,7 @@
       [attr.aria-label]="'Zmień ' + label()"
     >
       @if (uploading()) {
+        <span class="sr-only">Przesyłanie...</span>
         <svg
           class="h-5 w-5 animate-spin text-white"
           fill="none"

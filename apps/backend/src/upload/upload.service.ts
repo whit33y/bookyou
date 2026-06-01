@@ -1,33 +1,43 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { mkdir, unlink, access } from 'fs/promises';
-import { extname, join, resolve } from 'path';
+import { mkdirSync, unlink, access } from 'fs';
+import { promisify } from 'util';
+import { join, resolve } from 'path';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthUserResponse } from '../auth/dto/auth-response.dto';
 import { Business } from '../generated/prisma/client';
 
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const MIME_TO_EXTENSION: Record<string, string> = {
+  'image/jpeg': '.jpg',
+  'image/png': '.png',
+  'image/webp': '.webp',
+};
 export const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 const UPLOADS_DIR = join(process.cwd(), 'uploads');
+
+const fsAccess = promisify(access);
+const fsUnlink = promisify(unlink);
 
 @Injectable()
 export class UploadService {
   constructor(private readonly prisma: PrismaService) {
-    mkdir(UPLOADS_DIR, { recursive: true }).catch(() => undefined);
+    mkdirSync(UPLOADS_DIR, { recursive: true });
   }
 
   static validateMimeType(file: Express.Multer.File): void {
-    if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+    if (!MIME_TO_EXTENSION[file.mimetype]) {
       throw new BadRequestException('Dozwolone formaty: JPG, PNG, WebP');
     }
   }
 
   static buildFilename(file: Express.Multer.File): string {
-    return `${randomUUID()}${extname(file.originalname).toLowerCase()}`;
+    const ext = MIME_TO_EXTENSION[file.mimetype] ?? '.bin';
+    return `${randomUUID()}${ext}`;
   }
 
   static buildUrl(filename: string): string {
@@ -40,8 +50,8 @@ export class UploadService {
     if (!filename) return;
     const filepath = resolve(UPLOADS_DIR, filename);
     if (!filepath.startsWith(UPLOADS_DIR + '/')) return;
-    await access(filepath)
-      .then(() => unlink(filepath))
+    await fsAccess(filepath)
+      .then(() => fsUnlink(filepath))
       .catch(() => undefined);
   }
 
@@ -54,12 +64,12 @@ export class UploadService {
       select: { avatarUrl: true },
     });
 
-    await this.deleteOldFile(user?.avatarUrl ?? null);
-
     const updated = await this.prisma.user.update({
       where: { id: userId },
       data: { avatarUrl },
     });
+
+    await this.deleteOldFile(user?.avatarUrl ?? null);
 
     return {
       id: updated.id,
@@ -72,45 +82,55 @@ export class UploadService {
 
   async updateBusinessLogo(
     ownerId: string,
+    businessId: string,
     logoUrl: string,
   ): Promise<Business> {
     const business = await this.prisma.business.findFirst({
-      where: { ownerId, deletedAt: null },
+      where: { id: businessId, deletedAt: null },
     });
 
     if (!business) {
-      throw new NotFoundException(
-        'Nie znaleziono biznesu dla tego usługodawcy',
-      );
+      throw new NotFoundException(`Business with ID ${businessId} not found`);
     }
 
-    await this.deleteOldFile(business.logoUrl);
+    if (business.ownerId !== ownerId) {
+      throw new ForbiddenException('You are not the owner of this business');
+    }
 
-    return this.prisma.business.update({
+    const updated = await this.prisma.business.update({
       where: { id: business.id },
       data: { logoUrl },
     });
+
+    await this.deleteOldFile(business.logoUrl);
+
+    return updated;
   }
 
   async updateBusinessCover(
     ownerId: string,
+    businessId: string,
     coverUrl: string,
   ): Promise<Business> {
     const business = await this.prisma.business.findFirst({
-      where: { ownerId, deletedAt: null },
+      where: { id: businessId, deletedAt: null },
     });
 
     if (!business) {
-      throw new NotFoundException(
-        'Nie znaleziono biznesu dla tego usługodawcy',
-      );
+      throw new NotFoundException(`Business with ID ${businessId} not found`);
     }
 
-    await this.deleteOldFile(business.coverUrl);
+    if (business.ownerId !== ownerId) {
+      throw new ForbiddenException('You are not the owner of this business');
+    }
 
-    return this.prisma.business.update({
+    const updated = await this.prisma.business.update({
       where: { id: business.id },
       data: { coverUrl },
     });
+
+    await this.deleteOldFile(business.coverUrl);
+
+    return updated;
   }
 }

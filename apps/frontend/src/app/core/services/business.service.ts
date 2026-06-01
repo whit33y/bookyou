@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { tap } from 'rxjs';
+import { EMPTY, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   Business,
@@ -51,11 +51,15 @@ export class BusinessService {
   }
 
   uploadLogo(file: File) {
-    return this.uploadService.uploadBusinessLogo(file).pipe(tap((b) => this.business.set(b)));
+    const id = this.businessId();
+    if (!id) return EMPTY;
+    return this.uploadService.uploadBusinessLogo(file, id).pipe(tap((b) => this.business.set(b)));
   }
 
   uploadCover(file: File) {
-    return this.uploadService.uploadBusinessCover(file).pipe(tap((b) => this.business.set(b)));
+    const id = this.businessId();
+    if (!id) return EMPTY;
+    return this.uploadService.uploadBusinessCover(file, id).pipe(tap((b) => this.business.set(b)));
   }
 
   createService(businessId: string, data: CreateServiceRequest) {
