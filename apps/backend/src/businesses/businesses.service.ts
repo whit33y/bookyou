@@ -3,12 +3,39 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
-import { Prisma } from '../generated/prisma/client';
+import { AppointmentStatus, Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
 import { FindAllBusinessesQueryDto } from './dto/find-all-businesses-query.dto';
 import { instanceToPlain } from 'class-transformer';
+
+interface OpeningHoursDay {
+  open: string;
+  close: string;
+}
+
+interface OpeningHours {
+  monday?: OpeningHoursDay;
+  tuesday?: OpeningHoursDay;
+  wednesday?: OpeningHoursDay;
+  thursday?: OpeningHoursDay;
+  friday?: OpeningHoursDay;
+  saturday?: OpeningHoursDay;
+  sunday?: OpeningHoursDay;
+}
+
+const SLOT_INTERVAL_MINUTES = 15;
+
+const DAYS_OF_WEEK: (keyof OpeningHours)[] = [
+  'sunday',
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
+];
 
 @Injectable()
 export class BusinessesService {
@@ -132,6 +159,92 @@ export class BusinessesService {
     return this.prisma.service.findMany({
       where: { businessId, deletedAt: null },
     });
+  }
+
+  async getAvailableSlots(
+    businessId: string,
+    date: string,
+    serviceId: string,
+  ): Promise<string[]> {
+    const [business, service] = await Promise.all([
+      this.prisma.business.findUnique({
+        where: { id: businessId },
+        select: { deletedAt: true, openingHours: true },
+      }),
+      this.prisma.service.findUnique({
+        where: { id: serviceId },
+        select: { businessId: true, duration: true, deletedAt: true },
+      }),
+    ]);
+
+    if (!business || business.deletedAt) {
+      throw new NotFoundException(`Business with ID ${businessId} not found`);
+    }
+
+    if (!service || service.deletedAt || service.businessId !== businessId) {
+      throw new NotFoundException('Service not found for this business');
+    }
+
+    const openingHours = business.openingHours as OpeningHours | null;
+    if (!openingHours) return [];
+
+    const dayOfWeek = DAYS_OF_WEEK[new Date(date).getUTCDay()];
+    const dayHours = openingHours[dayOfWeek];
+    if (!dayHours) return [];
+
+    const [openH, openM] = dayHours.open.split(':').map(Number);
+    const [closeH, closeM] = dayHours.close.split(':').map(Number);
+    const openMinutes = openH * 60 + openM;
+    const closeMinutes = closeH * 60 + closeM;
+
+    const dayStart = new Date(`${date}T00:00:00.000Z`);
+    const dayEnd = new Date(`${date}T23:59:59.999Z`);
+
+    const bookedAppointments = await this.prisma.appointment.findMany({
+      where: {
+        businessId,
+        status: { in: [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED] },
+        startTime: { gte: dayStart, lte: dayEnd },
+        deletedAt: null,
+      },
+      select: { startTime: true, endTime: true },
+    });
+
+    const bookedRanges = bookedAppointments.map((a) => ({
+      start: a.startTime.getUTCHours() * 60 + a.startTime.getUTCMinutes(),
+      end: a.endTime.getUTCHours() * 60 + a.endTime.getUTCMinutes(),
+    }));
+
+    const now = new Date();
+    const todayStr = [
+      now.getUTCFullYear(),
+      String(now.getUTCMonth() + 1).padStart(2, '0'),
+      String(now.getUTCDate()).padStart(2, '0'),
+    ].join('-');
+    const isToday = todayStr === date;
+    const nowMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
+
+    const slots: string[] = [];
+    const { duration } = service;
+
+    for (
+      let m = openMinutes;
+      m + duration <= closeMinutes;
+      m += SLOT_INTERVAL_MINUTES
+    ) {
+      if (isToday && m <= nowMinutes) continue;
+
+      const slotEnd = m + duration;
+      const isBooked = bookedRanges.some((r) => m < r.end && slotEnd > r.start);
+
+      if (!isBooked) {
+        const h = Math.floor(m / 60).toString().padStart(2, '0');
+        const min = (m % 60).toString().padStart(2, '0');
+        slots.push(`${h}:${min}`);
+      }
+    }
+
+    return slots;
   }
 
   async update(id: string, userId: string, dto: UpdateBusinessDto) {

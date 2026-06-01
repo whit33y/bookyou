@@ -15,6 +15,7 @@ describe('BusinessesController', () => {
     findByOwner: jest.fn(),
     findOne: jest.fn(),
     findServices: jest.fn(),
+    getAvailableSlots: jest.fn(),
     update: jest.fn(),
     remove: jest.fn(),
   };
@@ -79,6 +80,34 @@ describe('BusinessesController', () => {
         BusinessesController.prototype.findMine,
       );
       expect(roles).toContain('PROVIDER');
+    });
+  });
+
+  describe('getAvailableSlots', () => {
+    it('should be a public endpoint (no role guard)', () => {
+      const reflector = new Reflector();
+      const roles = reflector.get<string[]>(
+        ROLES_KEY,
+        BusinessesController.prototype.getAvailableSlots,
+      );
+      expect(roles).toBeUndefined();
+    });
+
+    it('should delegate to service with correct params', async () => {
+      const slots = ['09:00', '09:15', '10:00'];
+      mockBusinessesService.getAvailableSlots.mockResolvedValue(slots);
+
+      const result = await controller.getAvailableSlots('bus-1', {
+        date: '2099-06-16',
+        serviceId: 'ser-1',
+      });
+
+      expect(result).toEqual(slots);
+      expect(mockBusinessesService.getAvailableSlots).toHaveBeenCalledWith(
+        'bus-1',
+        '2099-06-16',
+        'ser-1',
+      );
     });
   });
 });

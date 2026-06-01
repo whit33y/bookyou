@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   DestroyRef,
   inject,
   input,
@@ -10,11 +9,10 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { A11yModule } from '@angular/cdk/a11y';
-import { of, Subject, switchMap } from 'rxjs';
-import { Business, OpeningHours, Service } from '../../core/models/business.model';
+import { EMPTY, Subject, switchMap } from 'rxjs';
+import { Business, Service } from '../../core/models/business.model';
 import { AppointmentService } from '../../core/services/appointment.service';
-
-const SLOT_INTERVAL_MINUTES = 15;
+import { BusinessService } from '../../core/services/business.service';
 
 @Component({
   selector: 'app-booking-modal',
@@ -28,42 +26,47 @@ export class BookingModalComponent {
   readonly closed = output<void>();
 
   private readonly appointmentService = inject(AppointmentService);
+  private readonly businessService = inject(BusinessService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly step = signal<'date' | 'time' | 'confirm'>('date');
   readonly selectedDate = signal('');
   readonly selectedTime = signal('');
   readonly submitting = signal(false);
+  readonly loadingSlots = signal(false);
   readonly errorMessage = signal('');
-  readonly bookedRanges = signal<{ start: number; end: number }[]>([]);
+  readonly availableSlots = signal<string[]>([]);
 
   private readonly dateChange$ = new Subject<string>();
 
   readonly minDate = this.formatDate(new Date());
 
-  readonly availableSlots = computed(() => {
-    const date = this.selectedDate();
-    if (!date) return [];
-    return this.generateSlots(date);
-  });
-
   constructor() {
     this.dateChange$
       .pipe(
-        switchMap((date) =>
-          date ? this.appointmentService.getBookedSlots(this.business().ownerId, date) : of([]),
-        ),
+        switchMap((date) => {
+          if (!date) {
+            this.availableSlots.set([]);
+            return EMPTY;
+          }
+          this.loadingSlots.set(true);
+          return this.businessService.getAvailableSlots(
+            this.business().id,
+            date,
+            this.service().id,
+          );
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: (ranges) => {
-          const minutes = ranges.map((r) => ({
-            start: this.toMinutes(new Date(r.start)),
-            end: this.toMinutes(new Date(r.end)),
-          }));
-          this.bookedRanges.set(minutes);
+        next: (slots) => {
+          this.availableSlots.set(slots);
+          this.loadingSlots.set(false);
         },
-        error: () => this.bookedRanges.set([]),
+        error: () => {
+          this.availableSlots.set([]);
+          this.loadingSlots.set(false);
+        },
       });
   }
 
@@ -72,19 +75,12 @@ export class BookingModalComponent {
     this.selectedDate.set(value);
     this.selectedTime.set('');
     this.errorMessage.set('');
-    this.bookedRanges.set([]);
+    this.availableSlots.set([]);
     this.dateChange$.next(value);
   }
 
   selectTime(slot: string) {
     this.selectedTime.set(slot);
-  }
-
-  isSlotBooked(slot: string): boolean {
-    const [h, m] = slot.split(':').map(Number);
-    const slotStart = h * 60 + m;
-    const slotEnd = slotStart + this.service().duration;
-    return this.bookedRanges().some((r) => slotStart < r.end && slotEnd > r.start);
   }
 
   goToTime() {
@@ -123,9 +119,10 @@ export class BookingModalComponent {
           this.submitting.set(false);
           this.closed.emit();
         },
-        error: (err) => {
+        error: (err: { error?: { message?: string } }) => {
           this.submitting.set(false);
-          const message = err?.error?.message ?? 'Nie udało się zarezerwować. Spróbuj ponownie.';
+          const message =
+            err?.error?.message ?? 'Nie udało się zarezerwować. Spróbuj ponownie.';
           this.errorMessage.set(message);
         },
       });
@@ -137,63 +134,10 @@ export class BookingModalComponent {
     }
   }
 
-  private generateSlots(dateStr: string): string[] {
-    const openingHours = this.business().openingHours;
-    if (!openingHours) return [];
-
-    const dayOfWeek = this.getDayOfWeek(dateStr);
-    const dayHours = (openingHours as OpeningHours)[dayOfWeek];
-    if (!dayHours) return [];
-
-    const slots: string[] = [];
-    const [openH, openM] = dayHours.open.split(':').map(Number);
-    const [closeH, closeM] = dayHours.close.split(':').map(Number);
-    const openMinutes = openH * 60 + openM;
-    const closeMinutes = closeH * 60 + closeM;
-    const duration = this.service().duration;
-
-    const now = new Date();
-    const isToday = this.formatDate(now) === dateStr;
-
-    for (let m = openMinutes; m + duration <= closeMinutes; m += SLOT_INTERVAL_MINUTES) {
-      if (isToday) {
-        const slotDate = new Date(`${dateStr}T${this.minutesToTime(m)}:00`);
-        if (slotDate <= now) continue;
-      }
-      slots.push(this.minutesToTime(m));
-    }
-
-    return slots;
-  }
-
-  private getDayOfWeek(dateStr: string): keyof OpeningHours {
-    const days: (keyof OpeningHours)[] = [
-      'sunday',
-      'monday',
-      'tuesday',
-      'wednesday',
-      'thursday',
-      'friday',
-      'saturday',
-    ];
-    const dayIndex = new Date(dateStr).getDay();
-    return days[dayIndex];
-  }
-
-  private minutesToTime(minutes: number): string {
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-  }
-
   private formatDate(date: Date): string {
     const y = date.getFullYear();
     const m = (date.getMonth() + 1).toString().padStart(2, '0');
     const d = date.getDate().toString().padStart(2, '0');
     return `${y}-${m}-${d}`;
-  }
-
-  private toMinutes(date: Date): number {
-    return date.getHours() * 60 + date.getMinutes();
   }
 }

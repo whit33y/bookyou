@@ -17,6 +17,10 @@ describe('BusinessesService', () => {
     },
     service: {
       findMany: jest.fn(),
+      findUnique: jest.fn(),
+    },
+    appointment: {
+      findMany: jest.fn(),
     },
     $transaction: jest.fn(),
   };
@@ -196,6 +200,114 @@ describe('BusinessesService', () => {
       const result = await service.findByOwner('user-1');
 
       expect(result).toBeNull();
+    });
+  });
+
+  describe('getAvailableSlots', () => {
+    const businessId = 'bus-1';
+    const serviceId = 'ser-1';
+    const futureMonday = '2099-06-15'; // Verified Monday (getUTCDay() === 1)
+    const futureSunday = '2099-06-14'; // Verified Sunday  (getUTCDay() === 0)
+
+    const mockBusiness = {
+      deletedAt: null,
+      openingHours: {
+        monday: { open: '09:00', close: '17:00' },
+      },
+    };
+
+    const mockService = {
+      businessId,
+      duration: 60,
+      deletedAt: null,
+    };
+
+    beforeEach(() => {
+      mockPrismaService.appointment.findMany.mockResolvedValue([]);
+    });
+
+    it('should throw NotFoundException if business not found', async () => {
+      mockPrismaService.business.findUnique.mockResolvedValue(null);
+      mockPrismaService.service.findUnique.mockResolvedValue(mockService);
+
+      await expect(
+        service.getAvailableSlots(businessId, futureMonday, serviceId),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw NotFoundException if service not found', async () => {
+      mockPrismaService.business.findUnique.mockResolvedValue(mockBusiness);
+      mockPrismaService.service.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.getAvailableSlots(businessId, futureMonday, serviceId),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw NotFoundException if service belongs to different business', async () => {
+      mockPrismaService.business.findUnique.mockResolvedValue(mockBusiness);
+      mockPrismaService.service.findUnique.mockResolvedValue({
+        ...mockService,
+        businessId: 'other-bus',
+      });
+
+      await expect(
+        service.getAvailableSlots(businessId, futureMonday, serviceId),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should return empty array if business has no opening hours', async () => {
+      mockPrismaService.business.findUnique.mockResolvedValue({
+        deletedAt: null,
+        openingHours: null,
+      });
+      mockPrismaService.service.findUnique.mockResolvedValue(mockService);
+
+      const result = await service.getAvailableSlots(businessId, futureMonday, serviceId);
+      expect(result).toEqual([]);
+    });
+
+    it('should return empty array if business is closed on that day', async () => {
+      // futureSunday is Sunday; business only has monday hours
+      mockPrismaService.business.findUnique.mockResolvedValue(mockBusiness);
+      mockPrismaService.service.findUnique.mockResolvedValue(mockService);
+
+      const result = await service.getAvailableSlots(businessId, futureSunday, serviceId);
+      expect(result).toEqual([]);
+    });
+
+    it('should return all slots when nothing is booked', async () => {
+      mockPrismaService.business.findUnique.mockResolvedValue(mockBusiness);
+      mockPrismaService.service.findUnique.mockResolvedValue(mockService);
+
+      const result = await service.getAvailableSlots(businessId, futureMonday, serviceId);
+
+      // 09:00–17:00, 60 min service, 15 min intervals → 09:00, 09:15, ..., 16:00
+      expect(result).toContain('09:00');
+      expect(result).toContain('16:00');
+      expect(result).not.toContain('16:15'); // 16:15 + 60min > 17:00
+      expect(result.length).toBeGreaterThan(0);
+    });
+
+    it('should exclude slots that overlap with booked appointments', async () => {
+      mockPrismaService.business.findUnique.mockResolvedValue(mockBusiness);
+      mockPrismaService.service.findUnique.mockResolvedValue(mockService);
+
+      // Appointment from 10:00 to 11:00 UTC
+      const bookedStart = new Date(`${futureMonday}T10:00:00.000Z`);
+      const bookedEnd = new Date(`${futureMonday}T11:00:00.000Z`);
+      mockPrismaService.appointment.findMany.mockResolvedValue([
+        { startTime: bookedStart, endTime: bookedEnd },
+      ]);
+
+      const result = await service.getAvailableSlots(businessId, futureMonday, serviceId);
+
+      // 10:00 starts a 60-min service ending at 11:00 → overlaps with booked 10:00–11:00
+      expect(result).not.toContain('10:00');
+      // 09:45 ends at 10:45 → overlaps with booked 10:00–11:00
+      expect(result).not.toContain('09:45');
+      // 09:00 ends at 10:00 → touches start of booking but does not overlap
+      expect(result).toContain('09:00');
     });
   });
 
