@@ -42,6 +42,7 @@ describe('JwtStrategy', () => {
       email: 'test@example.com',
       role: Role.CLIENT,
       name: 'Test User',
+      avatarUrl: null,
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null,

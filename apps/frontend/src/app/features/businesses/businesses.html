@@ -105,13 +105,25 @@
       @for (business of discoveryService.businesses(); track business.id) {
         <a
           [routerLink]="['/businesses', business.id]"
-          class="block rounded-lg border border-gray-200 p-6 transition hover:border-indigo-300 hover:shadow-md"
+          class="block rounded-lg border border-gray-200 transition hover:border-indigo-300 hover:shadow-md overflow-hidden"
         >
-          <h2 class="text-lg font-semibold text-gray-900">{{ business.name }}</h2>
-          <p class="mt-1 text-sm text-gray-500">{{ business.street }}, {{ business.city }}</p>
-          @if (business.description) {
-            <p class="mt-2 line-clamp-2 text-sm text-gray-600">{{ business.description }}</p>
+          @if (uploadService.resolveUrl(business.logoUrl); as logoSrc) {
+            <img [src]="logoSrc" [alt]="business.name + ' logo'" class="h-32 w-full object-cover" />
+          } @else {
+            <div
+              class="h-32 w-full bg-gradient-to-br from-indigo-50 to-indigo-100 flex items-center justify-center"
+              aria-hidden="true"
+            >
+              <span class="text-3xl font-bold text-indigo-300">{{ business.name[0] }}</span>
+            </div>
           }
+          <div class="p-5">
+            <h2 class="text-lg font-semibold text-gray-900">{{ business.name }}</h2>
+            <p class="mt-1 text-sm text-gray-500">{{ business.street }}, {{ business.city }}</p>
+            @if (business.description) {
+              <p class="mt-2 line-clamp-2 text-sm text-gray-600">{{ business.description }}</p>
+            }
+          </div>
         </a>
       }
     </div>

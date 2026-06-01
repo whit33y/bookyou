@@ -10,10 +10,12 @@ import {
   UpdateBusinessRequest,
   UpdateServiceRequest,
 } from '../models/business.model';
+import { UploadService } from './upload.service';
 
 @Injectable({ providedIn: 'root' })
 export class BusinessService {
   private readonly http = inject(HttpClient);
+  private readonly uploadService = inject(UploadService);
   private readonly businessesUrl = `${environment.apiUrl}/businesses`;
   private readonly servicesUrl = `${environment.apiUrl}/services`;
 
@@ -46,6 +48,14 @@ export class BusinessService {
     return this.http
       .patch<Business>(`${this.businessesUrl}/${id}`, data)
       .pipe(tap((b) => this.business.set(b)));
+  }
+
+  uploadLogo(file: File) {
+    return this.uploadService.uploadBusinessLogo(file).pipe(tap((b) => this.business.set(b)));
+  }
+
+  uploadCover(file: File) {
+    return this.uploadService.uploadBusinessCover(file).pipe(tap((b) => this.business.set(b)));
   }
 
   createService(businessId: string, data: CreateServiceRequest) {

@@ -28,6 +28,7 @@ model User {
   email     String    @unique
   password  String
   name      String?
+  avatarUrl String?   @map("avatar_url")
   role      Role      @default(CLIENT)
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
@@ -58,10 +59,12 @@ model Business {
   phone        String?
   website      String?
 
+  logoUrl      String?   @map("logo_url")
+  coverUrl     String?   @map("cover_url")
   openingHours Json?     @map("opening_hours")
   latitude     Float?
   longitude    Float?
-  
+
   ownerId      String    @map("owner_id")
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")

@@ -47,6 +47,8 @@ export type BusinessMinAggregateOutputType = {
   email: string | null;
   phone: string | null;
   website: string | null;
+  logoUrl: string | null;
+  coverUrl: string | null;
   latitude: number | null;
   longitude: number | null;
   ownerId: string | null;
@@ -66,6 +68,8 @@ export type BusinessMaxAggregateOutputType = {
   email: string | null;
   phone: string | null;
   website: string | null;
+  logoUrl: string | null;
+  coverUrl: string | null;
   latitude: number | null;
   longitude: number | null;
   ownerId: string | null;
@@ -85,6 +89,8 @@ export type BusinessCountAggregateOutputType = {
   email: number;
   phone: number;
   website: number;
+  logoUrl: number;
+  coverUrl: number;
   openingHours: number;
   latitude: number;
   longitude: number;
@@ -116,6 +122,8 @@ export type BusinessMinAggregateInputType = {
   email?: true;
   phone?: true;
   website?: true;
+  logoUrl?: true;
+  coverUrl?: true;
   latitude?: true;
   longitude?: true;
   ownerId?: true;
@@ -135,6 +143,8 @@ export type BusinessMaxAggregateInputType = {
   email?: true;
   phone?: true;
   website?: true;
+  logoUrl?: true;
+  coverUrl?: true;
   latitude?: true;
   longitude?: true;
   ownerId?: true;
@@ -154,6 +164,8 @@ export type BusinessCountAggregateInputType = {
   email?: true;
   phone?: true;
   website?: true;
+  logoUrl?: true;
+  coverUrl?: true;
   openingHours?: true;
   latitude?: true;
   longitude?: true;
@@ -268,6 +280,8 @@ export type BusinessGroupByOutputType = {
   email: string | null;
   phone: string | null;
   website: string | null;
+  logoUrl: string | null;
+  coverUrl: string | null;
   openingHours: runtime.JsonValue | null;
   latitude: number | null;
   longitude: number | null;
@@ -309,6 +323,8 @@ export type BusinessWhereInput = {
   email?: Prisma.StringNullableFilter<'Business'> | string | null;
   phone?: Prisma.StringNullableFilter<'Business'> | string | null;
   website?: Prisma.StringNullableFilter<'Business'> | string | null;
+  logoUrl?: Prisma.StringNullableFilter<'Business'> | string | null;
+  coverUrl?: Prisma.StringNullableFilter<'Business'> | string | null;
   openingHours?: Prisma.JsonNullableFilter<'Business'>;
   latitude?: Prisma.FloatNullableFilter<'Business'> | number | null;
   longitude?: Prisma.FloatNullableFilter<'Business'> | number | null;
@@ -333,6 +349,8 @@ export type BusinessOrderByWithRelationInput = {
   email?: Prisma.SortOrderInput | Prisma.SortOrder;
   phone?: Prisma.SortOrderInput | Prisma.SortOrder;
   website?: Prisma.SortOrderInput | Prisma.SortOrder;
+  logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder;
+  coverUrl?: Prisma.SortOrderInput | Prisma.SortOrder;
   openingHours?: Prisma.SortOrderInput | Prisma.SortOrder;
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder;
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder;
@@ -361,6 +379,8 @@ export type BusinessWhereUniqueInput = Prisma.AtLeast<
     email?: Prisma.StringNullableFilter<'Business'> | string | null;
     phone?: Prisma.StringNullableFilter<'Business'> | string | null;
     website?: Prisma.StringNullableFilter<'Business'> | string | null;
+    logoUrl?: Prisma.StringNullableFilter<'Business'> | string | null;
+    coverUrl?: Prisma.StringNullableFilter<'Business'> | string | null;
     openingHours?: Prisma.JsonNullableFilter<'Business'>;
     latitude?: Prisma.FloatNullableFilter<'Business'> | number | null;
     longitude?: Prisma.FloatNullableFilter<'Business'> | number | null;
@@ -391,6 +411,8 @@ export type BusinessOrderByWithAggregationInput = {
   email?: Prisma.SortOrderInput | Prisma.SortOrder;
   phone?: Prisma.SortOrderInput | Prisma.SortOrder;
   website?: Prisma.SortOrderInput | Prisma.SortOrder;
+  logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder;
+  coverUrl?: Prisma.SortOrderInput | Prisma.SortOrder;
   openingHours?: Prisma.SortOrderInput | Prisma.SortOrder;
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder;
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder;
@@ -429,6 +451,14 @@ export type BusinessScalarWhereWithAggregatesInput = {
     | Prisma.StringNullableWithAggregatesFilter<'Business'>
     | string
     | null;
+  logoUrl?:
+    | Prisma.StringNullableWithAggregatesFilter<'Business'>
+    | string
+    | null;
+  coverUrl?:
+    | Prisma.StringNullableWithAggregatesFilter<'Business'>
+    | string
+    | null;
   openingHours?: Prisma.JsonNullableWithAggregatesFilter<'Business'>;
   latitude?:
     | Prisma.FloatNullableWithAggregatesFilter<'Business'>
@@ -459,6 +489,8 @@ export type BusinessCreateInput = {
   email?: string | null;
   phone?: string | null;
   website?: string | null;
+  logoUrl?: string | null;
+  coverUrl?: string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: number | null;
   longitude?: number | null;
@@ -482,6 +514,8 @@ export type BusinessUncheckedCreateInput = {
   email?: string | null;
   phone?: string | null;
   website?: string | null;
+  logoUrl?: string | null;
+  coverUrl?: string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: number | null;
   longitude?: number | null;
@@ -505,6 +539,8 @@ export type BusinessUpdateInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  coverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -532,6 +568,8 @@ export type BusinessUncheckedUpdateInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  coverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -559,6 +597,8 @@ export type BusinessCreateManyInput = {
   email?: string | null;
   phone?: string | null;
   website?: string | null;
+  logoUrl?: string | null;
+  coverUrl?: string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: number | null;
   longitude?: number | null;
@@ -579,6 +619,8 @@ export type BusinessUpdateManyMutationInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  coverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -602,6 +644,8 @@ export type BusinessUncheckedUpdateManyInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  coverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -636,6 +680,8 @@ export type BusinessCountOrderByAggregateInput = {
   email?: Prisma.SortOrder;
   phone?: Prisma.SortOrder;
   website?: Prisma.SortOrder;
+  logoUrl?: Prisma.SortOrder;
+  coverUrl?: Prisma.SortOrder;
   openingHours?: Prisma.SortOrder;
   latitude?: Prisma.SortOrder;
   longitude?: Prisma.SortOrder;
@@ -661,6 +707,8 @@ export type BusinessMaxOrderByAggregateInput = {
   email?: Prisma.SortOrder;
   phone?: Prisma.SortOrder;
   website?: Prisma.SortOrder;
+  logoUrl?: Prisma.SortOrder;
+  coverUrl?: Prisma.SortOrder;
   latitude?: Prisma.SortOrder;
   longitude?: Prisma.SortOrder;
   ownerId?: Prisma.SortOrder;
@@ -680,6 +728,8 @@ export type BusinessMinOrderByAggregateInput = {
   email?: Prisma.SortOrder;
   phone?: Prisma.SortOrder;
   website?: Prisma.SortOrder;
+  logoUrl?: Prisma.SortOrder;
+  coverUrl?: Prisma.SortOrder;
   latitude?: Prisma.SortOrder;
   longitude?: Prisma.SortOrder;
   ownerId?: Prisma.SortOrder;
@@ -889,6 +939,8 @@ export type BusinessCreateWithoutOwnerInput = {
   email?: string | null;
   phone?: string | null;
   website?: string | null;
+  logoUrl?: string | null;
+  coverUrl?: string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: number | null;
   longitude?: number | null;
@@ -911,6 +963,8 @@ export type BusinessUncheckedCreateWithoutOwnerInput = {
   email?: string | null;
   phone?: string | null;
   website?: string | null;
+  logoUrl?: string | null;
+  coverUrl?: string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: number | null;
   longitude?: number | null;
@@ -979,6 +1033,8 @@ export type BusinessScalarWhereInput = {
   email?: Prisma.StringNullableFilter<'Business'> | string | null;
   phone?: Prisma.StringNullableFilter<'Business'> | string | null;
   website?: Prisma.StringNullableFilter<'Business'> | string | null;
+  logoUrl?: Prisma.StringNullableFilter<'Business'> | string | null;
+  coverUrl?: Prisma.StringNullableFilter<'Business'> | string | null;
   openingHours?: Prisma.JsonNullableFilter<'Business'>;
   latitude?: Prisma.FloatNullableFilter<'Business'> | number | null;
   longitude?: Prisma.FloatNullableFilter<'Business'> | number | null;
@@ -999,6 +1055,8 @@ export type BusinessCreateWithoutStaffInput = {
   email?: string | null;
   phone?: string | null;
   website?: string | null;
+  logoUrl?: string | null;
+  coverUrl?: string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: number | null;
   longitude?: number | null;
@@ -1021,6 +1079,8 @@ export type BusinessUncheckedCreateWithoutStaffInput = {
   email?: string | null;
   phone?: string | null;
   website?: string | null;
+  logoUrl?: string | null;
+  coverUrl?: string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: number | null;
   longitude?: number | null;
@@ -1071,6 +1131,8 @@ export type BusinessUpdateWithoutStaffInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  coverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -1097,6 +1159,8 @@ export type BusinessUncheckedUpdateWithoutStaffInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  coverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -1123,6 +1187,8 @@ export type BusinessCreateWithoutServicesInput = {
   email?: string | null;
   phone?: string | null;
   website?: string | null;
+  logoUrl?: string | null;
+  coverUrl?: string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: number | null;
   longitude?: number | null;
@@ -1145,6 +1211,8 @@ export type BusinessUncheckedCreateWithoutServicesInput = {
   email?: string | null;
   phone?: string | null;
   website?: string | null;
+  logoUrl?: string | null;
+  coverUrl?: string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: number | null;
   longitude?: number | null;
@@ -1195,6 +1263,8 @@ export type BusinessUpdateWithoutServicesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  coverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -1221,6 +1291,8 @@ export type BusinessUncheckedUpdateWithoutServicesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  coverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -1247,6 +1319,8 @@ export type BusinessCreateWithoutAppointmentsInput = {
   email?: string | null;
   phone?: string | null;
   website?: string | null;
+  logoUrl?: string | null;
+  coverUrl?: string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: number | null;
   longitude?: number | null;
@@ -1269,6 +1343,8 @@ export type BusinessUncheckedCreateWithoutAppointmentsInput = {
   email?: string | null;
   phone?: string | null;
   website?: string | null;
+  logoUrl?: string | null;
+  coverUrl?: string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: number | null;
   longitude?: number | null;
@@ -1319,6 +1395,8 @@ export type BusinessUpdateWithoutAppointmentsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  coverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -1345,6 +1423,8 @@ export type BusinessUncheckedUpdateWithoutAppointmentsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  coverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -1371,6 +1451,8 @@ export type BusinessCreateManyOwnerInput = {
   email?: string | null;
   phone?: string | null;
   website?: string | null;
+  logoUrl?: string | null;
+  coverUrl?: string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: number | null;
   longitude?: number | null;
@@ -1390,6 +1472,8 @@ export type BusinessUpdateWithoutOwnerInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  coverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -1416,6 +1500,8 @@ export type BusinessUncheckedUpdateWithoutOwnerInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  coverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -1442,6 +1528,8 @@ export type BusinessUncheckedUpdateManyWithoutOwnerInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  coverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
@@ -1531,6 +1619,8 @@ export type BusinessSelect<
     email?: boolean;
     phone?: boolean;
     website?: boolean;
+    logoUrl?: boolean;
+    coverUrl?: boolean;
     openingHours?: boolean;
     latitude?: boolean;
     longitude?: boolean;
@@ -1562,6 +1652,8 @@ export type BusinessSelectCreateManyAndReturn<
     email?: boolean;
     phone?: boolean;
     website?: boolean;
+    logoUrl?: boolean;
+    coverUrl?: boolean;
     openingHours?: boolean;
     latitude?: boolean;
     longitude?: boolean;
@@ -1589,6 +1681,8 @@ export type BusinessSelectUpdateManyAndReturn<
     email?: boolean;
     phone?: boolean;
     website?: boolean;
+    logoUrl?: boolean;
+    coverUrl?: boolean;
     openingHours?: boolean;
     latitude?: boolean;
     longitude?: boolean;
@@ -1612,6 +1706,8 @@ export type BusinessSelectScalar = {
   email?: boolean;
   phone?: boolean;
   website?: boolean;
+  logoUrl?: boolean;
+  coverUrl?: boolean;
   openingHours?: boolean;
   latitude?: boolean;
   longitude?: boolean;
@@ -1635,6 +1731,8 @@ export type BusinessOmit<
   | 'email'
   | 'phone'
   | 'website'
+  | 'logoUrl'
+  | 'coverUrl'
   | 'openingHours'
   | 'latitude'
   | 'longitude'
@@ -1690,6 +1788,8 @@ export type $BusinessPayload<
       email: string | null;
       phone: string | null;
       website: string | null;
+      logoUrl: string | null;
+      coverUrl: string | null;
       openingHours: runtime.JsonValue | null;
       latitude: number | null;
       longitude: number | null;
@@ -2346,6 +2446,8 @@ export interface BusinessFieldRefs {
   readonly email: Prisma.FieldRef<'Business', 'String'>;
   readonly phone: Prisma.FieldRef<'Business', 'String'>;
   readonly website: Prisma.FieldRef<'Business', 'String'>;
+  readonly logoUrl: Prisma.FieldRef<'Business', 'String'>;
+  readonly coverUrl: Prisma.FieldRef<'Business', 'String'>;
   readonly openingHours: Prisma.FieldRef<'Business', 'Json'>;
   readonly latitude: Prisma.FieldRef<'Business', 'Float'>;
   readonly longitude: Prisma.FieldRef<'Business', 'Float'>;

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@ang
 import { ActivatedRoute } from '@angular/router';
 import { DiscoveryService } from '../../core/services/discovery.service';
 import { AuthService } from '../../core/services/auth.service';
+import { UploadService } from '../../core/services/upload.service';
 import { Service } from '../../core/models/business.model';
 import { BookingModalComponent } from './booking-modal';
 
@@ -14,6 +15,7 @@ import { BookingModalComponent } from './booking-modal';
 export class BusinessDetailsComponent implements OnInit {
   protected readonly discoveryService = inject(DiscoveryService);
   protected readonly authService = inject(AuthService);
+  protected readonly uploadService = inject(UploadService);
   private readonly route = inject(ActivatedRoute);
 
   readonly showBookingModal = signal(false);
