@@ -47,6 +47,7 @@ export class BookingModalComponent {
         switchMap((date) => {
           if (!date) {
             this.availableSlots.set([]);
+            this.loadingSlots.set(false);
             return EMPTY;
           }
           this.loadingSlots.set(true);
