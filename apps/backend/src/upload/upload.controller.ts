@@ -4,6 +4,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseUUIDPipe,
   Post,
   UploadedFile,
   UseGuards,
@@ -109,7 +110,7 @@ export class UploadController {
   @ApiResponse({ status: 403, description: 'Not the owner of this business.' })
   @ApiResponse({ status: 404, description: 'Business not found.' })
   async uploadBusinessLogo(
-    @Param('businessId') businessId: string,
+    @Param('businessId', ParseUUIDPipe) businessId: string,
     @UploadedFile() file: Express.Multer.File | undefined,
     @CurrentUser('id') ownerId: string,
   ) {
@@ -143,7 +144,7 @@ export class UploadController {
   @ApiResponse({ status: 403, description: 'Not the owner of this business.' })
   @ApiResponse({ status: 404, description: 'Business not found.' })
   async uploadBusinessCover(
-    @Param('businessId') businessId: string,
+    @Param('businessId', ParseUUIDPipe) businessId: string,
     @UploadedFile() file: Express.Multer.File | undefined,
     @CurrentUser('id') ownerId: string,
   ) {

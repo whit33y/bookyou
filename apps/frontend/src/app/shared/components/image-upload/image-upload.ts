@@ -24,6 +24,7 @@ export class ImageUploadComponent {
 
   readonly fileSelected = output<File>();
 
+  protected readonly inputId = `image-upload-${crypto.randomUUID()}`;
   protected readonly previewUrl = signal<string | null>(null);
   protected readonly error = signal('');
 
@@ -34,11 +35,11 @@ export class ImageUploadComponent {
   );
 
   constructor() {
-    // Clear the local preview once the server URL updates after a successful upload
+    // Clear preview on upload end (success: new currentUrl arrives; failure: uploading → false)
     effect(
       () => {
         this.currentUrl();
-        this.previewUrl.set(null);
+        if (!this.uploading()) this.previewUrl.set(null);
       },
       { allowSignalWrites: true },
     );

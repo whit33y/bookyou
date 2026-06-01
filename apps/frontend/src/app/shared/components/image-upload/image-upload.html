@@ -34,7 +34,7 @@
     }
 
     <label
-      for="image-upload-{{ label() }}"
+      [attr.for]="inputId"
       [class]="
         containerClass() +
         ' absolute inset-0 flex cursor-pointer items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity focus-within:opacity-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2'
@@ -67,7 +67,7 @@
         <span class="text-xs font-medium text-white">Zmień</span>
       }
       <input
-        id="image-upload-{{ label() }}"
+        [id]="inputId"
         type="file"
         class="sr-only"
         accept="image/jpeg,image/png,image/webp"
