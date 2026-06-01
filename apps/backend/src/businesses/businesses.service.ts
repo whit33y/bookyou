@@ -37,6 +37,33 @@ const DAYS_OF_WEEK: (keyof OpeningHours)[] = [
   'saturday',
 ];
 
+const BUSINESS_TIMEZONE = 'Europe/Warsaw';
+
+function getLocalDateStr(d: Date, timezone: string): string {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(d);
+  const y = parts.find((p) => p.type === 'year')?.value ?? '';
+  const m = parts.find((p) => p.type === 'month')?.value ?? '';
+  const day = parts.find((p) => p.type === 'day')?.value ?? '';
+  return `${y}-${m}-${day}`;
+}
+
+function getLocalMinutes(d: Date, timezone: string): number {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    hour: 'numeric',
+    minute: 'numeric',
+    hourCycle: 'h23',
+  }).formatToParts(d);
+  const h = Number(parts.find((p) => p.type === 'hour')?.value ?? '0');
+  const min = Number(parts.find((p) => p.type === 'minute')?.value ?? '0');
+  return h * 60 + min;
+}
+
 @Injectable()
 export class BusinessesService {
   constructor(private prisma: PrismaService) {}
@@ -197,28 +224,34 @@ export class BusinessesService {
     const openMinutes = openH * 60 + openM;
     const closeMinutes = closeH * 60 + closeM;
 
+    // 12-hour buffer covers any UTC offset so we don't miss cross-midnight appointments
     const dayStart = new Date(`${date}T00:00:00.000Z`);
+    dayStart.setUTCHours(dayStart.getUTCHours() - 12);
     const dayEnd = new Date(`${date}T23:59:59.999Z`);
+    dayEnd.setUTCHours(dayEnd.getUTCHours() + 12);
 
     const bookedAppointments = await this.prisma.appointment.findMany({
       where: {
         businessId,
         status: { in: [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED] },
-        startTime: { gte: dayStart, lte: dayEnd },
+        startTime: { lte: dayEnd },
+        endTime: { gte: dayStart },
         deletedAt: null,
       },
       select: { startTime: true, endTime: true },
     });
 
-    const bookedRanges = bookedAppointments.map((a) => ({
-      start: a.startTime.getUTCHours() * 60 + a.startTime.getUTCMinutes(),
-      end: a.endTime.getUTCHours() * 60 + a.endTime.getUTCMinutes(),
-    }));
+    const bookedRanges = bookedAppointments
+      .filter((a) => getLocalDateStr(a.startTime, BUSINESS_TIMEZONE) === date)
+      .map((a) => ({
+        start: getLocalMinutes(a.startTime, BUSINESS_TIMEZONE),
+        end: getLocalMinutes(a.endTime, BUSINESS_TIMEZONE),
+      }));
 
     const now = new Date();
-    const todayStr = now.toISOString().split('T')[0];
+    const todayStr = getLocalDateStr(now, BUSINESS_TIMEZONE);
     const isToday = todayStr === date;
-    const nowMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
+    const nowMinutes = getLocalMinutes(now, BUSINESS_TIMEZONE);
 
     const slots: string[] = [];
     const { duration } = service;
