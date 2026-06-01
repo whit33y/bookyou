@@ -243,10 +243,12 @@ export class BusinessesService {
 
     const bookedRanges = bookedAppointments
       .filter((a) => getLocalDateStr(a.startTime, BUSINESS_TIMEZONE) === date)
-      .map((a) => ({
-        start: getLocalMinutes(a.startTime, BUSINESS_TIMEZONE),
-        end: getLocalMinutes(a.endTime, BUSINESS_TIMEZONE),
-      }));
+      .map((a) => {
+        const start = getLocalMinutes(a.startTime, BUSINESS_TIMEZONE);
+        let end = getLocalMinutes(a.endTime, BUSINESS_TIMEZONE);
+        if (end <= start) end += 24 * 60;
+        return { start, end };
+      });
 
     const now = new Date();
     const todayStr = getLocalDateStr(now, BUSINESS_TIMEZONE);

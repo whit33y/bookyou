@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { A11yModule } from '@angular/cdk/a11y';
-import { EMPTY, Subject, switchMap } from 'rxjs';
+import { catchError, EMPTY, Subject, switchMap } from 'rxjs';
 import { Business, Service } from '../../core/models/business.model';
 import { AppointmentService } from '../../core/services/appointment.service';
 import { BusinessService } from '../../core/services/business.service';
@@ -55,19 +55,19 @@ export class BookingModalComponent {
             this.business().id,
             date,
             this.service().id,
+          ).pipe(
+            catchError(() => {
+              this.availableSlots.set([]);
+              this.loadingSlots.set(false);
+              return EMPTY;
+            }),
           );
         }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe({
-        next: (slots) => {
-          this.availableSlots.set(slots);
-          this.loadingSlots.set(false);
-        },
-        error: () => {
-          this.availableSlots.set([]);
-          this.loadingSlots.set(false);
-        },
+      .subscribe((slots) => {
+        this.availableSlots.set(slots);
+        this.loadingSlots.set(false);
       });
   }
 

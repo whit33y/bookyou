@@ -309,6 +309,32 @@ describe('BusinessesService', () => {
       // 09:00 ends exactly at 10:00 → touches start but does not overlap
       expect(result).toContain('09:00');
     });
+
+    it('should correctly block slots for cross-midnight appointments', async () => {
+      mockPrismaService.business.findUnique.mockResolvedValue({
+        deletedAt: null,
+        openingHours: { monday: { open: '22:00', close: '24:00' } },
+      });
+      mockPrismaService.service.findUnique.mockResolvedValue({
+        ...mockService,
+        duration: 60,
+      });
+
+      // Appointment 23:30–00:30 local Warsaw (CEST = UTC+2)
+      // 23:30 Warsaw = 21:30 UTC,  00:30 next day Warsaw = 22:30 UTC (same UTC day)
+      const bookedStart = new Date(`${futureMonday}T21:30:00.000Z`);
+      const bookedEnd = new Date(`${futureMonday}T22:30:00.000Z`);
+      mockPrismaService.appointment.findMany.mockResolvedValue([
+        { startTime: bookedStart, endTime: bookedEnd },
+      ]);
+
+      const result = await service.getAvailableSlots(businessId, futureMonday, serviceId);
+
+      // 23:00 slot ends at 00:00 — overlaps with 23:30–00:30 booking
+      expect(result).not.toContain('23:00');
+      // 22:00 slot ends at 23:00 — no overlap with 23:30–00:30
+      expect(result).toContain('22:00');
+    });
   });
 
   describe('update', () => {
