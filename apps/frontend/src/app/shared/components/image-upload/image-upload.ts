@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_SIZE_MB = 5;
@@ -24,6 +32,17 @@ export class ImageUploadComponent {
   protected readonly containerClass = computed(() =>
     this.shape() === 'circle' ? 'h-24 w-24 rounded-full' : 'h-32 w-full max-w-xs rounded-lg',
   );
+
+  constructor() {
+    // Clear the local preview once the server URL updates after a successful upload
+    effect(
+      () => {
+        this.currentUrl();
+        this.previewUrl.set(null);
+      },
+      { allowSignalWrites: true },
+    );
+  }
 
   protected onFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;

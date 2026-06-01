@@ -24,14 +24,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { UploadService } from './upload.service';
-
-const multerStorage = diskStorage({
-  destination: join(process.cwd(), 'uploads'),
-  filename: (_req, file, cb) => {
-    cb(null, UploadService.buildFilename(file));
-  },
-});
+import { MAX_FILE_SIZE_BYTES, UploadService } from './upload.service';
 
 function fileFilter(
   _req: Express.Request,
@@ -39,12 +32,23 @@ function fileFilter(
   cb: (error: Error | null, acceptFile: boolean) => void,
 ): void {
   try {
-    UploadService.validateFile(file);
+    UploadService.validateMimeType(file);
     cb(null, true);
   } catch (err) {
     cb(err as Error, false);
   }
 }
+
+const multerOptions = {
+  storage: diskStorage({
+    destination: join(process.cwd(), 'uploads'),
+    filename: (_req, file, cb) => {
+      cb(null, UploadService.buildFilename(file));
+    },
+  }),
+  fileFilter,
+  limits: { fileSize: MAX_FILE_SIZE_BYTES },
+};
 
 @ApiTags('upload')
 @Controller('upload')
@@ -55,9 +59,7 @@ export class UploadController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @UseInterceptors(
-    FileInterceptor('file', { storage: multerStorage, fileFilter }),
-  )
+  @UseInterceptors(FileInterceptor('file', multerOptions))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Upload user avatar' })
   @ApiBody({
@@ -87,9 +89,7 @@ export class UploadController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.PROVIDER)
   @ApiBearerAuth()
-  @UseInterceptors(
-    FileInterceptor('file', { storage: multerStorage, fileFilter }),
-  )
+  @UseInterceptors(FileInterceptor('file', multerOptions))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Upload business logo' })
   @ApiBody({
@@ -119,9 +119,7 @@ export class UploadController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.PROVIDER)
   @ApiBearerAuth()
-  @UseInterceptors(
-    FileInterceptor('file', { storage: multerStorage, fileFilter }),
-  )
+  @UseInterceptors(FileInterceptor('file', multerOptions))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Upload business cover image' })
   @ApiBody({

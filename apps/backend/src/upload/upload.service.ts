@@ -5,13 +5,13 @@ import {
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { mkdir, unlink, access } from 'fs/promises';
-import { extname, join } from 'path';
+import { extname, join, resolve } from 'path';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthUserResponse } from '../auth/dto/auth-response.dto';
 import { Business } from '../generated/prisma/client';
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+export const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 const UPLOADS_DIR = join(process.cwd(), 'uploads');
 
 @Injectable()
@@ -20,12 +20,9 @@ export class UploadService {
     mkdir(UPLOADS_DIR, { recursive: true }).catch(() => undefined);
   }
 
-  static validateFile(file: Express.Multer.File): void {
+  static validateMimeType(file: Express.Multer.File): void {
     if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
       throw new BadRequestException('Dozwolone formaty: JPG, PNG, WebP');
-    }
-    if (file.size > MAX_FILE_SIZE_BYTES) {
-      throw new BadRequestException('Maksymalny rozmiar pliku to 5MB');
     }
   }
 
@@ -38,10 +35,11 @@ export class UploadService {
   }
 
   private async deleteOldFile(url: string | null): Promise<void> {
-    if (!url) return;
+    if (!url || !url.startsWith('/uploads/')) return;
     const filename = url.split('/').pop();
     if (!filename) return;
-    const filepath = join(UPLOADS_DIR, filename);
+    const filepath = resolve(UPLOADS_DIR, filename);
+    if (!filepath.startsWith(UPLOADS_DIR + '/')) return;
     await access(filepath)
       .then(() => unlink(filepath))
       .catch(() => undefined);

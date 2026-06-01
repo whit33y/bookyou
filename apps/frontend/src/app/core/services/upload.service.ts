@@ -24,7 +24,14 @@ export class UploadService {
 
   resolveUrl(path: string | null | undefined): string | null {
     if (!path) return null;
-    if (path.startsWith('http')) return path;
+    if (
+      path.startsWith('http://') ||
+      path.startsWith('https://') ||
+      path.startsWith('//') ||
+      path.startsWith('data:')
+    ) {
+      return path;
+    }
     return `${environment.mediaUrl}${path}`;
   }
 
