@@ -11,6 +11,8 @@ import {
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_SIZE_MB = 5;
 
+let nextInputId = 0;
+
 @Component({
   selector: 'app-image-upload',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -24,7 +26,7 @@ export class ImageUploadComponent {
 
   readonly fileSelected = output<File>();
 
-  protected readonly inputId = `image-upload-${crypto.randomUUID()}`;
+  protected readonly inputId = `image-upload-${nextInputId++}`;
   protected readonly previewUrl = signal<string | null>(null);
   protected readonly error = signal('');
 
