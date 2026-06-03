@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { EMPTY, tap } from 'rxjs';
+import { EMPTY, tap, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   Business,
@@ -82,6 +82,12 @@ export class BusinessService {
     return this.http
       .delete<Service>(`${this.servicesUrl}/${id}`)
       .pipe(tap(() => this.services.update((list) => list.filter((s) => s.id !== id))));
+  }
+
+  getAvailableSlots(businessId: string, date: string, serviceId: string): Observable<string[]> {
+    return this.http.get<string[]>(`${this.businessesUrl}/${businessId}/available-slots`, {
+      params: { date, serviceId },
+    });
   }
 
   private loadServices(businessId: string) {

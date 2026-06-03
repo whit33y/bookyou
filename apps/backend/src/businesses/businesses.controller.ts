@@ -21,6 +21,7 @@ import { BusinessesService } from './businesses.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
 import { FindAllBusinessesQueryDto } from './dto/find-all-businesses-query.dto';
+import { GetAvailableSlotsDto } from './dto/get-available-slots.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -103,6 +104,23 @@ export class BusinessesController {
   @ApiResponse({ status: 404, description: 'Business not found.' })
   findServices(@Param('id') id: string) {
     return this.businessesService.findServices(id);
+  }
+
+  @Get(':id/available-slots')
+  @ApiOperation({
+    summary: 'Get available time slots for a business on a given date',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns available HH:mm time slots.',
+    schema: { type: 'array', items: { type: 'string', example: '10:00' } },
+  })
+  @ApiResponse({ status: 404, description: 'Business or service not found.' })
+  getAvailableSlots(
+    @Param('id') id: string,
+    @Query() query: GetAvailableSlotsDto,
+  ) {
+    return this.businessesService.getAvailableSlots(id, query.date, query.serviceId);
   }
 
   @Patch(':id')

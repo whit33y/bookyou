@@ -3,12 +3,71 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
-import { Prisma } from '../generated/prisma/client';
+import { AppointmentStatus, Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
 import { FindAllBusinessesQueryDto } from './dto/find-all-businesses-query.dto';
 import { instanceToPlain } from 'class-transformer';
+
+interface OpeningHoursDay {
+  open: string;
+  close: string;
+}
+
+interface OpeningHours {
+  monday?: OpeningHoursDay;
+  tuesday?: OpeningHoursDay;
+  wednesday?: OpeningHoursDay;
+  thursday?: OpeningHoursDay;
+  friday?: OpeningHoursDay;
+  saturday?: OpeningHoursDay;
+  sunday?: OpeningHoursDay;
+}
+
+const SLOT_INTERVAL_MINUTES = 15;
+
+const DAYS_OF_WEEK: (keyof OpeningHours)[] = [
+  'sunday',
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
+];
+
+const BUSINESS_TIMEZONE = 'Europe/Warsaw';
+
+/**
+ * Returns the wall-clock local date (YYYY-MM-DD) and minutes-since-midnight of
+ * an instant in `timezone`. Wall-clock based, so it stays correct across DST
+ * transitions where physical elapsed time and wall-clock time diverge.
+ */
+function getLocalWallTime(
+  d: Date,
+  timezone: string,
+): { dateStr: string; minutes: number } {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(d);
+
+  const map: Record<string, string> = {};
+  for (const p of parts) {
+    if (p.type !== 'literal') map[p.type] = p.value;
+  }
+
+  return {
+    dateStr: `${map.year}-${map.month}-${map.day}`,
+    minutes: Number(map.hour) * 60 + Number(map.minute),
+  };
+}
 
 @Injectable()
 export class BusinessesService {
@@ -16,14 +75,14 @@ export class BusinessesService {
 
   async create(ownerId: string, dto: CreateBusinessDto) {
     const { openingHours: openingHoursDto, ...rest } = dto;
-    const openingHours = openingHoursDto
-      ? instanceToPlain(openingHoursDto)
+    const openingHours: Prisma.InputJsonValue | undefined = openingHoursDto
+      ? (instanceToPlain(openingHoursDto) as Prisma.InputJsonValue)
       : undefined;
 
     return this.prisma.business.create({
       data: {
         ...rest,
-        openingHours: openingHours as any,
+        openingHours,
         ownerId,
       },
     });
@@ -134,6 +193,107 @@ export class BusinessesService {
     });
   }
 
+  async getAvailableSlots(
+    businessId: string,
+    date: string,
+    serviceId: string,
+  ): Promise<string[]> {
+    const [business, service] = await Promise.all([
+      this.prisma.business.findUnique({
+        where: { id: businessId },
+        select: { deletedAt: true, openingHours: true },
+      }),
+      this.prisma.service.findUnique({
+        where: { id: serviceId },
+        select: { businessId: true, duration: true, deletedAt: true },
+      }),
+    ]);
+
+    if (!business || business.deletedAt) {
+      throw new NotFoundException(`Business with ID ${businessId} not found`);
+    }
+
+    if (!service || service.deletedAt || service.businessId !== businessId) {
+      throw new NotFoundException('Service not found for this business');
+    }
+
+    const openingHours = business.openingHours as OpeningHours | null;
+    if (!openingHours) return [];
+
+    const dayOfWeek = DAYS_OF_WEEK[new Date(date).getUTCDay()];
+    const dayHours = openingHours[dayOfWeek];
+    if (!dayHours) return [];
+
+    const [openH, openM] = dayHours.open.split(':').map(Number);
+    const [closeH, closeM] = dayHours.close.split(':').map(Number);
+    const openMinutes = openH * 60 + openM;
+    const closeMinutes = closeH * 60 + closeM;
+
+    // 12-hour buffer covers any UTC offset so we don't miss cross-midnight appointments
+    const dayStart = new Date(`${date}T00:00:00.000Z`);
+    dayStart.setUTCHours(dayStart.getUTCHours() - 12);
+    const dayEnd = new Date(`${date}T23:59:59.999Z`);
+    dayEnd.setUTCHours(dayEnd.getUTCHours() + 12);
+
+    const bookedAppointments = await this.prisma.appointment.findMany({
+      where: {
+        businessId,
+        status: {
+          in: [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED],
+        },
+        startTime: { lte: dayEnd },
+        endTime: { gte: dayStart },
+        deletedAt: null,
+      },
+      select: { startTime: true, endTime: true },
+    });
+
+    // Wall-clock minutes relative to the queried date's local midnight. The day
+    // difference shifts other local days by ±1440, so cross-midnight and
+    // previous-day appointments are positioned correctly without a date filter.
+    // Wall-clock based (not elapsed time), so DST transition days stay aligned
+    // with the wall-clock slot grid below.
+    const toRelativeMinutes = (d: Date): number => {
+      const { dateStr, minutes } = getLocalWallTime(d, BUSINESS_TIMEZONE);
+      if (dateStr < date) return minutes - 1440;
+      if (dateStr > date) return minutes + 1440;
+      return minutes;
+    };
+
+    const bookedRanges = bookedAppointments.map((a) => ({
+      start: toRelativeMinutes(a.startTime),
+      end: toRelativeMinutes(a.endTime),
+    }));
+
+    const nowMinutes = toRelativeMinutes(new Date());
+
+    const slots: string[] = [];
+    const { duration } = service;
+
+    for (
+      let m = openMinutes;
+      m + duration <= closeMinutes;
+      m += SLOT_INTERVAL_MINUTES
+    ) {
+      // Past slots are skipped: nowMinutes is large-negative for future dates
+      // (nothing skipped) and >= 1440 for past dates (everything skipped).
+      if (m <= nowMinutes) continue;
+
+      const slotEnd = m + duration;
+      const isBooked = bookedRanges.some((r) => m < r.end && slotEnd > r.start);
+
+      if (!isBooked) {
+        const h = Math.floor(m / 60)
+          .toString()
+          .padStart(2, '0');
+        const min = (m % 60).toString().padStart(2, '0');
+        slots.push(`${h}:${min}`);
+      }
+    }
+
+    return slots;
+  }
+
   async update(id: string, userId: string, dto: UpdateBusinessDto) {
     const business = await this.prisma.business.findUnique({
       where: { id },
@@ -149,15 +309,15 @@ export class BusinessesService {
     }
 
     const { openingHours: openingHoursDto, ...rest } = dto;
-    const openingHours = openingHoursDto
-      ? instanceToPlain(openingHoursDto)
+    const openingHours: Prisma.InputJsonValue | undefined = openingHoursDto
+      ? (instanceToPlain(openingHoursDto) as Prisma.InputJsonValue)
       : undefined;
 
     return this.prisma.business.update({
       where: { id },
       data: {
         ...rest,
-        ...(openingHours && { openingHours: openingHours as any }),
+        ...(openingHours && { openingHours }),
       },
     });
   }

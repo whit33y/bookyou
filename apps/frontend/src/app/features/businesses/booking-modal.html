@@ -34,27 +34,32 @@
           (change)="onDateChange($event)"
           class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
         />
-        @if (selectedDate() && availableSlots().length === 0) {
-          <p class="mt-2 text-sm text-red-500">Brak dostępnych godzin w tym dniu.</p>
-        }
+        <div class="mt-2 min-h-[1.25rem]" aria-live="polite">
+          @if (loadingSlots()) {
+            <p class="text-sm text-gray-500">Sprawdzam dostępność...</p>
+          } @else if (selectedDate() && availableSlots().length === 0) {
+            <p class="text-sm text-red-500">Brak dostępnych godzin w tym dniu.</p>
+          }
+        </div>
       </div>
     }
 
     @if (step() === 'time') {
       <div class="mt-4">
         <p class="text-sm font-medium text-gray-700">{{ selectedDate() }} — wybierz godzinę</p>
-        <div class="mt-3 grid grid-cols-3 gap-2">
+        <div
+          class="mt-3 grid grid-cols-3 gap-2"
+          role="group"
+          aria-label="Dostępne godziny"
+        >
           @for (slot of availableSlots(); track slot) {
             <button
               (click)="selectTime(slot)"
-              [disabled]="isSlotBooked(slot)"
               [class.bg-indigo-600]="selectedTime() === slot"
               [class.text-white]="selectedTime() === slot"
               [class.border-indigo-600]="selectedTime() === slot"
-              [class.opacity-50]="isSlotBooked(slot)"
-              [class.cursor-not-allowed]="isSlotBooked(slot)"
-              [class.line-through]="isSlotBooked(slot)"
-              class="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium hover:border-indigo-400 disabled:hover:border-gray-300"
+              [attr.aria-pressed]="selectedTime() === slot"
+              class="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium hover:border-indigo-400"
             >
               {{ slot }}
             </button>
@@ -74,7 +79,7 @@
     }
 
     @if (errorMessage()) {
-      <p class="mt-3 text-sm text-red-600">{{ errorMessage() }}</p>
+      <p class="mt-3 text-sm text-red-600" role="alert">{{ errorMessage() }}</p>
     }
 
     <div class="mt-6 flex justify-end gap-3">
@@ -89,7 +94,7 @@
       @if (step() === 'date') {
         <button
           (click)="goToTime()"
-          [disabled]="!selectedDate() || availableSlots().length === 0"
+          [disabled]="!selectedDate() || loadingSlots() || availableSlots().length === 0"
           class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
         >
           Dalej
