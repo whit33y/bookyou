@@ -388,6 +388,42 @@ describe('BusinessesService', () => {
       // 01:00 slot ends at 02:00 — no overlap, appointment already finished
       expect(result).toContain('01:00');
     });
+
+    it('should align slots with wall-clock time on a DST transition day', async () => {
+      // 2099-03-29 is the spring-forward Sunday in Europe/Warsaw:
+      // 02:00 CET jumps to 03:00 CEST, so wall-clock and elapsed time diverge.
+      const dstSunday = '2099-03-29';
+
+      mockPrismaService.business.findUnique.mockResolvedValue({
+        deletedAt: null,
+        openingHours: { sunday: { open: '00:00', close: '08:00' } },
+      });
+      mockPrismaService.service.findUnique.mockResolvedValue({
+        ...mockService,
+        duration: 30,
+      });
+
+      // Appointment 01:00–01:30 local (CET = UTC+1, before the transition)
+      // 01:00 Warsaw = 00:00 UTC, 01:30 Warsaw = 00:30 UTC
+      const bookedStart = new Date(`${dstSunday}T00:00:00.000Z`);
+      const bookedEnd = new Date(`${dstSunday}T00:30:00.000Z`);
+      mockPrismaService.appointment.findMany.mockResolvedValue([
+        { startTime: bookedStart, endTime: bookedEnd },
+      ]);
+
+      const result = await service.getAvailableSlots(
+        businessId,
+        dstSunday,
+        serviceId,
+      );
+
+      // 01:00 slot overlaps the 01:00–01:30 booking (wall-clock aligned)
+      expect(result).not.toContain('01:00');
+      // 00:30 ends exactly at 01:00 — touches start, no overlap
+      expect(result).toContain('00:30');
+      // 01:30 starts when the booking ends — available
+      expect(result).toContain('01:30');
+    });
   });
 
   describe('update', () => {

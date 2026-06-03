@@ -40,11 +40,14 @@ const DAYS_OF_WEEK: (keyof OpeningHours)[] = [
 const BUSINESS_TIMEZONE = 'Europe/Warsaw';
 
 /**
- * Returns the offset in minutes between wall-clock time in `timezone` and UTC
- * for the given instant (e.g. +120 for Europe/Warsaw in summer / CEST).
- * DST-safe, because the offset is derived from the instant itself.
+ * Returns the wall-clock local date (YYYY-MM-DD) and minutes-since-midnight of
+ * an instant in `timezone`. Wall-clock based, so it stays correct across DST
+ * transitions where physical elapsed time and wall-clock time diverge.
  */
-function getTimezoneOffset(d: Date, timezone: string): number {
+function getLocalWallTime(
+  d: Date,
+  timezone: string,
+): { dateStr: string; minutes: number } {
   const parts = new Intl.DateTimeFormat('en-US', {
     timeZone: timezone,
     year: 'numeric',
@@ -52,25 +55,18 @@ function getTimezoneOffset(d: Date, timezone: string): number {
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
-    second: '2-digit',
     hourCycle: 'h23',
   }).formatToParts(d);
 
-  const map: Record<string, number> = {};
+  const map: Record<string, string> = {};
   for (const p of parts) {
-    if (p.type !== 'literal') map[p.type] = Number(p.value);
+    if (p.type !== 'literal') map[p.type] = p.value;
   }
 
-  const asUtc = Date.UTC(
-    map.year,
-    map.month - 1,
-    map.day,
-    map.hour,
-    map.minute,
-    map.second,
-  );
-
-  return Math.round((asUtc - d.getTime()) / 60000);
+  return {
+    dateStr: `${map.year}-${map.month}-${map.day}`,
+    minutes: Number(map.hour) * 60 + Number(map.minute),
+  };
 }
 
 @Injectable()
@@ -79,14 +75,14 @@ export class BusinessesService {
 
   async create(ownerId: string, dto: CreateBusinessDto) {
     const { openingHours: openingHoursDto, ...rest } = dto;
-    const openingHours = openingHoursDto
-      ? instanceToPlain(openingHoursDto)
+    const openingHours: Prisma.InputJsonValue | undefined = openingHoursDto
+      ? (instanceToPlain(openingHoursDto) as Prisma.InputJsonValue)
       : undefined;
 
     return this.prisma.business.create({
       data: {
         ...rest,
-        openingHours: openingHours as any,
+        openingHours,
         ownerId,
       },
     });
@@ -252,21 +248,17 @@ export class BusinessesService {
       select: { startTime: true, endTime: true },
     });
 
-    // Local midnight of the queried date as an absolute instant. Using the
-    // offset at noon avoids landing on a DST transition, which only happens
-    // in the early morning.
-    const offset = getTimezoneOffset(
-      new Date(`${date}T12:00:00.000Z`),
-      BUSINESS_TIMEZONE,
-    );
-    const localMidnightMs =
-      Date.parse(`${date}T00:00:00.000Z`) - offset * 60000;
-
-    // Minutes elapsed since the queried date's local midnight. Negative for the
-    // previous local day, >= 1440 for the next one — so cross-midnight
-    // appointments are positioned correctly without any date filtering.
-    const toRelativeMinutes = (d: Date): number =>
-      Math.round((d.getTime() - localMidnightMs) / 60000);
+    // Wall-clock minutes relative to the queried date's local midnight. The day
+    // difference shifts other local days by ±1440, so cross-midnight and
+    // previous-day appointments are positioned correctly without a date filter.
+    // Wall-clock based (not elapsed time), so DST transition days stay aligned
+    // with the wall-clock slot grid below.
+    const toRelativeMinutes = (d: Date): number => {
+      const { dateStr, minutes } = getLocalWallTime(d, BUSINESS_TIMEZONE);
+      if (dateStr < date) return minutes - 1440;
+      if (dateStr > date) return minutes + 1440;
+      return minutes;
+    };
 
     const bookedRanges = bookedAppointments.map((a) => ({
       start: toRelativeMinutes(a.startTime),
@@ -317,15 +309,15 @@ export class BusinessesService {
     }
 
     const { openingHours: openingHoursDto, ...rest } = dto;
-    const openingHours = openingHoursDto
-      ? instanceToPlain(openingHoursDto)
+    const openingHours: Prisma.InputJsonValue | undefined = openingHoursDto
+      ? (instanceToPlain(openingHoursDto) as Prisma.InputJsonValue)
       : undefined;
 
     return this.prisma.business.update({
       where: { id },
       data: {
         ...rest,
-        ...(openingHours && { openingHours: openingHours as any }),
+        ...(openingHours && { openingHours }),
       },
     });
   }
