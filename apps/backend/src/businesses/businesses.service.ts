@@ -39,29 +39,38 @@ const DAYS_OF_WEEK: (keyof OpeningHours)[] = [
 
 const BUSINESS_TIMEZONE = 'Europe/Warsaw';
 
-function getLocalDateStr(d: Date, timezone: string): string {
+/**
+ * Returns the offset in minutes between wall-clock time in `timezone` and UTC
+ * for the given instant (e.g. +120 for Europe/Warsaw in summer / CEST).
+ * DST-safe, because the offset is derived from the instant itself.
+ */
+function getTimezoneOffset(d: Date, timezone: string): number {
   const parts = new Intl.DateTimeFormat('en-US', {
     timeZone: timezone,
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
-  }).formatToParts(d);
-  const y = parts.find((p) => p.type === 'year')?.value ?? '';
-  const m = parts.find((p) => p.type === 'month')?.value ?? '';
-  const day = parts.find((p) => p.type === 'day')?.value ?? '';
-  return `${y}-${m}-${day}`;
-}
-
-function getLocalMinutes(d: Date, timezone: string): number {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: timezone,
-    hour: 'numeric',
-    minute: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
     hourCycle: 'h23',
   }).formatToParts(d);
-  const h = Number(parts.find((p) => p.type === 'hour')?.value ?? '0');
-  const min = Number(parts.find((p) => p.type === 'minute')?.value ?? '0');
-  return h * 60 + min;
+
+  const map: Record<string, number> = {};
+  for (const p of parts) {
+    if (p.type !== 'literal') map[p.type] = Number(p.value);
+  }
+
+  const asUtc = Date.UTC(
+    map.year,
+    map.month - 1,
+    map.day,
+    map.hour,
+    map.minute,
+    map.second,
+  );
+
+  return Math.round((asUtc - d.getTime()) / 60000);
 }
 
 @Injectable()
@@ -233,7 +242,9 @@ export class BusinessesService {
     const bookedAppointments = await this.prisma.appointment.findMany({
       where: {
         businessId,
-        status: { in: [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED] },
+        status: {
+          in: [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED],
+        },
         startTime: { lte: dayEnd },
         endTime: { gte: dayStart },
         deletedAt: null,
@@ -241,19 +252,28 @@ export class BusinessesService {
       select: { startTime: true, endTime: true },
     });
 
-    const bookedRanges = bookedAppointments
-      .filter((a) => getLocalDateStr(a.startTime, BUSINESS_TIMEZONE) === date)
-      .map((a) => {
-        const start = getLocalMinutes(a.startTime, BUSINESS_TIMEZONE);
-        let end = getLocalMinutes(a.endTime, BUSINESS_TIMEZONE);
-        if (end <= start) end += 24 * 60;
-        return { start, end };
-      });
+    // Local midnight of the queried date as an absolute instant. Using the
+    // offset at noon avoids landing on a DST transition, which only happens
+    // in the early morning.
+    const offset = getTimezoneOffset(
+      new Date(`${date}T12:00:00.000Z`),
+      BUSINESS_TIMEZONE,
+    );
+    const localMidnightMs =
+      Date.parse(`${date}T00:00:00.000Z`) - offset * 60000;
 
-    const now = new Date();
-    const todayStr = getLocalDateStr(now, BUSINESS_TIMEZONE);
-    const isToday = todayStr === date;
-    const nowMinutes = getLocalMinutes(now, BUSINESS_TIMEZONE);
+    // Minutes elapsed since the queried date's local midnight. Negative for the
+    // previous local day, >= 1440 for the next one — so cross-midnight
+    // appointments are positioned correctly without any date filtering.
+    const toRelativeMinutes = (d: Date): number =>
+      Math.round((d.getTime() - localMidnightMs) / 60000);
+
+    const bookedRanges = bookedAppointments.map((a) => ({
+      start: toRelativeMinutes(a.startTime),
+      end: toRelativeMinutes(a.endTime),
+    }));
+
+    const nowMinutes = toRelativeMinutes(new Date());
 
     const slots: string[] = [];
     const { duration } = service;
@@ -263,13 +283,17 @@ export class BusinessesService {
       m + duration <= closeMinutes;
       m += SLOT_INTERVAL_MINUTES
     ) {
-      if (isToday && m <= nowMinutes) continue;
+      // Past slots are skipped: nowMinutes is large-negative for future dates
+      // (nothing skipped) and >= 1440 for past dates (everything skipped).
+      if (m <= nowMinutes) continue;
 
       const slotEnd = m + duration;
       const isBooked = bookedRanges.some((r) => m < r.end && slotEnd > r.start);
 
       if (!isBooked) {
-        const h = Math.floor(m / 60).toString().padStart(2, '0');
+        const h = Math.floor(m / 60)
+          .toString()
+          .padStart(2, '0');
         const min = (m % 60).toString().padStart(2, '0');
         slots.push(`${h}:${min}`);
       }
