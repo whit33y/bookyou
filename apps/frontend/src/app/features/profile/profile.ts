@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -8,6 +15,8 @@ import {
 } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
+import { UploadService } from '../../core/services/upload.service';
+import { ImageUploadComponent } from '../../shared/components/image-upload/image-upload';
 
 function passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
   const newPassword = group.get('newPassword')?.value;
@@ -18,13 +27,14 @@ function passwordMatchValidator(group: AbstractControl): ValidationErrors | null
 
 @Component({
   selector: 'app-profile',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ImageUploadComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './profile.html',
 })
 export class ProfileComponent implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private uploadService = inject(UploadService);
   private notifications = inject(NotificationService);
 
   profileForm = this.fb.nonNullable.group({
@@ -43,8 +53,13 @@ export class ProfileComponent implements OnInit {
 
   profileLoading = signal(false);
   passwordLoading = signal(false);
+  avatarUploading = signal(false);
   profileError = signal('');
   passwordError = signal('');
+
+  readonly avatarUrl = computed(() =>
+    this.uploadService.resolveUrl(this.authService.currentUser()?.avatarUrl),
+  );
 
   ngOnInit() {
     const user = this.authService.currentUser();
@@ -77,6 +92,20 @@ export class ProfileComponent implements OnInit {
             : 'Nie udało się zaktualizować danych.',
         );
         this.profileLoading.set(false);
+      },
+    });
+  }
+
+  onAvatarSelected(file: File): void {
+    this.avatarUploading.set(true);
+    this.authService.uploadAvatar(file).subscribe({
+      next: () => {
+        this.notifications.success('Avatar został zaktualizowany.');
+        this.avatarUploading.set(false);
+      },
+      error: () => {
+        this.notifications.error('Nie udało się przesłać avatara.');
+        this.avatarUploading.set(false);
       },
     });
   }

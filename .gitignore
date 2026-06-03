@@ -8,6 +8,10 @@ node_modules/
 # Build outputs
 dist/
 
+# Uploaded files (keep directory structure via .gitkeep)
+apps/backend/uploads/*
+!apps/backend/uploads/.gitkeep
+
 # IDEs
 .vscode/*
 !.vscode/extensions.json
@@ -31,3 +35,4 @@ yarn-error.log*
 .kiro/specs/homepage-redesign/design.md
 .kiro/specs/homepage-redesign/requirements.md
 .kiro/specs/homepage-redesign/tasks.md
+.claude

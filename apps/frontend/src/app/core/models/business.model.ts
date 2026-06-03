@@ -39,6 +39,8 @@ export interface Business {
   email: string | null;
   phone: string | null;
   website: string | null;
+  logoUrl: string | null;
+  coverUrl: string | null;
   openingHours: OpeningHours | null;
   latitude: number | null;
   longitude: number | null;

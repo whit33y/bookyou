@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { tap } from 'rxjs';
+import { EMPTY, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   Business,
@@ -10,10 +10,12 @@ import {
   UpdateBusinessRequest,
   UpdateServiceRequest,
 } from '../models/business.model';
+import { UploadService } from './upload.service';
 
 @Injectable({ providedIn: 'root' })
 export class BusinessService {
   private readonly http = inject(HttpClient);
+  private readonly uploadService = inject(UploadService);
   private readonly businessesUrl = `${environment.apiUrl}/businesses`;
   private readonly servicesUrl = `${environment.apiUrl}/services`;
 
@@ -46,6 +48,18 @@ export class BusinessService {
     return this.http
       .patch<Business>(`${this.businessesUrl}/${id}`, data)
       .pipe(tap((b) => this.business.set(b)));
+  }
+
+  uploadLogo(file: File) {
+    const id = this.businessId();
+    if (!id) return EMPTY;
+    return this.uploadService.uploadBusinessLogo(file, id).pipe(tap((b) => this.business.set(b)));
+  }
+
+  uploadCover(file: File) {
+    const id = this.businessId();
+    if (!id) return EMPTY;
+    return this.uploadService.uploadBusinessCover(file, id).pipe(tap((b) => this.business.set(b)));
   }
 
   createService(businessId: string, data: CreateServiceRequest) {
