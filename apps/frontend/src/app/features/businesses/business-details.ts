@@ -3,11 +3,12 @@ import { ActivatedRoute } from '@angular/router';
 import { DiscoveryService } from '../../core/services/discovery.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Service } from '../../core/models/business.model';
+import { MediaUrlPipe } from '../../shared/pipes/media-url.pipe';
 import { BookingModalComponent } from './booking-modal';
 
 @Component({
   selector: 'app-business-details',
-  imports: [BookingModalComponent],
+  imports: [BookingModalComponent, MediaUrlPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './business-details.html',
 })

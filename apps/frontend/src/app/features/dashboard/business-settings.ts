@@ -1,12 +1,14 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   effect,
   inject,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import {
   AbstractControl,
   FormBuilder,
@@ -17,7 +19,10 @@ import {
   Validators,
 } from '@angular/forms';
 import { BusinessService } from '../../core/services/business.service';
+import { UploadService } from '../../core/services/upload.service';
 import { OpeningHours, OpeningHoursDay } from '../../core/models/business.model';
+import { NotificationService } from '../../core/services/notification.service';
+import { ImageUploadComponent } from '../../shared/components/image-upload/image-upload';
 import { DayKey, WEEKDAYS } from '../../core/constants/weekdays';
 
 interface DayFormControls {
@@ -37,19 +42,31 @@ function closeAfterOpenValidator(group: AbstractControl): ValidationErrors | nul
 
 @Component({
   selector: 'app-business-settings',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ImageUploadComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './business-settings.html',
 })
 export class BusinessSettingsComponent {
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly uploadService = inject(UploadService);
+  private readonly notifications = inject(NotificationService);
   protected readonly businessService = inject(BusinessService);
   protected readonly weekdays = WEEKDAYS;
 
   protected readonly loading = signal(false);
   protected readonly error = signal('');
   protected readonly success = signal('');
+  protected readonly logoUploading = signal(false);
+  protected readonly coverUploading = signal(false);
+
+  protected readonly logoUrl = computed(() =>
+    this.uploadService.resolveUrl(this.businessService.business()?.logoUrl),
+  );
+
+  protected readonly coverUrl = computed(() =>
+    this.uploadService.resolveUrl(this.businessService.business()?.coverUrl),
+  );
 
   form = this.fb.nonNullable.group({
     name: ['', Validators.required],
@@ -93,6 +110,28 @@ export class BusinessSettingsComponent {
 
   protected getDayGroup(key: DayKey): FormGroup<DayFormControls> {
     return this.form.controls.openingHours.controls[key];
+  }
+
+  onLogoSelected(file: File): void {
+    this.logoUploading.set(true);
+    this.businessService
+      .uploadLogo(file)
+      .pipe(finalize(() => this.logoUploading.set(false)))
+      .subscribe({
+        next: () => this.notifications.success('Logo zostało zaktualizowane.'),
+        error: () => this.notifications.error('Nie udało się przesłać logo.'),
+      });
+  }
+
+  onCoverSelected(file: File): void {
+    this.coverUploading.set(true);
+    this.businessService
+      .uploadCover(file)
+      .pipe(finalize(() => this.coverUploading.set(false)))
+      .subscribe({
+        next: () => this.notifications.success('Zdjęcie okładkowe zostało zaktualizowane.'),
+        error: () => this.notifications.error('Nie udało się przesłać zdjęcia okładkowego.'),
+      });
   }
 
   onSubmit(): void {

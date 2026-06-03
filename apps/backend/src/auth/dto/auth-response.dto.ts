@@ -13,6 +13,9 @@ export class AuthUserResponse {
 
   @ApiProperty({ enum: Role, example: Role.CLIENT })
   role: Role;
+
+  @ApiProperty({ example: '/uploads/avatar-uuid.jpg', nullable: true })
+  avatarUrl: string | null;
 }
 
 export class AuthResponse {

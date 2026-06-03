@@ -1,6 +1,24 @@
 <section>
   <h2 class="text-xl font-semibold text-gray-900">Ustawienia biznesu</h2>
 
+  @if (businessService.business()) {
+    <div class="mt-4 mb-6 flex flex-col gap-6 sm:flex-row">
+      <app-image-upload
+        label="Logo firmy"
+        [currentUrl]="logoUrl()"
+        [uploading]="logoUploading()"
+        (fileSelected)="onLogoSelected($event)"
+      />
+      <app-image-upload
+        label="Zdjęcie okładkowe"
+        shape="rectangle"
+        [currentUrl]="coverUrl()"
+        [uploading]="coverUploading()"
+        (fileSelected)="onCoverSelected($event)"
+      />
+    </div>
+  }
+
   @if (error()) {
     <p class="mt-2 rounded-md bg-red-50 p-3 text-sm text-red-600">{{ error() }}</p>
   }
