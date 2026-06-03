@@ -5,7 +5,7 @@
     <div class="space-y-8">
       <!-- Cover & Logo header -->
       <section class="-mx-4 -mt-8">
-        @if (uploadService.resolveUrl(business.coverUrl); as coverSrc) {
+        @if (business.coverUrl | mediaUrl; as coverSrc) {
           <img
             [src]="coverSrc"
             [alt]="business.name + ' cover'"
@@ -18,7 +18,7 @@
           ></div>
         }
         <div class="mx-4 -mt-12 flex items-end gap-4">
-          @if (uploadService.resolveUrl(business.logoUrl); as logoSrc) {
+          @if (business.logoUrl | mediaUrl; as logoSrc) {
             <img
               [src]="logoSrc"
               [alt]="business.name + ' logo'"

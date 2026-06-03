@@ -81,7 +81,7 @@ export class UploadController {
     @CurrentUser('id') userId: string,
   ) {
     if (!file) {
-      throw new BadRequestException('Nie przesłano pliku');
+      throw new BadRequestException('No file provided');
     }
     const url = UploadService.buildUrl(file.filename);
     return this.uploadService.updateUserAvatar(userId, url);
@@ -115,7 +115,7 @@ export class UploadController {
     @CurrentUser('id') ownerId: string,
   ) {
     if (!file) {
-      throw new BadRequestException('Nie przesłano pliku');
+      throw new BadRequestException('No file provided');
     }
     const url = UploadService.buildUrl(file.filename);
     return this.uploadService.updateBusinessLogo(ownerId, businessId, url);
@@ -149,7 +149,7 @@ export class UploadController {
     @CurrentUser('id') ownerId: string,
   ) {
     if (!file) {
-      throw new BadRequestException('Nie przesłano pliku');
+      throw new BadRequestException('No file provided');
     }
     const url = UploadService.buildUrl(file.filename);
     return this.uploadService.updateBusinessCover(ownerId, businessId, url);

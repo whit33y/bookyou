@@ -107,7 +107,7 @@
           [routerLink]="['/businesses', business.id]"
           class="block rounded-lg border border-gray-200 transition hover:border-indigo-300 hover:shadow-md overflow-hidden"
         >
-          @if (uploadService.resolveUrl(business.logoUrl); as logoSrc) {
+          @if (business.logoUrl | mediaUrl; as logoSrc) {
             <img [src]="logoSrc" [alt]="business.name + ' logo'" class="h-32 w-full object-cover" />
           } @else {
             <div

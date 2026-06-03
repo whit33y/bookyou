@@ -14,11 +14,11 @@ import { debounceTime } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DiscoveryService } from '../../core/services/discovery.service';
 import { CategoryService } from '../../core/services/category.service';
-import { UploadService } from '../../core/services/upload.service';
+import { MediaUrlPipe } from '../../shared/pipes/media-url.pipe';
 
 @Component({
   selector: 'app-businesses',
-  imports: [RouterLink],
+  imports: [RouterLink, MediaUrlPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './businesses.html',
   host: {
@@ -28,7 +28,6 @@ import { UploadService } from '../../core/services/upload.service';
 export class BusinessesComponent implements OnInit {
   protected readonly discoveryService = inject(DiscoveryService);
   protected readonly categoryService = inject(CategoryService);
-  protected readonly uploadService = inject(UploadService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly elementRef = inject(ElementRef);
   private readonly route = inject(ActivatedRoute);
