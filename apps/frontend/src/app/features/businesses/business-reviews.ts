@@ -5,11 +5,10 @@ import {
   DestroyRef,
   inject,
   input,
-  OnInit,
   signal,
 } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ReviewService } from '../../core/services/review.service';
 import { Review, ReviewSort } from '../../core/models/review.model';
 import { MediaUrlPipe } from '../../shared/pipes/media-url.pipe';
@@ -113,11 +112,19 @@ interface SortOption {
     </section>
   `,
 })
-export class BusinessReviewsComponent implements OnInit {
+export class BusinessReviewsComponent {
   readonly businessId = input.required<string>();
 
   private readonly reviewService = inject(ReviewService);
   private readonly destroyRef = inject(DestroyRef);
+
+  constructor() {
+    // Reload whenever the businessId input changes, so the section stays correct
+    // even if the parent reuses this component across different businesses.
+    toObservable(this.businessId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.load(true));
+  }
 
   protected readonly sortOptions: SortOption[] = [
     { value: 'newest', label: 'Najnowsze' },
@@ -134,10 +141,6 @@ export class BusinessReviewsComponent implements OnInit {
   readonly loadingMore = signal(false);
 
   readonly hasMore = computed(() => this.reviews().length < this.total());
-
-  ngOnInit(): void {
-    this.load(true);
-  }
 
   /** Allows the parent to refresh the list after a new review is submitted. */
   reload(): void {

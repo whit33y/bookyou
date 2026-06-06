@@ -51,16 +51,30 @@ export class ReviewsService {
       throw new ConflictException('This appointment has already been reviewed');
     }
 
-    return this.prisma.review.create({
-      data: {
-        rating: dto.rating,
-        comment: dto.comment,
-        clientId,
-        businessId: appointment.businessId,
-        appointmentId: appointment.id,
-      },
-      include: { client: { select: REVIEW_AUTHOR_SELECT } },
-    });
+    try {
+      return await this.prisma.review.create({
+        data: {
+          rating: dto.rating,
+          comment: dto.comment,
+          clientId,
+          businessId: appointment.businessId,
+          appointmentId: appointment.id,
+        },
+        include: { client: { select: REVIEW_AUTHOR_SELECT } },
+      });
+    } catch (error) {
+      // Guards against a race where two concurrent submissions both pass the
+      // check above; the unique constraint on appointmentId raises P2002.
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException(
+          'This appointment has already been reviewed',
+        );
+      }
+      throw error;
+    }
   }
 
   async findByBusiness(businessId: string, query: FindReviewsQueryDto) {

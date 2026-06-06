@@ -6,7 +6,7 @@ import {
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
-import { AppointmentStatus } from '../generated/prisma/client';
+import { AppointmentStatus, Prisma } from '../generated/prisma/client';
 import { ReviewSort } from './dto/find-reviews-query.dto';
 
 describe('ReviewsService', () => {
@@ -126,6 +126,31 @@ describe('ReviewsService', () => {
       await expect(service.create(clientId, dto)).rejects.toThrow(
         ConflictException,
       );
+    });
+
+    it('should map a P2002 unique violation to ConflictException', async () => {
+      mockPrismaService.appointment.findUnique.mockResolvedValue(
+        completedAppointment,
+      );
+      mockPrismaService.review.create.mockRejectedValue(
+        new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
+          code: 'P2002',
+          clientVersion: 'test',
+        }),
+      );
+
+      await expect(service.create(clientId, dto)).rejects.toThrow(
+        ConflictException,
+      );
+    });
+
+    it('should rethrow unexpected errors during creation', async () => {
+      mockPrismaService.appointment.findUnique.mockResolvedValue(
+        completedAppointment,
+      );
+      mockPrismaService.review.create.mockRejectedValue(new Error('db down'));
+
+      await expect(service.create(clientId, dto)).rejects.toThrow('db down');
     });
   });
 
