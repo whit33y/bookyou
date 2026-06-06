@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { Subscription } from 'rxjs';
 import { ReviewService } from '../../core/services/review.service';
 import { Review, ReviewSort } from '../../core/models/review.model';
 import { MediaUrlPipe } from '../../shared/pipes/media-url.pipe';
@@ -139,6 +140,7 @@ export class BusinessReviewsComponent {
   readonly sort = signal<ReviewSort>('newest');
   readonly loading = signal(false);
   readonly loadingMore = signal(false);
+  private loadSub?: Subscription;
 
   readonly hasMore = computed(() => this.reviews().length < this.total());
 
@@ -157,6 +159,10 @@ export class BusinessReviewsComponent {
   }
 
   private load(reset: boolean): void {
+    // Cancel any in-flight request so a slower, older response can't overwrite
+    // the state produced by this newer one.
+    this.loadSub?.unsubscribe();
+
     if (reset) {
       this.loading.set(true);
     } else {
@@ -165,7 +171,7 @@ export class BusinessReviewsComponent {
 
     const offset = reset ? 0 : this.reviews().length;
 
-    this.reviewService
+    this.loadSub = this.reviewService
       .getBusinessReviews(this.businessId(), {
         sort: this.sort(),
         limit: PAGE_SIZE,
