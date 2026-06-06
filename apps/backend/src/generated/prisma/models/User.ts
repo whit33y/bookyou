@@ -222,6 +222,7 @@ export type UserWhereInput = {
   staffAssignments?: Prisma.BusinessStaffListRelationFilter;
   appointments?: Prisma.AppointmentListRelationFilter;
   workedAppointments?: Prisma.AppointmentListRelationFilter;
+  reviews?: Prisma.ReviewListRelationFilter;
 };
 
 export type UserOrderByWithRelationInput = {
@@ -238,6 +239,7 @@ export type UserOrderByWithRelationInput = {
   staffAssignments?: Prisma.BusinessStaffOrderByRelationAggregateInput;
   appointments?: Prisma.AppointmentOrderByRelationAggregateInput;
   workedAppointments?: Prisma.AppointmentOrderByRelationAggregateInput;
+  reviews?: Prisma.ReviewOrderByRelationAggregateInput;
 };
 
 export type UserWhereUniqueInput = Prisma.AtLeast<
@@ -258,6 +260,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<
     staffAssignments?: Prisma.BusinessStaffListRelationFilter;
     appointments?: Prisma.AppointmentListRelationFilter;
     workedAppointments?: Prisma.AppointmentListRelationFilter;
+    reviews?: Prisma.ReviewListRelationFilter;
   },
   'id' | 'email'
 >;
@@ -314,6 +317,7 @@ export type UserCreateInput = {
   staffAssignments?: Prisma.BusinessStaffCreateNestedManyWithoutUserInput;
   appointments?: Prisma.AppointmentCreateNestedManyWithoutClientInput;
   workedAppointments?: Prisma.AppointmentCreateNestedManyWithoutProviderInput;
+  reviews?: Prisma.ReviewCreateNestedManyWithoutClientInput;
 };
 
 export type UserUncheckedCreateInput = {
@@ -330,6 +334,7 @@ export type UserUncheckedCreateInput = {
   staffAssignments?: Prisma.BusinessStaffUncheckedCreateNestedManyWithoutUserInput;
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutClientInput;
   workedAppointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutProviderInput;
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutClientInput;
 };
 
 export type UserUpdateInput = {
@@ -350,6 +355,7 @@ export type UserUpdateInput = {
   staffAssignments?: Prisma.BusinessStaffUpdateManyWithoutUserNestedInput;
   appointments?: Prisma.AppointmentUpdateManyWithoutClientNestedInput;
   workedAppointments?: Prisma.AppointmentUpdateManyWithoutProviderNestedInput;
+  reviews?: Prisma.ReviewUpdateManyWithoutClientNestedInput;
 };
 
 export type UserUncheckedUpdateInput = {
@@ -370,6 +376,7 @@ export type UserUncheckedUpdateInput = {
   staffAssignments?: Prisma.BusinessStaffUncheckedUpdateManyWithoutUserNestedInput;
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutClientNestedInput;
   workedAppointments?: Prisma.AppointmentUncheckedUpdateManyWithoutProviderNestedInput;
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutClientNestedInput;
 };
 
 export type UserCreateManyInput = {
@@ -581,6 +588,32 @@ export type UserUpdateOneRequiredWithoutWorkedAppointmentsNestedInput = {
   >;
 };
 
+export type UserCreateNestedOneWithoutReviewsInput = {
+  create?: Prisma.XOR<
+    Prisma.UserCreateWithoutReviewsInput,
+    Prisma.UserUncheckedCreateWithoutReviewsInput
+  >;
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReviewsInput;
+  connect?: Prisma.UserWhereUniqueInput;
+};
+
+export type UserUpdateOneRequiredWithoutReviewsNestedInput = {
+  create?: Prisma.XOR<
+    Prisma.UserCreateWithoutReviewsInput,
+    Prisma.UserUncheckedCreateWithoutReviewsInput
+  >;
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReviewsInput;
+  upsert?: Prisma.UserUpsertWithoutReviewsInput;
+  connect?: Prisma.UserWhereUniqueInput;
+  update?: Prisma.XOR<
+    Prisma.XOR<
+      Prisma.UserUpdateToOneWithWhereWithoutReviewsInput,
+      Prisma.UserUpdateWithoutReviewsInput
+    >,
+    Prisma.UserUncheckedUpdateWithoutReviewsInput
+  >;
+};
+
 export type UserCreateWithoutOwnedBusinessesInput = {
   id?: string;
   email: string;
@@ -594,6 +627,7 @@ export type UserCreateWithoutOwnedBusinessesInput = {
   staffAssignments?: Prisma.BusinessStaffCreateNestedManyWithoutUserInput;
   appointments?: Prisma.AppointmentCreateNestedManyWithoutClientInput;
   workedAppointments?: Prisma.AppointmentCreateNestedManyWithoutProviderInput;
+  reviews?: Prisma.ReviewCreateNestedManyWithoutClientInput;
 };
 
 export type UserUncheckedCreateWithoutOwnedBusinessesInput = {
@@ -609,6 +643,7 @@ export type UserUncheckedCreateWithoutOwnedBusinessesInput = {
   staffAssignments?: Prisma.BusinessStaffUncheckedCreateNestedManyWithoutUserInput;
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutClientInput;
   workedAppointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutProviderInput;
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutClientInput;
 };
 
 export type UserCreateOrConnectWithoutOwnedBusinessesInput = {
@@ -656,6 +691,7 @@ export type UserUpdateWithoutOwnedBusinessesInput = {
   staffAssignments?: Prisma.BusinessStaffUpdateManyWithoutUserNestedInput;
   appointments?: Prisma.AppointmentUpdateManyWithoutClientNestedInput;
   workedAppointments?: Prisma.AppointmentUpdateManyWithoutProviderNestedInput;
+  reviews?: Prisma.ReviewUpdateManyWithoutClientNestedInput;
 };
 
 export type UserUncheckedUpdateWithoutOwnedBusinessesInput = {
@@ -675,6 +711,7 @@ export type UserUncheckedUpdateWithoutOwnedBusinessesInput = {
   staffAssignments?: Prisma.BusinessStaffUncheckedUpdateManyWithoutUserNestedInput;
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutClientNestedInput;
   workedAppointments?: Prisma.AppointmentUncheckedUpdateManyWithoutProviderNestedInput;
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutClientNestedInput;
 };
 
 export type UserCreateWithoutStaffAssignmentsInput = {
@@ -690,6 +727,7 @@ export type UserCreateWithoutStaffAssignmentsInput = {
   ownedBusinesses?: Prisma.BusinessCreateNestedManyWithoutOwnerInput;
   appointments?: Prisma.AppointmentCreateNestedManyWithoutClientInput;
   workedAppointments?: Prisma.AppointmentCreateNestedManyWithoutProviderInput;
+  reviews?: Prisma.ReviewCreateNestedManyWithoutClientInput;
 };
 
 export type UserUncheckedCreateWithoutStaffAssignmentsInput = {
@@ -705,6 +743,7 @@ export type UserUncheckedCreateWithoutStaffAssignmentsInput = {
   ownedBusinesses?: Prisma.BusinessUncheckedCreateNestedManyWithoutOwnerInput;
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutClientInput;
   workedAppointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutProviderInput;
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutClientInput;
 };
 
 export type UserCreateOrConnectWithoutStaffAssignmentsInput = {
@@ -752,6 +791,7 @@ export type UserUpdateWithoutStaffAssignmentsInput = {
   ownedBusinesses?: Prisma.BusinessUpdateManyWithoutOwnerNestedInput;
   appointments?: Prisma.AppointmentUpdateManyWithoutClientNestedInput;
   workedAppointments?: Prisma.AppointmentUpdateManyWithoutProviderNestedInput;
+  reviews?: Prisma.ReviewUpdateManyWithoutClientNestedInput;
 };
 
 export type UserUncheckedUpdateWithoutStaffAssignmentsInput = {
@@ -771,6 +811,7 @@ export type UserUncheckedUpdateWithoutStaffAssignmentsInput = {
   ownedBusinesses?: Prisma.BusinessUncheckedUpdateManyWithoutOwnerNestedInput;
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutClientNestedInput;
   workedAppointments?: Prisma.AppointmentUncheckedUpdateManyWithoutProviderNestedInput;
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutClientNestedInput;
 };
 
 export type UserCreateWithoutAppointmentsInput = {
@@ -786,6 +827,7 @@ export type UserCreateWithoutAppointmentsInput = {
   ownedBusinesses?: Prisma.BusinessCreateNestedManyWithoutOwnerInput;
   staffAssignments?: Prisma.BusinessStaffCreateNestedManyWithoutUserInput;
   workedAppointments?: Prisma.AppointmentCreateNestedManyWithoutProviderInput;
+  reviews?: Prisma.ReviewCreateNestedManyWithoutClientInput;
 };
 
 export type UserUncheckedCreateWithoutAppointmentsInput = {
@@ -801,6 +843,7 @@ export type UserUncheckedCreateWithoutAppointmentsInput = {
   ownedBusinesses?: Prisma.BusinessUncheckedCreateNestedManyWithoutOwnerInput;
   staffAssignments?: Prisma.BusinessStaffUncheckedCreateNestedManyWithoutUserInput;
   workedAppointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutProviderInput;
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutClientInput;
 };
 
 export type UserCreateOrConnectWithoutAppointmentsInput = {
@@ -824,6 +867,7 @@ export type UserCreateWithoutWorkedAppointmentsInput = {
   ownedBusinesses?: Prisma.BusinessCreateNestedManyWithoutOwnerInput;
   staffAssignments?: Prisma.BusinessStaffCreateNestedManyWithoutUserInput;
   appointments?: Prisma.AppointmentCreateNestedManyWithoutClientInput;
+  reviews?: Prisma.ReviewCreateNestedManyWithoutClientInput;
 };
 
 export type UserUncheckedCreateWithoutWorkedAppointmentsInput = {
@@ -839,6 +883,7 @@ export type UserUncheckedCreateWithoutWorkedAppointmentsInput = {
   ownedBusinesses?: Prisma.BusinessUncheckedCreateNestedManyWithoutOwnerInput;
   staffAssignments?: Prisma.BusinessStaffUncheckedCreateNestedManyWithoutUserInput;
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutClientInput;
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutClientInput;
 };
 
 export type UserCreateOrConnectWithoutWorkedAppointmentsInput = {
@@ -886,6 +931,7 @@ export type UserUpdateWithoutAppointmentsInput = {
   ownedBusinesses?: Prisma.BusinessUpdateManyWithoutOwnerNestedInput;
   staffAssignments?: Prisma.BusinessStaffUpdateManyWithoutUserNestedInput;
   workedAppointments?: Prisma.AppointmentUpdateManyWithoutProviderNestedInput;
+  reviews?: Prisma.ReviewUpdateManyWithoutClientNestedInput;
 };
 
 export type UserUncheckedUpdateWithoutAppointmentsInput = {
@@ -905,6 +951,7 @@ export type UserUncheckedUpdateWithoutAppointmentsInput = {
   ownedBusinesses?: Prisma.BusinessUncheckedUpdateManyWithoutOwnerNestedInput;
   staffAssignments?: Prisma.BusinessStaffUncheckedUpdateManyWithoutUserNestedInput;
   workedAppointments?: Prisma.AppointmentUncheckedUpdateManyWithoutProviderNestedInput;
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutClientNestedInput;
 };
 
 export type UserUpsertWithoutWorkedAppointmentsInput = {
@@ -944,6 +991,7 @@ export type UserUpdateWithoutWorkedAppointmentsInput = {
   ownedBusinesses?: Prisma.BusinessUpdateManyWithoutOwnerNestedInput;
   staffAssignments?: Prisma.BusinessStaffUpdateManyWithoutUserNestedInput;
   appointments?: Prisma.AppointmentUpdateManyWithoutClientNestedInput;
+  reviews?: Prisma.ReviewUpdateManyWithoutClientNestedInput;
 };
 
 export type UserUncheckedUpdateWithoutWorkedAppointmentsInput = {
@@ -963,6 +1011,107 @@ export type UserUncheckedUpdateWithoutWorkedAppointmentsInput = {
   ownedBusinesses?: Prisma.BusinessUncheckedUpdateManyWithoutOwnerNestedInput;
   staffAssignments?: Prisma.BusinessStaffUncheckedUpdateManyWithoutUserNestedInput;
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutClientNestedInput;
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutClientNestedInput;
+};
+
+export type UserCreateWithoutReviewsInput = {
+  id?: string;
+  email: string;
+  password: string;
+  name?: string | null;
+  avatarUrl?: string | null;
+  role?: $Enums.Role;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  deletedAt?: Date | string | null;
+  ownedBusinesses?: Prisma.BusinessCreateNestedManyWithoutOwnerInput;
+  staffAssignments?: Prisma.BusinessStaffCreateNestedManyWithoutUserInput;
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutClientInput;
+  workedAppointments?: Prisma.AppointmentCreateNestedManyWithoutProviderInput;
+};
+
+export type UserUncheckedCreateWithoutReviewsInput = {
+  id?: string;
+  email: string;
+  password: string;
+  name?: string | null;
+  avatarUrl?: string | null;
+  role?: $Enums.Role;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  deletedAt?: Date | string | null;
+  ownedBusinesses?: Prisma.BusinessUncheckedCreateNestedManyWithoutOwnerInput;
+  staffAssignments?: Prisma.BusinessStaffUncheckedCreateNestedManyWithoutUserInput;
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutClientInput;
+  workedAppointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutProviderInput;
+};
+
+export type UserCreateOrConnectWithoutReviewsInput = {
+  where: Prisma.UserWhereUniqueInput;
+  create: Prisma.XOR<
+    Prisma.UserCreateWithoutReviewsInput,
+    Prisma.UserUncheckedCreateWithoutReviewsInput
+  >;
+};
+
+export type UserUpsertWithoutReviewsInput = {
+  update: Prisma.XOR<
+    Prisma.UserUpdateWithoutReviewsInput,
+    Prisma.UserUncheckedUpdateWithoutReviewsInput
+  >;
+  create: Prisma.XOR<
+    Prisma.UserCreateWithoutReviewsInput,
+    Prisma.UserUncheckedCreateWithoutReviewsInput
+  >;
+  where?: Prisma.UserWhereInput;
+};
+
+export type UserUpdateToOneWithWhereWithoutReviewsInput = {
+  where?: Prisma.UserWhereInput;
+  data: Prisma.XOR<
+    Prisma.UserUpdateWithoutReviewsInput,
+    Prisma.UserUncheckedUpdateWithoutReviewsInput
+  >;
+};
+
+export type UserUpdateWithoutReviewsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string;
+  email?: Prisma.StringFieldUpdateOperationsInput | string;
+  password?: Prisma.StringFieldUpdateOperationsInput | string;
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  deletedAt?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
+  ownedBusinesses?: Prisma.BusinessUpdateManyWithoutOwnerNestedInput;
+  staffAssignments?: Prisma.BusinessStaffUpdateManyWithoutUserNestedInput;
+  appointments?: Prisma.AppointmentUpdateManyWithoutClientNestedInput;
+  workedAppointments?: Prisma.AppointmentUpdateManyWithoutProviderNestedInput;
+};
+
+export type UserUncheckedUpdateWithoutReviewsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string;
+  email?: Prisma.StringFieldUpdateOperationsInput | string;
+  password?: Prisma.StringFieldUpdateOperationsInput | string;
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role;
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  deletedAt?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
+  ownedBusinesses?: Prisma.BusinessUncheckedUpdateManyWithoutOwnerNestedInput;
+  staffAssignments?: Prisma.BusinessStaffUncheckedUpdateManyWithoutUserNestedInput;
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutClientNestedInput;
+  workedAppointments?: Prisma.AppointmentUncheckedUpdateManyWithoutProviderNestedInput;
 };
 
 /**
@@ -974,6 +1123,7 @@ export type UserCountOutputType = {
   staffAssignments: number;
   appointments: number;
   workedAppointments: number;
+  reviews: number;
 };
 
 export type UserCountOutputTypeSelect<
@@ -984,6 +1134,7 @@ export type UserCountOutputTypeSelect<
   staffAssignments?: boolean | UserCountOutputTypeCountStaffAssignmentsArgs;
   appointments?: boolean | UserCountOutputTypeCountAppointmentsArgs;
   workedAppointments?: boolean | UserCountOutputTypeCountWorkedAppointmentsArgs;
+  reviews?: boolean | UserCountOutputTypeCountReviewsArgs;
 };
 
 /**
@@ -1039,6 +1190,16 @@ export type UserCountOutputTypeCountWorkedAppointmentsArgs<
   where?: Prisma.AppointmentWhereInput;
 };
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountReviewsArgs<
+  ExtArgs extends runtime.Types.Extensions.InternalArgs =
+    runtime.Types.Extensions.DefaultArgs,
+> = {
+  where?: Prisma.ReviewWhereInput;
+};
+
 export type UserSelect<
   ExtArgs extends runtime.Types.Extensions.InternalArgs =
     runtime.Types.Extensions.DefaultArgs,
@@ -1057,6 +1218,7 @@ export type UserSelect<
     staffAssignments?: boolean | Prisma.User$staffAssignmentsArgs<ExtArgs>;
     appointments?: boolean | Prisma.User$appointmentsArgs<ExtArgs>;
     workedAppointments?: boolean | Prisma.User$workedAppointmentsArgs<ExtArgs>;
+    reviews?: boolean | Prisma.User$reviewsArgs<ExtArgs>;
     _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>;
   },
   ExtArgs['result']['user']
@@ -1133,6 +1295,7 @@ export type UserInclude<
   staffAssignments?: boolean | Prisma.User$staffAssignmentsArgs<ExtArgs>;
   appointments?: boolean | Prisma.User$appointmentsArgs<ExtArgs>;
   workedAppointments?: boolean | Prisma.User$workedAppointmentsArgs<ExtArgs>;
+  reviews?: boolean | Prisma.User$reviewsArgs<ExtArgs>;
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>;
 };
 export type UserIncludeCreateManyAndReturn<
@@ -1154,6 +1317,7 @@ export type $UserPayload<
     staffAssignments: Prisma.$BusinessStaffPayload<ExtArgs>[];
     appointments: Prisma.$AppointmentPayload<ExtArgs>[];
     workedAppointments: Prisma.$AppointmentPayload<ExtArgs>[];
+    reviews: Prisma.$ReviewPayload<ExtArgs>[];
   };
   scalars: runtime.Types.Extensions.GetPayloadResult<
     {
@@ -1756,6 +1920,17 @@ export interface Prisma__UserClient<
   ): Prisma.PrismaPromise<
     | runtime.Types.Result.GetResult<
         Prisma.$AppointmentPayload<ExtArgs>,
+        T,
+        'findMany',
+        GlobalOmitOptions
+      >
+    | Null
+  >;
+  reviews<T extends Prisma.User$reviewsArgs<ExtArgs> = {}>(
+    args?: Prisma.Subset<T, Prisma.User$reviewsArgs<ExtArgs>>,
+  ): Prisma.PrismaPromise<
+    | runtime.Types.Result.GetResult<
+        Prisma.$ReviewPayload<ExtArgs>,
         T,
         'findMany',
         GlobalOmitOptions
@@ -2378,6 +2553,35 @@ export type User$workedAppointmentsArgs<
   distinct?:
     | Prisma.AppointmentScalarFieldEnum
     | Prisma.AppointmentScalarFieldEnum[];
+};
+
+/**
+ * User.reviews
+ */
+export type User$reviewsArgs<
+  ExtArgs extends runtime.Types.Extensions.InternalArgs =
+    runtime.Types.Extensions.DefaultArgs,
+> = {
+  /**
+   * Select specific fields to fetch from the Review
+   */
+  select?: Prisma.ReviewSelect<ExtArgs> | null;
+  /**
+   * Omit specific fields from the Review
+   */
+  omit?: Prisma.ReviewOmit<ExtArgs> | null;
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReviewInclude<ExtArgs> | null;
+  where?: Prisma.ReviewWhereInput;
+  orderBy?:
+    | Prisma.ReviewOrderByWithRelationInput
+    | Prisma.ReviewOrderByWithRelationInput[];
+  cursor?: Prisma.ReviewWhereUniqueInput;
+  take?: number;
+  skip?: number;
+  distinct?: Prisma.ReviewScalarFieldEnum | Prisma.ReviewScalarFieldEnum[];
 };
 
 /**

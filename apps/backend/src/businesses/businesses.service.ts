@@ -8,6 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
 import { FindAllBusinessesQueryDto } from './dto/find-all-businesses-query.dto';
+import { ReviewsService } from '../reviews/reviews.service';
 import { instanceToPlain } from 'class-transformer';
 
 interface OpeningHoursDay {
@@ -71,7 +72,10 @@ function getLocalWallTime(
 
 @Injectable()
 export class BusinessesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly reviewsService: ReviewsService,
+  ) {}
 
   async create(ownerId: string, dto: CreateBusinessDto) {
     const { openingHours: openingHoursDto, ...rest } = dto;
@@ -120,7 +124,7 @@ export class BusinessesService {
       };
     }
 
-    const [data, total] = await Promise.all([
+    const [businesses, total] = await Promise.all([
       this.prisma.business.findMany({
         where,
         include: {
@@ -132,6 +136,18 @@ export class BusinessesService {
       }),
       this.prisma.business.count({ where }),
     ]);
+
+    const statsByBusiness = await this.reviewsService.getStatsForBusinesses(
+      businesses.map((b) => b.id),
+    );
+
+    const data = businesses.map((business) => ({
+      ...business,
+      ...(statsByBusiness.get(business.id) ?? {
+        averageRating: null,
+        reviewCount: 0,
+      }),
+    }));
 
     return { data, total, limit, offset };
   }
@@ -175,7 +191,9 @@ export class BusinessesService {
       throw new NotFoundException(`Business with ID ${id} not found`);
     }
 
-    return business;
+    const stats = await this.reviewsService.getStatsForBusiness(id);
+
+    return { ...business, ...stats };
   }
 
   async findServices(businessId: string) {

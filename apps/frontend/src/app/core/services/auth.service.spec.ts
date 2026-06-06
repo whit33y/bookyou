@@ -12,7 +12,13 @@ describe('AuthService', () => {
 
   const mockAuthResponse: AuthResponse = {
     accessToken: 'mock-token',
-    user: { id: '1', email: 'test@test.com', name: 'Test', role: Role.CLIENT },
+    user: {
+      id: '1',
+      email: 'test@test.com',
+      name: 'Test',
+      avatarUrl: null,
+      role: Role.CLIENT,
+    },
   };
 
   beforeEach(() => {

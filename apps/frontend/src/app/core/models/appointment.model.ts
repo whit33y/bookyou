@@ -28,6 +28,12 @@ export interface AppointmentBusiness {
   ownerId: string;
 }
 
+export interface AppointmentReview {
+  id: string;
+  rating: number;
+  comment: string | null;
+}
+
 export interface Appointment {
   id: string;
   status: AppointmentStatus;
@@ -43,6 +49,7 @@ export interface Appointment {
   business: AppointmentBusiness;
   provider: AppointmentUser;
   client: AppointmentUser;
+  review: AppointmentReview | null;
 }
 
 export interface CreateAppointmentRequest {

@@ -37,6 +37,13 @@
             <p class="text-sm text-gray-500">
               {{ business.street }}, {{ business.zipCode }} {{ business.city }}
             </p>
+            @if (business.reviewCount) {
+              <div class="mt-1 flex items-center gap-1.5">
+                <app-star-rating [rating]="business.averageRating ?? 0" size="sm" />
+                <span class="text-sm font-medium text-gray-900">{{ business.averageRating }}</span>
+                <span class="text-sm text-gray-500">({{ business.reviewCount }})</span>
+              </div>
+            }
           </div>
         </div>
       </section>
@@ -137,6 +144,8 @@
           <p class="mt-4 text-sm text-gray-500">Brak dostępnych usług.</p>
         }
       </section>
+
+      <app-business-reviews [businessId]="business.id" />
     </div>
 
     @if (showBookingModal()) {

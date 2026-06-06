@@ -80,7 +80,19 @@
                     · {{ appointment.service.duration }} min
                   </p>
                 </div>
-                <app-status-badge [status]="appointment.status" />
+                <div class="flex flex-col items-end gap-2">
+                  <app-status-badge [status]="appointment.status" />
+                  @if (appointment.review) {
+                    <app-star-rating [rating]="appointment.review.rating" size="sm" />
+                  } @else if (canReview(appointment)) {
+                    <button
+                      (click)="requestReview(appointment)"
+                      class="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                    >
+                      Dodaj opinię
+                    </button>
+                  }
+                </div>
               </div>
             </div>
           }
@@ -89,6 +101,14 @@
     }
   }
 </div>
+
+@if (appointmentToReview(); as appointment) {
+  <app-review-modal
+    [appointment]="appointment"
+    (submitted)="onReviewSubmitted($event)"
+    (closed)="dismissReview()"
+  />
+}
 
 @if (appointmentToCancel()) {
   <app-confirm-modal

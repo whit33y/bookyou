@@ -39,6 +39,7 @@ model User {
   staffAssignments BusinessStaff[]
   appointments     Appointment[]   @relation("ClientAppointments")
   workedAppointments Appointment[] @relation("ProviderAppointments")
+  reviews          Review[]
 
   @@map("users")
 }
@@ -75,6 +76,7 @@ model Business {
   services     Service[]
   staff        BusinessStaff[]
   appointments Appointment[]
+  reviews      Review[]
 
   @@index([ownerId])
   @@map("businesses")
@@ -143,9 +145,29 @@ model Appointment {
   provider User     @relation("ProviderAppointments", fields: [providerId], references: [id])
   service  Service  @relation(fields: [serviceId], references: [id])
   business Business @relation(fields: [businessId], references: [id])
+  review   Review?
 
   @@index([startTime])
   @@index([endTime])
   @@index([businessId])
   @@map("appointments")
+}
+
+model Review {
+  id            String   @id @default(uuid())
+  rating        Int // 1-5 stars
+  comment       String?
+  clientId      String   @map("client_id")
+  businessId    String   @map("business_id")
+  appointmentId String   @unique @map("appointment_id") // one review per appointment
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  client      User        @relation(fields: [clientId], references: [id])
+  business    Business    @relation(fields: [businessId], references: [id])
+  appointment Appointment @relation(fields: [appointmentId], references: [id])
+
+  @@index([businessId])
+  @@map("reviews")
 }

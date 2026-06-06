@@ -46,3 +46,8 @@ export type Service = Prisma.ServiceModel;
  *
  */
 export type Appointment = Prisma.AppointmentModel;
+/**
+ * Model Review
+ *
+ */
+export type Review = Prisma.ReviewModel;

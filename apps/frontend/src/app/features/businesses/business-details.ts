@@ -4,11 +4,13 @@ import { DiscoveryService } from '../../core/services/discovery.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Service } from '../../core/models/business.model';
 import { MediaUrlPipe } from '../../shared/pipes/media-url.pipe';
+import { StarRatingComponent } from '../../shared/components/star-rating/star-rating';
 import { BookingModalComponent } from './booking-modal';
+import { BusinessReviewsComponent } from './business-reviews';
 
 @Component({
   selector: 'app-business-details',
-  imports: [BookingModalComponent, MediaUrlPipe],
+  imports: [BookingModalComponent, BusinessReviewsComponent, StarRatingComponent, MediaUrlPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './business-details.html',
 })
