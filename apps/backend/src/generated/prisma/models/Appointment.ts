@@ -250,6 +250,10 @@ export type AppointmentWhereInput = {
     Prisma.BusinessScalarRelationFilter,
     Prisma.BusinessWhereInput
   >;
+  review?: Prisma.XOR<
+    Prisma.ReviewNullableScalarRelationFilter,
+    Prisma.ReviewWhereInput
+  > | null;
 };
 
 export type AppointmentOrderByWithRelationInput = {
@@ -268,6 +272,7 @@ export type AppointmentOrderByWithRelationInput = {
   provider?: Prisma.UserOrderByWithRelationInput;
   service?: Prisma.ServiceOrderByWithRelationInput;
   business?: Prisma.BusinessOrderByWithRelationInput;
+  review?: Prisma.ReviewOrderByWithRelationInput;
 };
 
 export type AppointmentWhereUniqueInput = Prisma.AtLeast<
@@ -305,6 +310,10 @@ export type AppointmentWhereUniqueInput = Prisma.AtLeast<
       Prisma.BusinessScalarRelationFilter,
       Prisma.BusinessWhereInput
     >;
+    review?: Prisma.XOR<
+      Prisma.ReviewNullableScalarRelationFilter,
+      Prisma.ReviewWhereInput
+    > | null;
   },
   'id'
 >;
@@ -374,6 +383,7 @@ export type AppointmentCreateInput = {
   provider: Prisma.UserCreateNestedOneWithoutWorkedAppointmentsInput;
   service: Prisma.ServiceCreateNestedOneWithoutAppointmentsInput;
   business: Prisma.BusinessCreateNestedOneWithoutAppointmentsInput;
+  review?: Prisma.ReviewCreateNestedOneWithoutAppointmentInput;
 };
 
 export type AppointmentUncheckedCreateInput = {
@@ -388,6 +398,7 @@ export type AppointmentUncheckedCreateInput = {
   createdAt?: Date | string;
   updatedAt?: Date | string;
   deletedAt?: Date | string | null;
+  review?: Prisma.ReviewUncheckedCreateNestedOneWithoutAppointmentInput;
 };
 
 export type AppointmentUpdateInput = {
@@ -408,6 +419,7 @@ export type AppointmentUpdateInput = {
   provider?: Prisma.UserUpdateOneRequiredWithoutWorkedAppointmentsNestedInput;
   service?: Prisma.ServiceUpdateOneRequiredWithoutAppointmentsNestedInput;
   business?: Prisma.BusinessUpdateOneRequiredWithoutAppointmentsNestedInput;
+  review?: Prisma.ReviewUpdateOneWithoutAppointmentNestedInput;
 };
 
 export type AppointmentUncheckedUpdateInput = {
@@ -428,6 +440,7 @@ export type AppointmentUncheckedUpdateInput = {
     | Date
     | string
     | null;
+  review?: Prisma.ReviewUncheckedUpdateOneWithoutAppointmentNestedInput;
 };
 
 export type AppointmentCreateManyInput = {
@@ -530,6 +543,11 @@ export type AppointmentMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
   deletedAt?: Prisma.SortOrder;
+};
+
+export type AppointmentScalarRelationFilter = {
+  is?: Prisma.AppointmentWhereInput;
+  isNot?: Prisma.AppointmentWhereInput;
 };
 
 export type AppointmentCreateNestedManyWithoutClientInput = {
@@ -976,6 +994,32 @@ export type EnumAppointmentStatusFieldUpdateOperationsInput = {
   set?: $Enums.AppointmentStatus;
 };
 
+export type AppointmentCreateNestedOneWithoutReviewInput = {
+  create?: Prisma.XOR<
+    Prisma.AppointmentCreateWithoutReviewInput,
+    Prisma.AppointmentUncheckedCreateWithoutReviewInput
+  >;
+  connectOrCreate?: Prisma.AppointmentCreateOrConnectWithoutReviewInput;
+  connect?: Prisma.AppointmentWhereUniqueInput;
+};
+
+export type AppointmentUpdateOneRequiredWithoutReviewNestedInput = {
+  create?: Prisma.XOR<
+    Prisma.AppointmentCreateWithoutReviewInput,
+    Prisma.AppointmentUncheckedCreateWithoutReviewInput
+  >;
+  connectOrCreate?: Prisma.AppointmentCreateOrConnectWithoutReviewInput;
+  upsert?: Prisma.AppointmentUpsertWithoutReviewInput;
+  connect?: Prisma.AppointmentWhereUniqueInput;
+  update?: Prisma.XOR<
+    Prisma.XOR<
+      Prisma.AppointmentUpdateToOneWithWhereWithoutReviewInput,
+      Prisma.AppointmentUpdateWithoutReviewInput
+    >,
+    Prisma.AppointmentUncheckedUpdateWithoutReviewInput
+  >;
+};
+
 export type AppointmentCreateWithoutClientInput = {
   id?: string;
   status?: $Enums.AppointmentStatus;
@@ -987,6 +1031,7 @@ export type AppointmentCreateWithoutClientInput = {
   provider: Prisma.UserCreateNestedOneWithoutWorkedAppointmentsInput;
   service: Prisma.ServiceCreateNestedOneWithoutAppointmentsInput;
   business: Prisma.BusinessCreateNestedOneWithoutAppointmentsInput;
+  review?: Prisma.ReviewCreateNestedOneWithoutAppointmentInput;
 };
 
 export type AppointmentUncheckedCreateWithoutClientInput = {
@@ -1000,6 +1045,7 @@ export type AppointmentUncheckedCreateWithoutClientInput = {
   createdAt?: Date | string;
   updatedAt?: Date | string;
   deletedAt?: Date | string | null;
+  review?: Prisma.ReviewUncheckedCreateNestedOneWithoutAppointmentInput;
 };
 
 export type AppointmentCreateOrConnectWithoutClientInput = {
@@ -1028,6 +1074,7 @@ export type AppointmentCreateWithoutProviderInput = {
   client: Prisma.UserCreateNestedOneWithoutAppointmentsInput;
   service: Prisma.ServiceCreateNestedOneWithoutAppointmentsInput;
   business: Prisma.BusinessCreateNestedOneWithoutAppointmentsInput;
+  review?: Prisma.ReviewCreateNestedOneWithoutAppointmentInput;
 };
 
 export type AppointmentUncheckedCreateWithoutProviderInput = {
@@ -1041,6 +1088,7 @@ export type AppointmentUncheckedCreateWithoutProviderInput = {
   createdAt?: Date | string;
   updatedAt?: Date | string;
   deletedAt?: Date | string | null;
+  review?: Prisma.ReviewUncheckedCreateNestedOneWithoutAppointmentInput;
 };
 
 export type AppointmentCreateOrConnectWithoutProviderInput = {
@@ -1152,6 +1200,7 @@ export type AppointmentCreateWithoutBusinessInput = {
   client: Prisma.UserCreateNestedOneWithoutAppointmentsInput;
   provider: Prisma.UserCreateNestedOneWithoutWorkedAppointmentsInput;
   service: Prisma.ServiceCreateNestedOneWithoutAppointmentsInput;
+  review?: Prisma.ReviewCreateNestedOneWithoutAppointmentInput;
 };
 
 export type AppointmentUncheckedCreateWithoutBusinessInput = {
@@ -1165,6 +1214,7 @@ export type AppointmentUncheckedCreateWithoutBusinessInput = {
   createdAt?: Date | string;
   updatedAt?: Date | string;
   deletedAt?: Date | string | null;
+  review?: Prisma.ReviewUncheckedCreateNestedOneWithoutAppointmentInput;
 };
 
 export type AppointmentCreateOrConnectWithoutBusinessInput = {
@@ -1221,6 +1271,7 @@ export type AppointmentCreateWithoutServiceInput = {
   client: Prisma.UserCreateNestedOneWithoutAppointmentsInput;
   provider: Prisma.UserCreateNestedOneWithoutWorkedAppointmentsInput;
   business: Prisma.BusinessCreateNestedOneWithoutAppointmentsInput;
+  review?: Prisma.ReviewCreateNestedOneWithoutAppointmentInput;
 };
 
 export type AppointmentUncheckedCreateWithoutServiceInput = {
@@ -1234,6 +1285,7 @@ export type AppointmentUncheckedCreateWithoutServiceInput = {
   createdAt?: Date | string;
   updatedAt?: Date | string;
   deletedAt?: Date | string | null;
+  review?: Prisma.ReviewUncheckedCreateNestedOneWithoutAppointmentInput;
 };
 
 export type AppointmentCreateOrConnectWithoutServiceInput = {
@@ -1279,6 +1331,102 @@ export type AppointmentUpdateManyWithWhereWithoutServiceInput = {
   >;
 };
 
+export type AppointmentCreateWithoutReviewInput = {
+  id?: string;
+  status?: $Enums.AppointmentStatus;
+  startTime: Date | string;
+  endTime: Date | string;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  deletedAt?: Date | string | null;
+  client: Prisma.UserCreateNestedOneWithoutAppointmentsInput;
+  provider: Prisma.UserCreateNestedOneWithoutWorkedAppointmentsInput;
+  service: Prisma.ServiceCreateNestedOneWithoutAppointmentsInput;
+  business: Prisma.BusinessCreateNestedOneWithoutAppointmentsInput;
+};
+
+export type AppointmentUncheckedCreateWithoutReviewInput = {
+  id?: string;
+  status?: $Enums.AppointmentStatus;
+  startTime: Date | string;
+  endTime: Date | string;
+  clientId: string;
+  providerId: string;
+  serviceId: string;
+  businessId: string;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  deletedAt?: Date | string | null;
+};
+
+export type AppointmentCreateOrConnectWithoutReviewInput = {
+  where: Prisma.AppointmentWhereUniqueInput;
+  create: Prisma.XOR<
+    Prisma.AppointmentCreateWithoutReviewInput,
+    Prisma.AppointmentUncheckedCreateWithoutReviewInput
+  >;
+};
+
+export type AppointmentUpsertWithoutReviewInput = {
+  update: Prisma.XOR<
+    Prisma.AppointmentUpdateWithoutReviewInput,
+    Prisma.AppointmentUncheckedUpdateWithoutReviewInput
+  >;
+  create: Prisma.XOR<
+    Prisma.AppointmentCreateWithoutReviewInput,
+    Prisma.AppointmentUncheckedCreateWithoutReviewInput
+  >;
+  where?: Prisma.AppointmentWhereInput;
+};
+
+export type AppointmentUpdateToOneWithWhereWithoutReviewInput = {
+  where?: Prisma.AppointmentWhereInput;
+  data: Prisma.XOR<
+    Prisma.AppointmentUpdateWithoutReviewInput,
+    Prisma.AppointmentUncheckedUpdateWithoutReviewInput
+  >;
+};
+
+export type AppointmentUpdateWithoutReviewInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string;
+  status?:
+    | Prisma.EnumAppointmentStatusFieldUpdateOperationsInput
+    | $Enums.AppointmentStatus;
+  startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  endTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  deletedAt?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
+  client?: Prisma.UserUpdateOneRequiredWithoutAppointmentsNestedInput;
+  provider?: Prisma.UserUpdateOneRequiredWithoutWorkedAppointmentsNestedInput;
+  service?: Prisma.ServiceUpdateOneRequiredWithoutAppointmentsNestedInput;
+  business?: Prisma.BusinessUpdateOneRequiredWithoutAppointmentsNestedInput;
+};
+
+export type AppointmentUncheckedUpdateWithoutReviewInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string;
+  status?:
+    | Prisma.EnumAppointmentStatusFieldUpdateOperationsInput
+    | $Enums.AppointmentStatus;
+  startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  endTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  clientId?: Prisma.StringFieldUpdateOperationsInput | string;
+  providerId?: Prisma.StringFieldUpdateOperationsInput | string;
+  serviceId?: Prisma.StringFieldUpdateOperationsInput | string;
+  businessId?: Prisma.StringFieldUpdateOperationsInput | string;
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  deletedAt?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
+};
+
 export type AppointmentCreateManyClientInput = {
   id?: string;
   status?: $Enums.AppointmentStatus;
@@ -1322,6 +1470,7 @@ export type AppointmentUpdateWithoutClientInput = {
   provider?: Prisma.UserUpdateOneRequiredWithoutWorkedAppointmentsNestedInput;
   service?: Prisma.ServiceUpdateOneRequiredWithoutAppointmentsNestedInput;
   business?: Prisma.BusinessUpdateOneRequiredWithoutAppointmentsNestedInput;
+  review?: Prisma.ReviewUpdateOneWithoutAppointmentNestedInput;
 };
 
 export type AppointmentUncheckedUpdateWithoutClientInput = {
@@ -1341,6 +1490,7 @@ export type AppointmentUncheckedUpdateWithoutClientInput = {
     | Date
     | string
     | null;
+  review?: Prisma.ReviewUncheckedUpdateOneWithoutAppointmentNestedInput;
 };
 
 export type AppointmentUncheckedUpdateManyWithoutClientInput = {
@@ -1379,6 +1529,7 @@ export type AppointmentUpdateWithoutProviderInput = {
   client?: Prisma.UserUpdateOneRequiredWithoutAppointmentsNestedInput;
   service?: Prisma.ServiceUpdateOneRequiredWithoutAppointmentsNestedInput;
   business?: Prisma.BusinessUpdateOneRequiredWithoutAppointmentsNestedInput;
+  review?: Prisma.ReviewUpdateOneWithoutAppointmentNestedInput;
 };
 
 export type AppointmentUncheckedUpdateWithoutProviderInput = {
@@ -1398,6 +1549,7 @@ export type AppointmentUncheckedUpdateWithoutProviderInput = {
     | Date
     | string
     | null;
+  review?: Prisma.ReviewUncheckedUpdateOneWithoutAppointmentNestedInput;
 };
 
 export type AppointmentUncheckedUpdateManyWithoutProviderInput = {
@@ -1449,6 +1601,7 @@ export type AppointmentUpdateWithoutBusinessInput = {
   client?: Prisma.UserUpdateOneRequiredWithoutAppointmentsNestedInput;
   provider?: Prisma.UserUpdateOneRequiredWithoutWorkedAppointmentsNestedInput;
   service?: Prisma.ServiceUpdateOneRequiredWithoutAppointmentsNestedInput;
+  review?: Prisma.ReviewUpdateOneWithoutAppointmentNestedInput;
 };
 
 export type AppointmentUncheckedUpdateWithoutBusinessInput = {
@@ -1468,6 +1621,7 @@ export type AppointmentUncheckedUpdateWithoutBusinessInput = {
     | Date
     | string
     | null;
+  review?: Prisma.ReviewUncheckedUpdateOneWithoutAppointmentNestedInput;
 };
 
 export type AppointmentUncheckedUpdateManyWithoutBusinessInput = {
@@ -1519,6 +1673,7 @@ export type AppointmentUpdateWithoutServiceInput = {
   client?: Prisma.UserUpdateOneRequiredWithoutAppointmentsNestedInput;
   provider?: Prisma.UserUpdateOneRequiredWithoutWorkedAppointmentsNestedInput;
   business?: Prisma.BusinessUpdateOneRequiredWithoutAppointmentsNestedInput;
+  review?: Prisma.ReviewUpdateOneWithoutAppointmentNestedInput;
 };
 
 export type AppointmentUncheckedUpdateWithoutServiceInput = {
@@ -1538,6 +1693,7 @@ export type AppointmentUncheckedUpdateWithoutServiceInput = {
     | Date
     | string
     | null;
+  review?: Prisma.ReviewUncheckedUpdateOneWithoutAppointmentNestedInput;
 };
 
 export type AppointmentUncheckedUpdateManyWithoutServiceInput = {
@@ -1579,6 +1735,7 @@ export type AppointmentSelect<
     provider?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
     service?: boolean | Prisma.ServiceDefaultArgs<ExtArgs>;
     business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>;
+    review?: boolean | Prisma.Appointment$reviewArgs<ExtArgs>;
   },
   ExtArgs['result']['appointment']
 >;
@@ -1670,6 +1827,7 @@ export type AppointmentInclude<
   provider?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
   service?: boolean | Prisma.ServiceDefaultArgs<ExtArgs>;
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>;
+  review?: boolean | Prisma.Appointment$reviewArgs<ExtArgs>;
 };
 export type AppointmentIncludeCreateManyAndReturn<
   ExtArgs extends runtime.Types.Extensions.InternalArgs =
@@ -1700,6 +1858,7 @@ export type $AppointmentPayload<
     provider: Prisma.$UserPayload<ExtArgs>;
     service: Prisma.$ServicePayload<ExtArgs>;
     business: Prisma.$BusinessPayload<ExtArgs>;
+    review: Prisma.$ReviewPayload<ExtArgs> | null;
   };
   scalars: runtime.Types.Extensions.GetPayloadResult<
     {
@@ -2323,6 +2482,19 @@ export interface Prisma__AppointmentClient<
     ExtArgs,
     GlobalOmitOptions
   >;
+  review<T extends Prisma.Appointment$reviewArgs<ExtArgs> = {}>(
+    args?: Prisma.Subset<T, Prisma.Appointment$reviewArgs<ExtArgs>>,
+  ): Prisma.Prisma__ReviewClient<
+    runtime.Types.Result.GetResult<
+      Prisma.$ReviewPayload<ExtArgs>,
+      T,
+      'findUniqueOrThrow',
+      GlobalOmitOptions
+    > | null,
+    null,
+    ExtArgs,
+    GlobalOmitOptions
+  >;
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2845,6 +3017,28 @@ export type AppointmentDeleteManyArgs<
    * Limit how many Appointments to delete.
    */
   limit?: number;
+};
+
+/**
+ * Appointment.review
+ */
+export type Appointment$reviewArgs<
+  ExtArgs extends runtime.Types.Extensions.InternalArgs =
+    runtime.Types.Extensions.DefaultArgs,
+> = {
+  /**
+   * Select specific fields to fetch from the Review
+   */
+  select?: Prisma.ReviewSelect<ExtArgs> | null;
+  /**
+   * Omit specific fields from the Review
+   */
+  omit?: Prisma.ReviewOmit<ExtArgs> | null;
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReviewInclude<ExtArgs> | null;
+  where?: Prisma.ReviewWhereInput;
 };
 
 /**

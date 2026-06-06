@@ -17,10 +17,19 @@ import { Role } from '../../core/models/user.model';
 import { canCancelAppointment } from '../../core/utils/appointment.utils';
 import { AppointmentStatusBadgeComponent } from '../../shared/components/status-badge/status-badge';
 import { ConfirmModalComponent } from '../../shared/components/confirm-modal/confirm-modal';
+import { StarRatingComponent } from '../../shared/components/star-rating/star-rating';
+import { ReviewModalComponent } from '../reviews/review-modal';
+import { AppointmentReview } from '../../core/models/appointment.model';
 
 @Component({
   selector: 'app-my-appointments',
-  imports: [DatePipe, AppointmentStatusBadgeComponent, ConfirmModalComponent],
+  imports: [
+    DatePipe,
+    AppointmentStatusBadgeComponent,
+    ConfirmModalComponent,
+    StarRatingComponent,
+    ReviewModalComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './my-appointments.html',
 })
@@ -31,6 +40,7 @@ export class MyAppointmentsComponent implements OnInit {
   private readonly notify = inject(NotificationService);
 
   readonly appointmentToCancel = signal<Appointment | null>(null);
+  readonly appointmentToReview = signal<Appointment | null>(null);
   readonly isProvider = computed(() => this.authService.currentUser()?.role === Role.PROVIDER);
   protected readonly pendingStatus = AppointmentStatus.PENDING;
 
@@ -56,6 +66,33 @@ export class MyAppointmentsComponent implements OnInit {
 
   canConfirm(appointment: Appointment): boolean {
     return this.isProvider() && appointment.status === AppointmentStatus.PENDING;
+  }
+
+  canReview(appointment: Appointment): boolean {
+    return (
+      !this.isProvider() &&
+      appointment.status === AppointmentStatus.COMPLETED &&
+      !appointment.review
+    );
+  }
+
+  requestReview(appointment: Appointment): void {
+    this.appointmentToReview.set(appointment);
+  }
+
+  onReviewSubmitted(review: AppointmentReview): void {
+    const reviewed = this.appointmentToReview();
+    this.appointmentToReview.set(null);
+    if (!reviewed) return;
+    this.notify.success('Dziękujemy za opinię!');
+    // Reflect the new review locally so the form can't be reopened.
+    this.appointmentService.appointments.update((appointments) =>
+      appointments.map((a) => (a.id === reviewed.id ? { ...a, review } : a)),
+    );
+  }
+
+  dismissReview(): void {
+    this.appointmentToReview.set(null);
   }
 
   confirmAppointment(appointment: Appointment): void {

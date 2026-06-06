@@ -336,6 +336,7 @@ export type BusinessWhereInput = {
   services?: Prisma.ServiceListRelationFilter;
   staff?: Prisma.BusinessStaffListRelationFilter;
   appointments?: Prisma.AppointmentListRelationFilter;
+  reviews?: Prisma.ReviewListRelationFilter;
 };
 
 export type BusinessOrderByWithRelationInput = {
@@ -362,6 +363,7 @@ export type BusinessOrderByWithRelationInput = {
   services?: Prisma.ServiceOrderByRelationAggregateInput;
   staff?: Prisma.BusinessStaffOrderByRelationAggregateInput;
   appointments?: Prisma.AppointmentOrderByRelationAggregateInput;
+  reviews?: Prisma.ReviewOrderByRelationAggregateInput;
 };
 
 export type BusinessWhereUniqueInput = Prisma.AtLeast<
@@ -396,6 +398,7 @@ export type BusinessWhereUniqueInput = Prisma.AtLeast<
     services?: Prisma.ServiceListRelationFilter;
     staff?: Prisma.BusinessStaffListRelationFilter;
     appointments?: Prisma.AppointmentListRelationFilter;
+    reviews?: Prisma.ReviewListRelationFilter;
   },
   'id'
 >;
@@ -501,6 +504,7 @@ export type BusinessCreateInput = {
   services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput;
   staff?: Prisma.BusinessStaffCreateNestedManyWithoutBusinessInput;
   appointments?: Prisma.AppointmentCreateNestedManyWithoutBusinessInput;
+  reviews?: Prisma.ReviewCreateNestedManyWithoutBusinessInput;
 };
 
 export type BusinessUncheckedCreateInput = {
@@ -526,6 +530,7 @@ export type BusinessUncheckedCreateInput = {
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput;
   staff?: Prisma.BusinessStaffUncheckedCreateNestedManyWithoutBusinessInput;
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutBusinessInput;
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutBusinessInput;
 };
 
 export type BusinessUpdateInput = {
@@ -555,6 +560,7 @@ export type BusinessUpdateInput = {
   services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput;
   staff?: Prisma.BusinessStaffUpdateManyWithoutBusinessNestedInput;
   appointments?: Prisma.AppointmentUpdateManyWithoutBusinessNestedInput;
+  reviews?: Prisma.ReviewUpdateManyWithoutBusinessNestedInput;
 };
 
 export type BusinessUncheckedUpdateInput = {
@@ -584,6 +590,7 @@ export type BusinessUncheckedUpdateInput = {
   services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput;
   staff?: Prisma.BusinessStaffUncheckedUpdateManyWithoutBusinessNestedInput;
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutBusinessNestedInput;
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutBusinessNestedInput;
 };
 
 export type BusinessCreateManyInput = {
@@ -928,6 +935,32 @@ export type BusinessUpdateOneRequiredWithoutAppointmentsNestedInput = {
   >;
 };
 
+export type BusinessCreateNestedOneWithoutReviewsInput = {
+  create?: Prisma.XOR<
+    Prisma.BusinessCreateWithoutReviewsInput,
+    Prisma.BusinessUncheckedCreateWithoutReviewsInput
+  >;
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutReviewsInput;
+  connect?: Prisma.BusinessWhereUniqueInput;
+};
+
+export type BusinessUpdateOneRequiredWithoutReviewsNestedInput = {
+  create?: Prisma.XOR<
+    Prisma.BusinessCreateWithoutReviewsInput,
+    Prisma.BusinessUncheckedCreateWithoutReviewsInput
+  >;
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutReviewsInput;
+  upsert?: Prisma.BusinessUpsertWithoutReviewsInput;
+  connect?: Prisma.BusinessWhereUniqueInput;
+  update?: Prisma.XOR<
+    Prisma.XOR<
+      Prisma.BusinessUpdateToOneWithWhereWithoutReviewsInput,
+      Prisma.BusinessUpdateWithoutReviewsInput
+    >,
+    Prisma.BusinessUncheckedUpdateWithoutReviewsInput
+  >;
+};
+
 export type BusinessCreateWithoutOwnerInput = {
   id?: string;
   name: string;
@@ -950,6 +983,7 @@ export type BusinessCreateWithoutOwnerInput = {
   services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput;
   staff?: Prisma.BusinessStaffCreateNestedManyWithoutBusinessInput;
   appointments?: Prisma.AppointmentCreateNestedManyWithoutBusinessInput;
+  reviews?: Prisma.ReviewCreateNestedManyWithoutBusinessInput;
 };
 
 export type BusinessUncheckedCreateWithoutOwnerInput = {
@@ -974,6 +1008,7 @@ export type BusinessUncheckedCreateWithoutOwnerInput = {
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput;
   staff?: Prisma.BusinessStaffUncheckedCreateNestedManyWithoutBusinessInput;
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutBusinessInput;
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutBusinessInput;
 };
 
 export type BusinessCreateOrConnectWithoutOwnerInput = {
@@ -1066,6 +1101,7 @@ export type BusinessCreateWithoutStaffInput = {
   owner: Prisma.UserCreateNestedOneWithoutOwnedBusinessesInput;
   services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput;
   appointments?: Prisma.AppointmentCreateNestedManyWithoutBusinessInput;
+  reviews?: Prisma.ReviewCreateNestedManyWithoutBusinessInput;
 };
 
 export type BusinessUncheckedCreateWithoutStaffInput = {
@@ -1090,6 +1126,7 @@ export type BusinessUncheckedCreateWithoutStaffInput = {
   deletedAt?: Date | string | null;
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput;
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutBusinessInput;
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutBusinessInput;
 };
 
 export type BusinessCreateOrConnectWithoutStaffInput = {
@@ -1146,6 +1183,7 @@ export type BusinessUpdateWithoutStaffInput = {
   owner?: Prisma.UserUpdateOneRequiredWithoutOwnedBusinessesNestedInput;
   services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput;
   appointments?: Prisma.AppointmentUpdateManyWithoutBusinessNestedInput;
+  reviews?: Prisma.ReviewUpdateManyWithoutBusinessNestedInput;
 };
 
 export type BusinessUncheckedUpdateWithoutStaffInput = {
@@ -1174,6 +1212,7 @@ export type BusinessUncheckedUpdateWithoutStaffInput = {
     | null;
   services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput;
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutBusinessNestedInput;
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutBusinessNestedInput;
 };
 
 export type BusinessCreateWithoutServicesInput = {
@@ -1198,6 +1237,7 @@ export type BusinessCreateWithoutServicesInput = {
   owner: Prisma.UserCreateNestedOneWithoutOwnedBusinessesInput;
   staff?: Prisma.BusinessStaffCreateNestedManyWithoutBusinessInput;
   appointments?: Prisma.AppointmentCreateNestedManyWithoutBusinessInput;
+  reviews?: Prisma.ReviewCreateNestedManyWithoutBusinessInput;
 };
 
 export type BusinessUncheckedCreateWithoutServicesInput = {
@@ -1222,6 +1262,7 @@ export type BusinessUncheckedCreateWithoutServicesInput = {
   deletedAt?: Date | string | null;
   staff?: Prisma.BusinessStaffUncheckedCreateNestedManyWithoutBusinessInput;
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutBusinessInput;
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutBusinessInput;
 };
 
 export type BusinessCreateOrConnectWithoutServicesInput = {
@@ -1278,6 +1319,7 @@ export type BusinessUpdateWithoutServicesInput = {
   owner?: Prisma.UserUpdateOneRequiredWithoutOwnedBusinessesNestedInput;
   staff?: Prisma.BusinessStaffUpdateManyWithoutBusinessNestedInput;
   appointments?: Prisma.AppointmentUpdateManyWithoutBusinessNestedInput;
+  reviews?: Prisma.ReviewUpdateManyWithoutBusinessNestedInput;
 };
 
 export type BusinessUncheckedUpdateWithoutServicesInput = {
@@ -1306,6 +1348,7 @@ export type BusinessUncheckedUpdateWithoutServicesInput = {
     | null;
   staff?: Prisma.BusinessStaffUncheckedUpdateManyWithoutBusinessNestedInput;
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutBusinessNestedInput;
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutBusinessNestedInput;
 };
 
 export type BusinessCreateWithoutAppointmentsInput = {
@@ -1330,6 +1373,7 @@ export type BusinessCreateWithoutAppointmentsInput = {
   owner: Prisma.UserCreateNestedOneWithoutOwnedBusinessesInput;
   services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput;
   staff?: Prisma.BusinessStaffCreateNestedManyWithoutBusinessInput;
+  reviews?: Prisma.ReviewCreateNestedManyWithoutBusinessInput;
 };
 
 export type BusinessUncheckedCreateWithoutAppointmentsInput = {
@@ -1354,6 +1398,7 @@ export type BusinessUncheckedCreateWithoutAppointmentsInput = {
   deletedAt?: Date | string | null;
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput;
   staff?: Prisma.BusinessStaffUncheckedCreateNestedManyWithoutBusinessInput;
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutBusinessInput;
 };
 
 export type BusinessCreateOrConnectWithoutAppointmentsInput = {
@@ -1410,6 +1455,7 @@ export type BusinessUpdateWithoutAppointmentsInput = {
   owner?: Prisma.UserUpdateOneRequiredWithoutOwnedBusinessesNestedInput;
   services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput;
   staff?: Prisma.BusinessStaffUpdateManyWithoutBusinessNestedInput;
+  reviews?: Prisma.ReviewUpdateManyWithoutBusinessNestedInput;
 };
 
 export type BusinessUncheckedUpdateWithoutAppointmentsInput = {
@@ -1438,6 +1484,143 @@ export type BusinessUncheckedUpdateWithoutAppointmentsInput = {
     | null;
   services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput;
   staff?: Prisma.BusinessStaffUncheckedUpdateManyWithoutBusinessNestedInput;
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutBusinessNestedInput;
+};
+
+export type BusinessCreateWithoutReviewsInput = {
+  id?: string;
+  name: string;
+  description?: string | null;
+  street: string;
+  city: string;
+  zipCode: string;
+  country?: string;
+  email?: string | null;
+  phone?: string | null;
+  website?: string | null;
+  logoUrl?: string | null;
+  coverUrl?: string | null;
+  openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  latitude?: number | null;
+  longitude?: number | null;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  deletedAt?: Date | string | null;
+  owner: Prisma.UserCreateNestedOneWithoutOwnedBusinessesInput;
+  services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput;
+  staff?: Prisma.BusinessStaffCreateNestedManyWithoutBusinessInput;
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutBusinessInput;
+};
+
+export type BusinessUncheckedCreateWithoutReviewsInput = {
+  id?: string;
+  name: string;
+  description?: string | null;
+  street: string;
+  city: string;
+  zipCode: string;
+  country?: string;
+  email?: string | null;
+  phone?: string | null;
+  website?: string | null;
+  logoUrl?: string | null;
+  coverUrl?: string | null;
+  openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  latitude?: number | null;
+  longitude?: number | null;
+  ownerId: string;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  deletedAt?: Date | string | null;
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput;
+  staff?: Prisma.BusinessStaffUncheckedCreateNestedManyWithoutBusinessInput;
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutBusinessInput;
+};
+
+export type BusinessCreateOrConnectWithoutReviewsInput = {
+  where: Prisma.BusinessWhereUniqueInput;
+  create: Prisma.XOR<
+    Prisma.BusinessCreateWithoutReviewsInput,
+    Prisma.BusinessUncheckedCreateWithoutReviewsInput
+  >;
+};
+
+export type BusinessUpsertWithoutReviewsInput = {
+  update: Prisma.XOR<
+    Prisma.BusinessUpdateWithoutReviewsInput,
+    Prisma.BusinessUncheckedUpdateWithoutReviewsInput
+  >;
+  create: Prisma.XOR<
+    Prisma.BusinessCreateWithoutReviewsInput,
+    Prisma.BusinessUncheckedCreateWithoutReviewsInput
+  >;
+  where?: Prisma.BusinessWhereInput;
+};
+
+export type BusinessUpdateToOneWithWhereWithoutReviewsInput = {
+  where?: Prisma.BusinessWhereInput;
+  data: Prisma.XOR<
+    Prisma.BusinessUpdateWithoutReviewsInput,
+    Prisma.BusinessUncheckedUpdateWithoutReviewsInput
+  >;
+};
+
+export type BusinessUpdateWithoutReviewsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string;
+  name?: Prisma.StringFieldUpdateOperationsInput | string;
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  street?: Prisma.StringFieldUpdateOperationsInput | string;
+  city?: Prisma.StringFieldUpdateOperationsInput | string;
+  zipCode?: Prisma.StringFieldUpdateOperationsInput | string;
+  country?: Prisma.StringFieldUpdateOperationsInput | string;
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  coverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  deletedAt?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedBusinessesNestedInput;
+  services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput;
+  staff?: Prisma.BusinessStaffUpdateManyWithoutBusinessNestedInput;
+  appointments?: Prisma.AppointmentUpdateManyWithoutBusinessNestedInput;
+};
+
+export type BusinessUncheckedUpdateWithoutReviewsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string;
+  name?: Prisma.StringFieldUpdateOperationsInput | string;
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  street?: Prisma.StringFieldUpdateOperationsInput | string;
+  city?: Prisma.StringFieldUpdateOperationsInput | string;
+  zipCode?: Prisma.StringFieldUpdateOperationsInput | string;
+  country?: Prisma.StringFieldUpdateOperationsInput | string;
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  coverUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  openingHours?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null;
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string;
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  deletedAt?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput;
+  staff?: Prisma.BusinessStaffUncheckedUpdateManyWithoutBusinessNestedInput;
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutBusinessNestedInput;
 };
 
 export type BusinessCreateManyOwnerInput = {
@@ -1487,6 +1670,7 @@ export type BusinessUpdateWithoutOwnerInput = {
   services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput;
   staff?: Prisma.BusinessStaffUpdateManyWithoutBusinessNestedInput;
   appointments?: Prisma.AppointmentUpdateManyWithoutBusinessNestedInput;
+  reviews?: Prisma.ReviewUpdateManyWithoutBusinessNestedInput;
 };
 
 export type BusinessUncheckedUpdateWithoutOwnerInput = {
@@ -1515,6 +1699,7 @@ export type BusinessUncheckedUpdateWithoutOwnerInput = {
   services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput;
   staff?: Prisma.BusinessStaffUncheckedUpdateManyWithoutBusinessNestedInput;
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutBusinessNestedInput;
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutBusinessNestedInput;
 };
 
 export type BusinessUncheckedUpdateManyWithoutOwnerInput = {
@@ -1550,6 +1735,7 @@ export type BusinessCountOutputType = {
   services: number;
   staff: number;
   appointments: number;
+  reviews: number;
 };
 
 export type BusinessCountOutputTypeSelect<
@@ -1559,6 +1745,7 @@ export type BusinessCountOutputTypeSelect<
   services?: boolean | BusinessCountOutputTypeCountServicesArgs;
   staff?: boolean | BusinessCountOutputTypeCountStaffArgs;
   appointments?: boolean | BusinessCountOutputTypeCountAppointmentsArgs;
+  reviews?: boolean | BusinessCountOutputTypeCountReviewsArgs;
 };
 
 /**
@@ -1604,6 +1791,16 @@ export type BusinessCountOutputTypeCountAppointmentsArgs<
   where?: Prisma.AppointmentWhereInput;
 };
 
+/**
+ * BusinessCountOutputType without action
+ */
+export type BusinessCountOutputTypeCountReviewsArgs<
+  ExtArgs extends runtime.Types.Extensions.InternalArgs =
+    runtime.Types.Extensions.DefaultArgs,
+> = {
+  where?: Prisma.ReviewWhereInput;
+};
+
 export type BusinessSelect<
   ExtArgs extends runtime.Types.Extensions.InternalArgs =
     runtime.Types.Extensions.DefaultArgs,
@@ -1632,6 +1829,7 @@ export type BusinessSelect<
     services?: boolean | Prisma.Business$servicesArgs<ExtArgs>;
     staff?: boolean | Prisma.Business$staffArgs<ExtArgs>;
     appointments?: boolean | Prisma.Business$appointmentsArgs<ExtArgs>;
+    reviews?: boolean | Prisma.Business$reviewsArgs<ExtArgs>;
     _count?: boolean | Prisma.BusinessCountOutputTypeDefaultArgs<ExtArgs>;
   },
   ExtArgs['result']['business']
@@ -1750,6 +1948,7 @@ export type BusinessInclude<
   services?: boolean | Prisma.Business$servicesArgs<ExtArgs>;
   staff?: boolean | Prisma.Business$staffArgs<ExtArgs>;
   appointments?: boolean | Prisma.Business$appointmentsArgs<ExtArgs>;
+  reviews?: boolean | Prisma.Business$reviewsArgs<ExtArgs>;
   _count?: boolean | Prisma.BusinessCountOutputTypeDefaultArgs<ExtArgs>;
 };
 export type BusinessIncludeCreateManyAndReturn<
@@ -1775,6 +1974,7 @@ export type $BusinessPayload<
     services: Prisma.$ServicePayload<ExtArgs>[];
     staff: Prisma.$BusinessStaffPayload<ExtArgs>[];
     appointments: Prisma.$AppointmentPayload<ExtArgs>[];
+    reviews: Prisma.$ReviewPayload<ExtArgs>[];
   };
   scalars: runtime.Types.Extensions.GetPayloadResult<
     {
@@ -2388,6 +2588,17 @@ export interface Prisma__BusinessClient<
   ): Prisma.PrismaPromise<
     | runtime.Types.Result.GetResult<
         Prisma.$AppointmentPayload<ExtArgs>,
+        T,
+        'findMany',
+        GlobalOmitOptions
+      >
+    | Null
+  >;
+  reviews<T extends Prisma.Business$reviewsArgs<ExtArgs> = {}>(
+    args?: Prisma.Subset<T, Prisma.Business$reviewsArgs<ExtArgs>>,
+  ): Prisma.PrismaPromise<
+    | runtime.Types.Result.GetResult<
+        Prisma.$ReviewPayload<ExtArgs>,
         T,
         'findMany',
         GlobalOmitOptions
@@ -3009,6 +3220,35 @@ export type Business$appointmentsArgs<
   distinct?:
     | Prisma.AppointmentScalarFieldEnum
     | Prisma.AppointmentScalarFieldEnum[];
+};
+
+/**
+ * Business.reviews
+ */
+export type Business$reviewsArgs<
+  ExtArgs extends runtime.Types.Extensions.InternalArgs =
+    runtime.Types.Extensions.DefaultArgs,
+> = {
+  /**
+   * Select specific fields to fetch from the Review
+   */
+  select?: Prisma.ReviewSelect<ExtArgs> | null;
+  /**
+   * Omit specific fields from the Review
+   */
+  omit?: Prisma.ReviewOmit<ExtArgs> | null;
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReviewInclude<ExtArgs> | null;
+  where?: Prisma.ReviewWhereInput;
+  orderBy?:
+    | Prisma.ReviewOrderByWithRelationInput
+    | Prisma.ReviewOrderByWithRelationInput[];
+  cursor?: Prisma.ReviewWhereUniqueInput;
+  take?: number;
+  skip?: number;
+  distinct?: Prisma.ReviewScalarFieldEnum | Prisma.ReviewScalarFieldEnum[];
 };
 
 /**

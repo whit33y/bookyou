@@ -154,6 +154,7 @@ export class AppointmentsService {
         business: true,
         provider: { select: { id: true, name: true, email: true } },
         client: { select: { id: true, name: true, email: true } },
+        review: { select: { id: true, rating: true, comment: true } },
       },
     });
   }

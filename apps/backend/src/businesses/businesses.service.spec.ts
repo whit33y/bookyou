@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BusinessesService } from './businesses.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { ReviewsService } from '../reviews/reviews.service';
 import { NotFoundException, ForbiddenException } from '@nestjs/common';
 
 describe('BusinessesService', () => {
@@ -25,16 +26,29 @@ describe('BusinessesService', () => {
     $transaction: jest.fn(),
   };
 
+  const mockReviewsService = {
+    getStatsForBusinesses: jest.fn(),
+    getStatsForBusiness: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         BusinessesService,
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: ReviewsService, useValue: mockReviewsService },
       ],
     }).compile();
 
     service = module.get<BusinessesService>(BusinessesService);
     jest.clearAllMocks();
+
+    // Default: no reviews, so every business gets neutral rating stats.
+    mockReviewsService.getStatsForBusinesses.mockResolvedValue(new Map());
+    mockReviewsService.getStatsForBusiness.mockResolvedValue({
+      averageRating: null,
+      reviewCount: 0,
+    });
   });
 
   it('should be defined', () => {
@@ -76,13 +90,38 @@ describe('BusinessesService', () => {
       const result = await service.findAll({});
 
       expect(result).toEqual({
-        data: businesses,
+        data: businesses.map((b) => ({
+          ...b,
+          averageRating: null,
+          reviewCount: 0,
+        })),
         total: 2,
         limit: 20,
         offset: 0,
       });
       expect(mockPrismaService.business.findMany).toHaveBeenCalled();
       expect(mockPrismaService.business.count).toHaveBeenCalled();
+    });
+
+    it('should attach rating stats from the reviews service', async () => {
+      mockPrismaService.business.findMany.mockResolvedValue(businesses);
+      mockPrismaService.business.count.mockResolvedValue(2);
+      mockReviewsService.getStatsForBusinesses.mockResolvedValue(
+        new Map([['bus-1', { averageRating: 4.5, reviewCount: 10 }]]),
+      );
+
+      const result = await service.findAll({});
+
+      expect(result.data[0]).toMatchObject({
+        id: 'bus-1',
+        averageRating: 4.5,
+        reviewCount: 10,
+      });
+      expect(result.data[1]).toMatchObject({
+        id: 'bus-2',
+        averageRating: null,
+        reviewCount: 0,
+      });
     });
 
     it('should apply search filter on name', async () => {
@@ -127,12 +166,20 @@ describe('BusinessesService', () => {
   });
 
   describe('findOne', () => {
-    it('should return a business if found', async () => {
+    it('should return a business with rating stats if found', async () => {
       const business = { id: 'bus-1', name: 'Test', deletedAt: null };
       mockPrismaService.business.findUnique.mockResolvedValue(business);
+      mockReviewsService.getStatsForBusiness.mockResolvedValue({
+        averageRating: 4.2,
+        reviewCount: 5,
+      });
 
       const result = await service.findOne('bus-1');
-      expect(result).toEqual(business);
+      expect(result).toEqual({
+        ...business,
+        averageRating: 4.2,
+        reviewCount: 5,
+      });
     });
 
     it('should throw NotFoundException if not found', async () => {

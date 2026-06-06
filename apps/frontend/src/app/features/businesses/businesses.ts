@@ -15,10 +15,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DiscoveryService } from '../../core/services/discovery.service';
 import { CategoryService } from '../../core/services/category.service';
 import { MediaUrlPipe } from '../../shared/pipes/media-url.pipe';
+import { StarRatingComponent } from '../../shared/components/star-rating/star-rating';
 
 @Component({
   selector: 'app-businesses',
-  imports: [RouterLink, MediaUrlPipe],
+  imports: [RouterLink, MediaUrlPipe, StarRatingComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './businesses.html',
   host: {

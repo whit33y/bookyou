@@ -48,6 +48,8 @@ export interface Business {
   createdAt: string;
   updatedAt: string;
   services?: Service[];
+  averageRating?: number | null;
+  reviewCount?: number;
 }
 
 export interface CreateBusinessRequest {

@@ -32,6 +32,7 @@ function createMockAppointment(overrides: Partial<Appointment> = {}): Appointmen
     },
     provider: { id: 'provider-1', name: 'Jan Kowalski', email: 'jan@test.com' },
     client: { id: 'client-1', name: 'Anna Nowak', email: 'anna@test.com' },
+    review: null,
     ...overrides,
   };
 }

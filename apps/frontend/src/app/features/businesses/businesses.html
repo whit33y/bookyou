@@ -120,6 +120,13 @@
           <div class="p-5">
             <h2 class="text-lg font-semibold text-gray-900">{{ business.name }}</h2>
             <p class="mt-1 text-sm text-gray-500">{{ business.street }}, {{ business.city }}</p>
+            @if (business.reviewCount) {
+              <div class="mt-1.5 flex items-center gap-1.5">
+                <app-star-rating [rating]="business.averageRating ?? 0" size="sm" />
+                <span class="text-sm font-medium text-gray-700">{{ business.averageRating }}</span>
+                <span class="text-xs text-gray-500">({{ business.reviewCount }})</span>
+              </div>
+            }
             @if (business.description) {
               <p class="mt-2 line-clamp-2 text-sm text-gray-600">{{ business.description }}</p>
             }

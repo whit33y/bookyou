@@ -8,6 +8,7 @@ import { BusinessesModule } from './businesses/businesses.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ServicesModule } from './services/services.module';
 import { AppointmentsModule } from './appointments/appointments.module';
+import { ReviewsModule } from './reviews/reviews.module';
 import { UploadModule } from './upload/upload.module';
 
 @Module({
@@ -19,6 +20,7 @@ import { UploadModule } from './upload/upload.module';
     CategoriesModule,
     ServicesModule,
     AppointmentsModule,
+    ReviewsModule,
     UploadModule,
   ],
   controllers: [AppController],
