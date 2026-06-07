@@ -6,11 +6,17 @@ export interface AppNotification {
 }
 
 const NOTIFICATION_DURATION_MS = 4000;
+/** Kept in sync with the `toast-out` keyframe duration in styles.css. */
+const EXIT_ANIMATION_MS = 200;
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
   readonly notification = signal<AppNotification | null>(null);
-  private timeoutId?: ReturnType<typeof setTimeout>;
+  /** True while the current toast plays its exit animation before being cleared. */
+  readonly leaving = signal(false);
+
+  private autoDismissId?: ReturnType<typeof setTimeout>;
+  private exitId?: ReturnType<typeof setTimeout>;
 
   success(message: string): void {
     this.show({ message, type: 'success' });
@@ -20,17 +26,36 @@ export class NotificationService {
     this.show({ message, type: 'error' });
   }
 
+  /** Plays the exit animation, then removes the toast from the DOM. */
   dismiss(): void {
-    if (this.timeoutId) clearTimeout(this.timeoutId);
-    this.notification.set(null);
+    if (!this.notification() || this.leaving()) return;
+    this.clearTimers();
+    this.leaving.set(true);
+    this.exitId = setTimeout(() => {
+      this.exitId = undefined;
+      this.notification.set(null);
+      this.leaving.set(false);
+    }, EXIT_ANIMATION_MS);
   }
 
   private show(notification: AppNotification): void {
-    if (this.timeoutId) clearTimeout(this.timeoutId);
+    this.clearTimers();
+    this.leaving.set(false);
     this.notification.set(notification);
-    this.timeoutId = setTimeout(() => {
-      this.notification.set(null);
-      this.timeoutId = undefined;
+    this.autoDismissId = setTimeout(() => {
+      this.autoDismissId = undefined;
+      this.dismiss();
     }, NOTIFICATION_DURATION_MS);
+  }
+
+  private clearTimers(): void {
+    if (this.autoDismissId) {
+      clearTimeout(this.autoDismissId);
+      this.autoDismissId = undefined;
+    }
+    if (this.exitId) {
+      clearTimeout(this.exitId);
+      this.exitId = undefined;
+    }
   }
 }

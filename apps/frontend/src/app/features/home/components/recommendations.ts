@@ -22,7 +22,7 @@ import { Business } from '../../../core/models/business.model';
           @for (business of businesses(); track business.id) {
             <a
               [routerLink]="'/businesses/' + business.id"
-              class="min-w-[220px] flex-shrink-0 rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:min-w-0"
+              class="min-w-[220px] flex-shrink-0 rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 motion-reduce:transform-none sm:min-w-0"
             >
               <p class="text-sm font-medium text-gray-800">{{ business.name }}</p>
               <p class="mt-0.5 text-xs text-gray-500">{{ business.city }}</p>

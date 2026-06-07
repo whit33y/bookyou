@@ -13,10 +13,11 @@ import { catchError, EMPTY, Subject, switchMap } from 'rxjs';
 import { Business, Service } from '../../core/models/business.model';
 import { AppointmentService } from '../../core/services/appointment.service';
 import { BusinessService } from '../../core/services/business.service';
+import { SpinnerComponent } from '../../shared/components/spinner/spinner';
 
 @Component({
   selector: 'app-booking-modal',
-  imports: [A11yModule],
+  imports: [A11yModule, SpinnerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './booking-modal.html',
 })
@@ -29,7 +30,7 @@ export class BookingModalComponent {
   private readonly businessService = inject(BusinessService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly step = signal<'date' | 'time' | 'confirm'>('date');
+  readonly step = signal<'date' | 'time' | 'confirm' | 'success'>('date');
   readonly selectedDate = signal('');
   readonly selectedTime = signal('');
   readonly submitting = signal(false);
@@ -51,17 +52,15 @@ export class BookingModalComponent {
             return EMPTY;
           }
           this.loadingSlots.set(true);
-          return this.businessService.getAvailableSlots(
-            this.business().id,
-            date,
-            this.service().id,
-          ).pipe(
-            catchError(() => {
-              this.availableSlots.set([]);
-              this.loadingSlots.set(false);
-              return EMPTY;
-            }),
-          );
+          return this.businessService
+            .getAvailableSlots(this.business().id, date, this.service().id)
+            .pipe(
+              catchError(() => {
+                this.availableSlots.set([]);
+                this.loadingSlots.set(false);
+                return EMPTY;
+              }),
+            );
         }),
         takeUntilDestroyed(this.destroyRef),
       )
@@ -118,12 +117,11 @@ export class BookingModalComponent {
       .subscribe({
         next: () => {
           this.submitting.set(false);
-          this.closed.emit();
+          this.step.set('success');
         },
         error: (err: { error?: { message?: string } }) => {
           this.submitting.set(false);
-          const message =
-            err?.error?.message ?? 'Nie udało się zarezerwować. Spróbuj ponownie.';
+          const message = err?.error?.message ?? 'Nie udało się zarezerwować. Spróbuj ponownie.';
           this.errorMessage.set(message);
         },
       });

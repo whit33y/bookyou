@@ -2,7 +2,15 @@
   <h1 class="text-2xl font-bold text-gray-900">Panel usługodawcy</h1>
 
   @if (businessService.loading()) {
-    <p class="mt-4 text-gray-600">Ładowanie...</p>
+    <div class="mt-8 space-y-8" aria-busy="true" aria-label="Ładowanie panelu">
+      <app-skeleton height="5rem" rounded="rounded-lg" />
+      <div class="space-y-3">
+        <app-skeleton width="10rem" height="1.5rem" />
+        @for (i of [1, 2, 3]; track i) {
+          <app-skeleton height="3rem" rounded="rounded-lg" />
+        }
+      </div>
+    </div>
   } @else {
     <div class="mt-8 space-y-8">
       @if (businessService.business()) {
@@ -51,7 +59,14 @@
             Najpierw utwórz profil biznesowy, aby zarządzać usługami.
           </p>
         } @else if (businessService.services().length === 0) {
-          <p class="mt-4 text-sm text-gray-500">Brak usług. Dodaj pierwszą usługę.</p>
+          <app-empty-state
+            class="mt-4 block"
+            icon="clipboard"
+            title="Brak usług"
+            description="Dodaj pierwszą usługę, aby klienci mogli rezerwować wizyty."
+            ctaLabel="Dodaj pierwszą usługę"
+            (ctaClick)="openServiceModal()"
+          />
         } @else {
           <div class="mt-4 overflow-hidden rounded-lg border border-gray-200">
             <table class="min-w-full divide-y divide-gray-200">

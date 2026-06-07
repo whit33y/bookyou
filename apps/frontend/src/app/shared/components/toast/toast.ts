@@ -10,6 +10,8 @@ import { NotificationService } from '../../../core/services/notification.service
       <div
         class="fixed bottom-4 right-4 z-[100] rounded-lg px-4 py-3 text-sm font-medium shadow-lg"
         [class]="n.type === 'error' ? 'bg-red-600 text-white' : 'bg-green-600 text-white'"
+        [class.animate-toast-in]="!notificationService.leaving()"
+        [class.animate-toast-out]="notificationService.leaving()"
         role="alert"
       >
         {{ n.message }}

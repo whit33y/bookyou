@@ -8,11 +8,11 @@ import { A11yModule } from '@angular/cdk/a11y';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      class="fixed inset-0 z-50 flex animate-backdrop-in items-center justify-center bg-black/50"
       (click)="onBackdropClick($event)"
     >
       <div
-        class="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl"
+        class="w-full max-w-sm animate-modal-in rounded-lg bg-white p-6 shadow-xl"
         cdkTrapFocus
         [cdkTrapFocusAutoCapture]="true"
         role="dialog"

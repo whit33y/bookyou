@@ -1,6 +1,28 @@
 <div class="mx-auto max-w-7xl px-4 py-8">
   @if (discoveryService.loading()) {
-    <p class="text-gray-500">Ładowanie...</p>
+    <div class="space-y-8" aria-busy="true" aria-label="Ładowanie">
+      <section class="-mx-4 -mt-8">
+        <div class="h-48 animate-pulse bg-gray-200 sm:h-64" aria-hidden="true"></div>
+        <div class="mx-4 -mt-12 flex items-end gap-4">
+          <app-skeleton
+            width="6rem"
+            height="6rem"
+            rounded="rounded-xl"
+            class="border-4 border-white shadow-md"
+          />
+          <div class="space-y-2 pb-2">
+            <app-skeleton width="12rem" height="1.5rem" />
+            <app-skeleton width="16rem" height="0.875rem" />
+          </div>
+        </div>
+      </section>
+      <section class="space-y-3">
+        <app-skeleton width="8rem" height="1.25rem" />
+        @for (i of [1, 2, 3]; track i) {
+          <app-skeleton height="4rem" rounded="rounded-lg" />
+        }
+      </section>
+    </div>
   } @else if (discoveryService.selectedBusiness(); as business) {
     <div class="space-y-8">
       <!-- Cover & Logo header -->
@@ -155,6 +177,12 @@
       }
     }
   } @else {
-    <p class="text-gray-500">Nie znaleziono firmy.</p>
+    <app-empty-state
+      icon="search"
+      title="Nie znaleziono firmy"
+      description="Firma, której szukasz, nie istnieje lub została usunięta."
+      ctaLabel="Wróć do listy"
+      ctaLink="/businesses"
+    />
   }
 </div>

@@ -15,6 +15,8 @@ import { NotificationService } from '../../core/services/notification.service';
 import { Appointment, AppointmentStatus } from '../../core/models/appointment.model';
 import { AppointmentStatusBadgeComponent } from '../../shared/components/status-badge/status-badge';
 import { ConfirmModalComponent } from '../../shared/components/confirm-modal/confirm-modal';
+import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
 
 type ViewMode = 'week' | 'day';
 
@@ -38,7 +40,13 @@ const STATUS_CARD_CLASSES: Record<AppointmentStatus, string> = {
 
 @Component({
   selector: 'app-provider-calendar',
-  imports: [DatePipe, AppointmentStatusBadgeComponent, ConfirmModalComponent],
+  imports: [
+    DatePipe,
+    AppointmentStatusBadgeComponent,
+    ConfirmModalComponent,
+    SkeletonComponent,
+    EmptyStateComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './provider-calendar.html',
 })

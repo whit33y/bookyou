@@ -14,6 +14,8 @@ import { ReviewService } from '../../core/services/review.service';
 import { Review, ReviewSort } from '../../core/models/review.model';
 import { MediaUrlPipe } from '../../shared/pipes/media-url.pipe';
 import { StarRatingComponent } from '../../shared/components/star-rating/star-rating';
+import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
 
 const PAGE_SIZE = 5;
 
@@ -25,7 +27,14 @@ interface SortOption {
 @Component({
   selector: 'app-business-reviews',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, DecimalPipe, MediaUrlPipe, StarRatingComponent],
+  imports: [
+    DatePipe,
+    DecimalPipe,
+    MediaUrlPipe,
+    StarRatingComponent,
+    SkeletonComponent,
+    EmptyStateComponent,
+  ],
   template: `
     <section aria-labelledby="reviews-heading">
       <div class="flex flex-wrap items-end justify-between gap-4">
@@ -60,9 +69,22 @@ interface SortOption {
       </div>
 
       @if (loading()) {
-        <p class="mt-4 text-sm text-gray-500">Ładowanie opinii...</p>
+        <ul class="mt-4 space-y-4" aria-busy="true" aria-label="Ładowanie opinii">
+          @for (i of [1, 2, 3]; track i) {
+            <li class="rounded-lg border border-gray-200 p-4">
+              <div class="flex items-center gap-3">
+                <app-skeleton width="2.25rem" height="2.25rem" rounded="rounded-full" />
+                <div class="space-y-2">
+                  <app-skeleton width="8rem" height="0.875rem" />
+                  <app-skeleton width="5rem" height="0.75rem" />
+                </div>
+              </div>
+              <app-skeleton class="mt-3 block" width="100%" height="0.875rem" />
+            </li>
+          }
+        </ul>
       } @else if (reviews().length === 0) {
-        <p class="mt-4 text-sm text-gray-500">Ta firma nie ma jeszcze opinii.</p>
+        <app-empty-state icon="inbox" title="Ta firma nie ma jeszcze opinii" [compact]="true" />
       } @else {
         <ul class="mt-4 space-y-4">
           @for (review of reviews(); track review.id) {
