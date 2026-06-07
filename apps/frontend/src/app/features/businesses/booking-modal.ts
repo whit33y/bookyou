@@ -35,6 +35,7 @@ export class BookingModalComponent {
   readonly selectedTime = signal('');
   readonly submitting = signal(false);
   readonly loadingSlots = signal(false);
+  readonly failedLoadingSlots = signal(false);
   readonly errorMessage = signal('');
   readonly availableSlots = signal<string[]>([]);
 
@@ -52,12 +53,14 @@ export class BookingModalComponent {
             return EMPTY;
           }
           this.loadingSlots.set(true);
+          this.failedLoadingSlots.set(false);
           return this.businessService
             .getAvailableSlots(this.business().id, date, this.service().id)
             .pipe(
               catchError(() => {
                 this.availableSlots.set([]);
                 this.loadingSlots.set(false);
+                this.failedLoadingSlots.set(true);
                 return EMPTY;
               }),
             );
@@ -75,6 +78,7 @@ export class BookingModalComponent {
     this.selectedDate.set(value);
     this.selectedTime.set('');
     this.errorMessage.set('');
+    this.failedLoadingSlots.set(false);
     this.availableSlots.set([]);
     this.dateChange$.next(value);
   }
@@ -92,6 +96,7 @@ export class BookingModalComponent {
   }
 
   goBack() {
+    this.errorMessage.set('');
     const current = this.step();
     if (current === 'confirm') {
       this.step.set('time');

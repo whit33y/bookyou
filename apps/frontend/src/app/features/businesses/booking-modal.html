@@ -1,6 +1,7 @@
 <div
   class="fixed inset-0 z-50 flex animate-backdrop-in items-center justify-center bg-black/50 p-4"
   (click)="onBackdropClick($event)"
+  (keydown.escape)="closed.emit()"
   role="dialog"
   aria-modal="true"
   aria-labelledby="booking-modal-title"
@@ -37,6 +38,10 @@
         <div class="mt-2 min-h-[1.25rem]" aria-live="polite">
           @if (loadingSlots()) {
             <p class="text-sm text-gray-500">Sprawdzam dostępność...</p>
+          } @else if (failedLoadingSlots()) {
+            <p class="text-sm text-red-500">
+              Nie udało się sprawdzić dostępności. Spróbuj ponownie.
+            </p>
           } @else if (selectedDate() && availableSlots().length === 0) {
             <p class="text-sm text-red-500">Brak dostępnych godzin w tym dniu.</p>
           }
