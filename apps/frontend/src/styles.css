@@ -28,12 +28,15 @@
   }
 
   /*
-   * Smooth, glitch-free theme switching: transition only colour-related
-   * properties (never layout/transform) so nothing reflows. The
-   * `prefers-reduced-motion` block below collapses these to near-instant.
+   * Smooth, glitch-free theme switching. The transition is scoped to the brief
+   * window around a theme toggle (ThemeService adds `.theme-transition` to
+   * <html> and removes it shortly after) so it animates only the deliberate
+   * light/dark flip — never hover, focus or content swaps. Only colour-related
+   * properties transition, so nothing reflows. The `prefers-reduced-motion`
+   * block below collapses these to near-instant.
    */
-  body,
-  body * {
+  html.theme-transition,
+  html.theme-transition * {
     transition-property: background-color, border-color, color, fill, stroke;
     transition-duration: 200ms;
     transition-timing-function: ease;

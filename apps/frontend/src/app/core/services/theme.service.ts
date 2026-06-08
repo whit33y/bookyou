@@ -4,6 +4,8 @@ import { computed, effect, inject, Injectable, signal } from '@angular/core';
 export type Theme = 'light' | 'dark';
 
 const STORAGE_KEY = 'theme';
+/** Slightly longer than the CSS transition (200ms) so it never cuts off early. */
+const TRANSITION_MS = 250;
 
 /**
  * Manages the application colour theme.
@@ -37,6 +39,7 @@ export class ThemeService {
     // explicit choice (i.e. nothing stored yet).
     this.mediaQuery()?.addEventListener('change', (event) => {
       if (!this.storedTheme()) {
+        this.enableTransition();
         this._theme.set(event.matches ? 'dark' : 'light');
       }
     });
@@ -49,12 +52,25 @@ export class ThemeService {
 
   /** Explicitly set and persist a theme. */
   setTheme(theme: Theme): void {
+    this.enableTransition();
     this._theme.set(theme);
     this.persist(theme);
   }
 
   private applyTheme(theme: Theme): void {
     this.root.classList.toggle('dark', theme === 'dark');
+  }
+
+  /**
+   * Briefly enable colour transitions so a deliberate theme switch animates
+   * smoothly, without making every hover/content change animate too. The class
+   * is removed after the transition completes. Not called on initial load,
+   * which is already painted in the correct theme by the inline boot script.
+   */
+  private enableTransition(): void {
+    const view = this.document.defaultView;
+    this.root.classList.add('theme-transition');
+    view?.setTimeout(() => this.root.classList.remove('theme-transition'), TRANSITION_MS);
   }
 
   private readInitialTheme(): Theme {

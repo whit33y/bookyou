@@ -47,11 +47,11 @@
           @if (loadingSlots()) {
             <p class="text-sm text-gray-500 dark:text-gray-400">Sprawdzam dostępność...</p>
           } @else if (failedLoadingSlots()) {
-            <p class="text-sm text-red-500">
+            <p class="text-sm text-red-500 dark:text-red-400">
               Nie udało się sprawdzić dostępności. Spróbuj ponownie.
             </p>
           } @else if (selectedDate() && availableSlots().length === 0) {
-            <p class="text-sm text-red-500">Brak dostępnych godzin w tym dniu.</p>
+            <p class="text-sm text-red-500 dark:text-red-400">Brak dostępnych godzin w tym dniu.</p>
           }
         </div>
       </div>

@@ -24,7 +24,7 @@ function mockMatchMedia(systemPrefersDark: boolean): MockMediaQueryList {
 describe('ThemeService', () => {
   beforeEach(() => {
     localStorage.clear();
-    document.documentElement.classList.remove('dark');
+    document.documentElement.classList.remove('dark', 'theme-transition');
   });
 
   afterEach(() => {
@@ -53,7 +53,10 @@ describe('ThemeService', () => {
     const service = TestBed.inject(ThemeService);
     expect(service.theme()).toBe('light');
 
+    // The deliberate switch opts into the brief colour transition...
+    expect(document.documentElement.classList.contains('theme-transition')).toBe(false);
     service.toggle();
+    expect(document.documentElement.classList.contains('theme-transition')).toBe(true);
     TestBed.tick();
 
     expect(service.theme()).toBe('dark');
