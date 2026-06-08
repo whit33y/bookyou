@@ -12,7 +12,7 @@ import { A11yModule } from '@angular/cdk/a11y';
       (click)="onBackdropClick($event)"
     >
       <div
-        class="w-full max-w-sm animate-modal-in rounded-lg bg-white p-6 shadow-xl"
+        class="w-full max-w-sm animate-modal-in rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800"
         cdkTrapFocus
         [cdkTrapFocusAutoCapture]="true"
         role="dialog"
@@ -21,14 +21,18 @@ import { A11yModule } from '@angular/cdk/a11y';
         aria-describedby="confirm-modal-message"
         (keydown.escape)="cancelled.emit()"
       >
-        <h2 id="confirm-modal-title" class="text-lg font-semibold text-gray-900">{{ title() }}</h2>
-        <p id="confirm-modal-message" class="mt-2 text-sm text-gray-600">{{ message() }}</p>
+        <h2 id="confirm-modal-title" class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          {{ title() }}
+        </h2>
+        <p id="confirm-modal-message" class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          {{ message() }}
+        </p>
 
         <div class="mt-6 flex justify-end gap-3">
           <button
             type="button"
             (click)="cancelled.emit()"
-            class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
           >
             {{ cancelLabel() }}
           </button>

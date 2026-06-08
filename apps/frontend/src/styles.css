@@ -3,6 +3,44 @@
 @import 'tailwindcss';
 
 /*
+ * Drive the `dark:` variant from a `.dark` class on the document root instead of
+ * the v4 default (`prefers-color-scheme`). This lets the navigation toggle and
+ * `ThemeService` control the theme manually while still honouring the system
+ * preference on first visit (applied as `.dark` before paint in index.html).
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  /*
+   * Global page surface. Pages set their own section backgrounds, but the body
+   * carries the base theme colours so neutral areas flip correctly too.
+   */
+  body {
+    @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
+  }
+
+  /*
+   * Smooth, glitch-free theme switching: transition only colour-related
+   * properties (never layout/transform) so nothing reflows. The
+   * `prefers-reduced-motion` block below collapses these to near-instant.
+   */
+  body,
+  body * {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-duration: 200ms;
+    transition-timing-function: ease;
+  }
+}
+
+/*
  * Animation utilities (consumed via Tailwind classes, e.g. `animate-toast-in`).
  * Registered in the `--animate-*` theme namespace so they generate utilities,
  * while the keyframes live as plain CSS below and are referenced by name.

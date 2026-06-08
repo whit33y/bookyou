@@ -32,7 +32,7 @@ const SIZE_CLASSES: Record<StarSize, string> = {
     @if (readonly()) {
       <span class="inline-flex items-center" role="img" [attr.aria-label]="readonlyLabel()">
         <span class="relative inline-block leading-none" [class]="sizeClass()" aria-hidden="true">
-          <span class="text-gray-300">★★★★★</span>
+          <span class="text-gray-300 dark:text-gray-600">★★★★★</span>
           <span
             class="absolute inset-y-0 left-0 overflow-hidden text-amber-400"
             [style.width.%]="fillPercent()"

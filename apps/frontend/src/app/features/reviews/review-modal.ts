@@ -26,7 +26,7 @@ const MAX_COMMENT_LENGTH = 1000;
       (click)="onBackdropClick($event)"
     >
       <div
-        class="w-full max-w-md animate-modal-in rounded-lg bg-white p-6 shadow-xl"
+        class="w-full max-w-md animate-modal-in rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800"
         cdkTrapFocus
         [cdkTrapFocusAutoCapture]="true"
         role="dialog"
@@ -35,23 +35,31 @@ const MAX_COMMENT_LENGTH = 1000;
         (keydown.escape)="closed.emit()"
       >
         <div class="flex items-center justify-between">
-          <h2 id="review-modal-title" class="text-lg font-semibold text-gray-900">Oceń wizytę</h2>
+          <h2
+            id="review-modal-title"
+            class="text-lg font-semibold text-gray-900 dark:text-gray-100"
+          >
+            Oceń wizytę
+          </h2>
           <button
             type="button"
             (click)="closed.emit()"
-            class="text-gray-400 hover:text-gray-600"
+            class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
             aria-label="Zamknij"
           >
             ✕
           </button>
         </div>
 
-        <p class="mt-2 text-sm text-gray-600">
+        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
           {{ appointment().business.name }} · {{ appointment().service.name }}
         </p>
 
         <div class="mt-4">
-          <span id="review-rating-label" class="block text-sm font-medium text-gray-700">
+          <span
+            id="review-rating-label"
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
             Twoja ocena
           </span>
           <div class="mt-1">
@@ -66,7 +74,10 @@ const MAX_COMMENT_LENGTH = 1000;
         </div>
 
         <div class="mt-4">
-          <label for="review-comment" class="block text-sm font-medium text-gray-700">
+          <label
+            for="review-comment"
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
             Komentarz (opcjonalnie)
           </label>
           <textarea
@@ -74,10 +85,10 @@ const MAX_COMMENT_LENGTH = 1000;
             [formControl]="comment"
             rows="4"
             [maxlength]="maxLength"
-            class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+            class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
             placeholder="Podziel się swoją opinią..."
           ></textarea>
-          <p class="mt-1 text-right text-xs text-gray-400">
+          <p class="mt-1 text-right text-xs text-gray-400 dark:text-gray-500">
             {{ comment.value.length }}/{{ maxLength }}
           </p>
         </div>
@@ -90,7 +101,7 @@ const MAX_COMMENT_LENGTH = 1000;
           <button
             type="button"
             (click)="closed.emit()"
-            class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
           >
             Anuluj
           </button>

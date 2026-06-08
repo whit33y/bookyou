@@ -13,7 +13,10 @@ import { canCancelAppointment } from '../../../core/utils/appointment.utils';
   imports: [DatePipe, RouterLink, AppointmentStatusBadgeComponent],
   template: `
     <section aria-labelledby="upcoming-appointments-heading">
-      <h2 id="upcoming-appointments-heading" class="text-lg font-semibold text-gray-700 sm:text-xl">
+      <h2
+        id="upcoming-appointments-heading"
+        class="text-lg font-semibold text-gray-700 sm:text-xl dark:text-gray-200"
+      >
         Nadchodzące wizyty
       </h2>
 
@@ -25,9 +28,9 @@ import { canCancelAppointment } from '../../../core/utils/appointment.utils';
         </div>
       } @else if (appointments().length === 0) {
         <div
-          class="mt-4 rounded-lg border border-gray-200 bg-white px-4 py-8 text-center shadow-sm"
+          class="mt-4 rounded-lg border border-gray-200 bg-white px-4 py-8 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800"
         >
-          <p class="text-sm text-gray-500">Brak nadchodzących wizyt</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Brak nadchodzących wizyt</p>
           @if (showBookingLink()) {
             <a
               routerLink="/businesses"
@@ -41,24 +44,24 @@ import { canCancelAppointment } from '../../../core/utils/appointment.utils';
         <ul class="mt-4 space-y-3">
           @for (appointment of appointments(); track appointment.id) {
             <li
-              class="rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-sm sm:px-6 sm:py-4"
+              class="rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-sm sm:px-6 sm:py-4 dark:border-gray-700 dark:bg-gray-800"
             >
               <div class="flex items-start justify-between gap-2">
                 <div class="flex flex-col gap-1">
-                  <p class="text-sm font-medium text-gray-700">
+                  <p class="text-sm font-medium text-gray-700 dark:text-gray-200">
                     {{ appointment.startTime | date: 'd MMMM yyyy' }}
                     · {{ appointment.startTime | date: 'HH:mm' }} –
                     {{ appointment.endTime | date: 'HH:mm' }}
                   </p>
-                  <p class="text-sm text-gray-600">
+                  <p class="text-sm text-gray-600 dark:text-gray-400">
                     {{ appointment.service.name }}
                   </p>
                   @if (isProvider()) {
-                    <p class="text-xs text-gray-500">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
                       Klient: {{ appointment.client.name ?? appointment.client.email }}
                     </p>
                   } @else {
-                    <p class="text-xs text-gray-500">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
                       {{ appointment.provider.name ?? 'Specjalista' }} ·
                       {{ appointment.business.name }}
                     </p>
@@ -69,7 +72,7 @@ import { canCancelAppointment } from '../../../core/utils/appointment.utils';
                   @if (isProvider() && appointment.status === pendingStatus) {
                     <button
                       (click)="confirmed.emit(appointment)"
-                      class="text-xs font-medium text-green-600 hover:text-green-500"
+                      class="text-xs font-medium text-green-600 hover:text-green-500 dark:text-green-400 dark:hover:text-green-300"
                     >
                       Potwierdź
                     </button>
@@ -77,7 +80,7 @@ import { canCancelAppointment } from '../../../core/utils/appointment.utils';
                   @if (canCancel(appointment)) {
                     <button
                       (click)="cancelRequested.emit(appointment)"
-                      class="text-xs font-medium text-red-600 hover:text-red-500"
+                      class="text-xs font-medium text-red-600 hover:text-red-500 dark:text-red-400 dark:hover:text-red-300"
                     >
                       Anuluj
                     </button>

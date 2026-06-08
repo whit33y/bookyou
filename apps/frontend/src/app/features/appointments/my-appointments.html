@@ -1,10 +1,10 @@
 <div class="mx-auto max-w-7xl px-4 py-8">
-  <h1 class="text-2xl font-bold text-gray-900">Moje wizyty</h1>
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Moje wizyty</h1>
 
   @if (appointmentService.loading()) {
     <div class="mt-8 space-y-4" aria-busy="true" aria-label="Ładowanie wizyt">
       @for (i of [1, 2, 3]; track i) {
-        <div class="rounded-lg border border-gray-200 p-4">
+        <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
           <div class="flex items-start justify-between">
             <div class="space-y-2">
               <app-skeleton width="10rem" height="1rem" />
@@ -37,24 +37,28 @@
   } @else {
     @if (upcoming().length > 0) {
       <section class="mt-8">
-        <h2 class="text-lg font-semibold text-gray-900">Nadchodzące</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Nadchodzące</h2>
         <div class="mt-4 space-y-4">
           @for (appointment of upcoming(); track appointment.id) {
-            <div class="rounded-lg border border-gray-200 p-4">
+            <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
               <div class="flex items-start justify-between">
                 <div>
-                  <p class="font-medium text-gray-900">{{ appointment.service.name }}</p>
-                  <p class="text-sm text-gray-600">{{ appointment.business.name }}</p>
+                  <p class="font-medium text-gray-900 dark:text-gray-100">
+                    {{ appointment.service.name }}
+                  </p>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">
+                    {{ appointment.business.name }}
+                  </p>
                   @if (isProvider()) {
-                    <p class="mt-1 text-sm text-gray-600">
+                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                       Klient: {{ appointment.client.name ?? appointment.client.email }}
                     </p>
                   } @else {
-                    <p class="mt-1 text-sm text-gray-600">
+                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                       {{ appointment.provider.name ?? 'Specjalista' }}
                     </p>
                   }
-                  <p class="mt-1 text-sm text-gray-500">
+                  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                     {{ appointment.startTime | date: 'd MMM yyyy, HH:mm' }}
                     · {{ appointment.service.duration }} min
                   </p>
@@ -64,7 +68,7 @@
                   @if (canConfirm(appointment)) {
                     <button
                       (click)="confirmAppointment(appointment)"
-                      class="text-sm font-medium text-green-600 hover:text-green-500"
+                      class="text-sm font-medium text-green-600 hover:text-green-500 dark:text-green-400 dark:hover:text-green-300"
                     >
                       Potwierdź
                     </button>
@@ -72,7 +76,7 @@
                   @if (canCancel(appointment)) {
                     <button
                       (click)="requestCancel(appointment)"
-                      class="text-sm font-medium text-red-600 hover:text-red-500"
+                      class="text-sm font-medium text-red-600 hover:text-red-500 dark:text-red-400 dark:hover:text-red-300"
                     >
                       Anuluj
                     </button>
@@ -87,24 +91,30 @@
 
     @if (past().length > 0) {
       <section class="mt-8">
-        <h2 class="text-lg font-semibold text-gray-900">Historia</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Historia</h2>
         <div class="mt-4 space-y-4">
           @for (appointment of past(); track appointment.id) {
-            <div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+            <div
+              class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
+            >
               <div class="flex items-start justify-between">
                 <div>
-                  <p class="font-medium text-gray-900">{{ appointment.service.name }}</p>
-                  <p class="text-sm text-gray-600">{{ appointment.business.name }}</p>
+                  <p class="font-medium text-gray-900 dark:text-gray-100">
+                    {{ appointment.service.name }}
+                  </p>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">
+                    {{ appointment.business.name }}
+                  </p>
                   @if (isProvider()) {
-                    <p class="mt-1 text-sm text-gray-600">
+                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                       Klient: {{ appointment.client.name ?? appointment.client.email }}
                     </p>
                   } @else {
-                    <p class="mt-1 text-sm text-gray-600">
+                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                       {{ appointment.provider.name ?? 'Specjalista' }}
                     </p>
                   }
-                  <p class="mt-1 text-sm text-gray-500">
+                  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                     {{ appointment.startTime | date: 'd MMM yyyy, HH:mm' }}
                     · {{ appointment.service.duration }} min
                   </p>
@@ -116,7 +126,7 @@
                   } @else if (canReview(appointment)) {
                     <button
                       (click)="requestReview(appointment)"
-                      class="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                      class="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
                     >
                       Dodaj opinię
                     </button>

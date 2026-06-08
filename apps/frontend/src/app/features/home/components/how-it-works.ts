@@ -31,12 +31,12 @@ const STEPS: HowItWorksStep[] = [
   template: `
     <section
       aria-labelledby="how-it-works-heading"
-      class="w-full bg-white px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20"
+      class="w-full bg-white px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20 dark:bg-gray-800"
     >
       <div class="mx-auto max-w-5xl">
         <h2
           id="how-it-works-heading"
-          class="text-center text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl"
+          class="text-center text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl dark:text-gray-100"
         >
           Jak to działa?
         </h2>
@@ -47,16 +47,18 @@ const STEPS: HowItWorksStep[] = [
           @for (step of steps; track step.title; let i = $index) {
             <li class="flex flex-col items-center text-center md:flex-1">
               <span
-                class="flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100 text-3xl"
+                class="flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100 text-3xl dark:bg-indigo-500/20"
                 aria-hidden="true"
               >
                 {{ step.icon }}
               </span>
-              <span class="mt-2 text-sm font-medium text-indigo-600"> Krok {{ i + 1 }} </span>
-              <h3 class="mt-2 text-lg font-semibold text-gray-900">
+              <span class="mt-2 text-sm font-medium text-indigo-600 dark:text-indigo-400">
+                Krok {{ i + 1 }}
+              </span>
+              <h3 class="mt-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {{ step.title }}
               </h3>
-              <p class="mt-1 text-sm text-gray-600">
+              <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                 {{ step.description }}
               </p>
             </li>
