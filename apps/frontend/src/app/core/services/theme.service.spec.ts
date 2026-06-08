@@ -71,6 +71,28 @@ describe('ThemeService', () => {
     expect(document.documentElement.classList.contains('dark')).toBe(false);
   });
 
+  it('removes the transition class after the animation and survives rapid toggles', () => {
+    vi.useFakeTimers();
+    mockMatchMedia(false);
+    const service = TestBed.inject(ThemeService);
+
+    service.toggle();
+    expect(document.documentElement.classList.contains('theme-transition')).toBe(true);
+
+    // A second toggle inside the window resets the timer, so the first toggle's
+    // pending removal must not strip the class mid-animation.
+    vi.advanceTimersByTime(150);
+    service.toggle();
+    vi.advanceTimersByTime(150);
+    expect(document.documentElement.classList.contains('theme-transition')).toBe(true);
+
+    // Once the latest window fully elapses, the class is cleaned up.
+    vi.advanceTimersByTime(250);
+    expect(document.documentElement.classList.contains('theme-transition')).toBe(false);
+
+    vi.useRealTimers();
+  });
+
   it('reacts to system changes until the user makes an explicit choice', () => {
     const mql = mockMatchMedia(false);
     const service = TestBed.inject(ThemeService);

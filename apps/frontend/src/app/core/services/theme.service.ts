@@ -25,6 +25,7 @@ export class ThemeService {
   private readonly root = this.document.documentElement;
 
   private readonly _theme = signal<Theme>(this.readInitialTheme());
+  private transitionTimer: number | undefined;
 
   /** The currently active theme. */
   readonly theme = this._theme.asReadonly();
@@ -69,8 +70,19 @@ export class ThemeService {
    */
   private enableTransition(): void {
     const view = this.document.defaultView;
+    if (!view) return;
+
     this.root.classList.add('theme-transition');
-    view?.setTimeout(() => this.root.classList.remove('theme-transition'), TRANSITION_MS);
+
+    // Reset any pending removal so rapid toggles don't strip the class
+    // mid-animation; the window is always measured from the latest switch.
+    if (this.transitionTimer !== undefined) {
+      view.clearTimeout(this.transitionTimer);
+    }
+    this.transitionTimer = view.setTimeout(() => {
+      this.root.classList.remove('theme-transition');
+      this.transitionTimer = undefined;
+    }, TRANSITION_MS);
   }
 
   private readInitialTheme(): Theme {
