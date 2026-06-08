@@ -1,12 +1,12 @@
 <div
-  class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+  class="fixed inset-0 z-50 flex animate-backdrop-in items-center justify-center bg-black/50"
   (click)="onBackdropClick($event)"
   (keydown.escape)="closed.emit()"
   role="dialog"
   aria-modal="true"
   [attr.aria-label]="service() ? 'Edytuj usługę' : 'Dodaj usługę'"
 >
-  <div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl" cdkTrapFocus>
+  <div class="w-full max-w-md animate-modal-in rounded-lg bg-white p-6 shadow-xl" cdkTrapFocus>
     <h2 class="text-lg font-semibold text-gray-900">
       {{ service() ? 'Edytuj usługę' : 'Dodaj usługę' }}
     </h2>

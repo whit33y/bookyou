@@ -52,7 +52,22 @@
   </div>
 
   @if (loading()) {
-    <p class="mt-8 text-center text-gray-500" aria-live="polite">Ładowanie...</p>
+    <div class="mt-6 overflow-x-auto" aria-busy="true" aria-label="Ładowanie kalendarza">
+      <div class="grid min-w-[600px]" [style.grid-template-columns]="gridCols()">
+        @for (day of dayColumns(); track day.dateKey) {
+          <div class="border-r border-gray-200 last:border-r-0">
+            <div class="border-b border-gray-200 bg-gray-50 px-3 py-2">
+              <app-skeleton width="100%" height="0.875rem" />
+            </div>
+            <div class="space-y-2 p-2">
+              @for (i of [1, 2]; track i) {
+                <app-skeleton height="4.5rem" rounded="rounded-lg" />
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
   } @else {
     <div class="mt-6 overflow-x-auto" role="grid" aria-label="Kalendarz wizyt">
       <div class="grid min-w-[600px]" [style.grid-template-columns]="gridCols()">
@@ -106,7 +121,7 @@
                   }
                 </div>
               } @empty {
-                <p class="py-4 text-center text-xs text-gray-400">Brak wizyt</p>
+                <app-empty-state icon="calendar" title="Brak wizyt" [compact]="true" />
               }
             </div>
           </div>

@@ -2,9 +2,38 @@
   <h1 class="text-2xl font-bold text-gray-900">Moje wizyty</h1>
 
   @if (appointmentService.loading()) {
-    <p class="mt-8 text-center text-gray-500">Ładowanie...</p>
+    <div class="mt-8 space-y-4" aria-busy="true" aria-label="Ładowanie wizyt">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="rounded-lg border border-gray-200 p-4">
+          <div class="flex items-start justify-between">
+            <div class="space-y-2">
+              <app-skeleton width="10rem" height="1rem" />
+              <app-skeleton width="7rem" height="0.875rem" />
+              <app-skeleton width="12rem" height="0.875rem" />
+            </div>
+            <app-skeleton width="5rem" height="1.5rem" rounded="rounded-full" />
+          </div>
+        </div>
+      }
+    </div>
   } @else if (appointmentService.appointments().length === 0) {
-    <p class="mt-8 text-center text-gray-500">Nie masz jeszcze żadnych wizyt.</p>
+    @if (isProvider()) {
+      <app-empty-state
+        class="mt-8 block"
+        icon="calendar"
+        title="Brak wizyt"
+        description="Nie masz jeszcze żadnych zaplanowanych wizyt od klientów."
+      />
+    } @else {
+      <app-empty-state
+        class="mt-8 block"
+        icon="calendar"
+        title="Nie masz jeszcze żadnych wizyt"
+        description="Znajdź usługodawcę i zarezerwuj swoją pierwszą wizytę."
+        ctaLabel="Zarezerwuj pierwszą wizytę"
+        ctaLink="/businesses"
+      />
+    }
   } @else {
     @if (upcoming().length > 0) {
       <section class="mt-8">

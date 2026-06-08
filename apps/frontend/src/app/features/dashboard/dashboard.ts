@@ -19,10 +19,19 @@ import { CategoryService } from '../../core/services/category.service';
 import { BusinessSettingsComponent } from './business-settings';
 import { ServiceModalComponent } from './service-modal';
 import { ConfirmModalComponent } from '../../shared/components/confirm-modal/confirm-modal';
+import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [BusinessSettingsComponent, ServiceModalComponent, ConfirmModalComponent, RouterLink],
+  imports: [
+    BusinessSettingsComponent,
+    ServiceModalComponent,
+    ConfirmModalComponent,
+    RouterLink,
+    SkeletonComponent,
+    EmptyStateComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dashboard.html',
 })

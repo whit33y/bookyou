@@ -88,24 +88,29 @@
       aria-label="Ładowanie wyników"
     >
       @for (i of [1, 2, 3, 4, 5, 6]; track i) {
-        <div class="animate-pulse rounded-lg border border-gray-200 p-6">
-          <div class="h-5 w-3/4 rounded bg-gray-200"></div>
-          <div class="mt-3 h-4 w-1/2 rounded bg-gray-200"></div>
-          <div class="mt-3 h-4 w-full rounded bg-gray-200"></div>
+        <div class="overflow-hidden rounded-lg border border-gray-200">
+          <app-skeleton height="8rem" rounded="rounded-none" />
+          <div class="space-y-3 p-5">
+            <app-skeleton width="75%" height="1.25rem" />
+            <app-skeleton width="50%" height="0.875rem" />
+            <app-skeleton width="100%" height="0.875rem" />
+          </div>
         </div>
       }
     </div>
   } @else if (discoveryService.businesses().length === 0) {
-    <div class="mt-8 text-center">
-      <p class="text-gray-500">Nie znaleziono usługodawców</p>
-      <p class="mt-1 text-sm text-gray-400">Spróbuj zmienić kryteria wyszukiwania</p>
-    </div>
+    <app-empty-state
+      class="mt-8 block"
+      icon="search"
+      title="Nie znaleziono usługodawców"
+      description="Spróbuj zmienić kryteria wyszukiwania."
+    />
   } @else {
     <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       @for (business of discoveryService.businesses(); track business.id) {
         <a
           [routerLink]="['/businesses', business.id]"
-          class="block rounded-lg border border-gray-200 transition hover:border-indigo-300 hover:shadow-md overflow-hidden"
+          class="block overflow-hidden rounded-lg border border-gray-200 transition duration-200 hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-md focus-visible:-translate-y-0.5 focus-visible:shadow-md motion-reduce:transform-none"
         >
           @if (business.logoUrl | mediaUrl; as logoSrc) {
             <img [src]="logoSrc" [alt]="business.name + ' logo'" class="h-32 w-full object-cover" />

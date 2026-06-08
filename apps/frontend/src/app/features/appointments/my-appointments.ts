@@ -18,6 +18,8 @@ import { canCancelAppointment } from '../../core/utils/appointment.utils';
 import { AppointmentStatusBadgeComponent } from '../../shared/components/status-badge/status-badge';
 import { ConfirmModalComponent } from '../../shared/components/confirm-modal/confirm-modal';
 import { StarRatingComponent } from '../../shared/components/star-rating/star-rating';
+import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
 import { ReviewModalComponent } from '../reviews/review-modal';
 import { AppointmentReview } from '../../core/models/appointment.model';
 
@@ -28,6 +30,8 @@ import { AppointmentReview } from '../../core/models/appointment.model';
     AppointmentStatusBadgeComponent,
     ConfirmModalComponent,
     StarRatingComponent,
+    SkeletonComponent,
+    EmptyStateComponent,
     ReviewModalComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -22,11 +22,11 @@ const MAX_COMMENT_LENGTH = 1000;
   imports: [A11yModule, ReactiveFormsModule, StarRatingComponent],
   template: `
     <div
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      class="fixed inset-0 z-50 flex animate-backdrop-in items-center justify-center bg-black/50 p-4"
       (click)="onBackdropClick($event)"
     >
       <div
-        class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+        class="w-full max-w-md animate-modal-in rounded-lg bg-white p-6 shadow-xl"
         cdkTrapFocus
         [cdkTrapFocusAutoCapture]="true"
         role="dialog"

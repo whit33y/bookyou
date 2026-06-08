@@ -5,12 +5,21 @@ import { AuthService } from '../../core/services/auth.service';
 import { Service } from '../../core/models/business.model';
 import { MediaUrlPipe } from '../../shared/pipes/media-url.pipe';
 import { StarRatingComponent } from '../../shared/components/star-rating/star-rating';
+import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
 import { BookingModalComponent } from './booking-modal';
 import { BusinessReviewsComponent } from './business-reviews';
 
 @Component({
   selector: 'app-business-details',
-  imports: [BookingModalComponent, BusinessReviewsComponent, StarRatingComponent, MediaUrlPipe],
+  imports: [
+    BookingModalComponent,
+    BusinessReviewsComponent,
+    StarRatingComponent,
+    MediaUrlPipe,
+    SkeletonComponent,
+    EmptyStateComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './business-details.html',
 })

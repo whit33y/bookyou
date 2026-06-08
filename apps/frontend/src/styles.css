@@ -1,3 +1,78 @@
 /* You can add global styles to this file, and also import other style files */
 
-@import "tailwindcss";
+@import 'tailwindcss';
+
+/*
+ * Animation utilities (consumed via Tailwind classes, e.g. `animate-toast-in`).
+ * Registered in the `--animate-*` theme namespace so they generate utilities,
+ * while the keyframes live as plain CSS below and are referenced by name.
+ */
+@theme {
+  --animate-toast-in: toast-in 0.25s ease-out both;
+  --animate-toast-out: toast-out 0.2s ease-in forwards;
+  --animate-backdrop-in: backdrop-in 0.2s ease-out both;
+  --animate-modal-in: modal-in 0.18s ease-out both;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/*
+ * Accessibility: honour the user's reduced-motion preference. Animations and
+ * route View Transitions collapse to near-instant so nothing flickers or moves.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
