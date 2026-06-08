@@ -3,7 +3,6 @@ import { NotFoundException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { BusinessesController } from './businesses.controller';
 import { BusinessesService } from './businesses.service';
-import { RolesGuard } from '../auth/guards/roles.guard';
 import { ROLES_KEY } from '../auth/decorators/roles.decorator';
 
 describe('BusinessesController', () => {
