@@ -31,11 +31,15 @@ interface DayColumn {
 }
 
 const STATUS_CARD_CLASSES: Record<AppointmentStatus, string> = {
-  [AppointmentStatus.PENDING]: 'border-yellow-200 bg-yellow-50',
-  [AppointmentStatus.CONFIRMED]: 'border-green-200 bg-green-50',
-  [AppointmentStatus.CANCELLED]: 'border-red-200 bg-red-50',
-  [AppointmentStatus.COMPLETED]: 'border-blue-200 bg-blue-50',
-  [AppointmentStatus.NOSHOW]: 'border-gray-200 bg-gray-50',
+  [AppointmentStatus.PENDING]:
+    'border-yellow-200 bg-yellow-50 dark:border-yellow-500/30 dark:bg-yellow-500/10',
+  [AppointmentStatus.CONFIRMED]:
+    'border-green-200 bg-green-50 dark:border-green-500/30 dark:bg-green-500/10',
+  [AppointmentStatus.CANCELLED]:
+    'border-red-200 bg-red-50 dark:border-red-500/30 dark:bg-red-500/10',
+  [AppointmentStatus.COMPLETED]:
+    'border-blue-200 bg-blue-50 dark:border-blue-500/30 dark:bg-blue-500/10',
+  [AppointmentStatus.NOSHOW]: 'border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800',
 };
 
 @Component({
@@ -129,14 +133,14 @@ export class ProviderCalendarComponent implements OnInit {
     const base = 'px-3 py-2 text-sm font-medium';
     return this.viewMode() === 'day'
       ? `${base} bg-indigo-600 text-white`
-      : `${base} text-gray-700 hover:bg-gray-50`;
+      : `${base} text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700`;
   });
 
   readonly weekBtnClass = computed(() => {
     const base = 'px-3 py-2 text-sm font-medium';
     return this.viewMode() === 'week'
       ? `${base} bg-indigo-600 text-white`
-      : `${base} text-gray-700 hover:bg-gray-50`;
+      : `${base} text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700`;
   });
 
   ngOnInit(): void {

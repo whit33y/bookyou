@@ -10,12 +10,12 @@ import { CategoryService } from '../../../core/services/category.service';
   template: `
     <section
       aria-labelledby="categories-heading"
-      class="w-full bg-gray-50 px-4 py-12 sm:px-6 sm:py-16 lg:px-8"
+      class="w-full bg-gray-50 px-4 py-12 sm:px-6 sm:py-16 lg:px-8 dark:bg-gray-900"
     >
       <div class="mx-auto max-w-5xl">
         <h2
           id="categories-heading"
-          class="text-center text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl"
+          class="text-center text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl dark:text-gray-100"
         >
           Nasi specjaliści
         </h2>
@@ -25,10 +25,12 @@ import { CategoryService } from '../../../core/services/category.service';
               <a
                 [routerLink]="['/businesses']"
                 [queryParams]="{ category: category.slug }"
-                class="flex flex-col items-center gap-2 rounded-lg bg-white p-4 shadow-sm transition hover:shadow-md hover:border-indigo-300 border border-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500"
+                class="flex flex-col items-center gap-2 rounded-lg bg-white p-4 shadow-sm transition hover:shadow-md hover:border-indigo-300 border border-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500 dark:bg-gray-800 dark:hover:border-indigo-500"
               >
                 <span class="text-3xl" aria-hidden="true">{{ category.icon }}</span>
-                <span class="text-sm font-medium text-gray-700">{{ category.name }}</span>
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{
+                  category.name
+                }}</span>
               </a>
             </li>
           }

@@ -6,25 +6,33 @@
   aria-modal="true"
   aria-labelledby="booking-modal-title"
 >
-  <div class="w-full max-w-md animate-modal-in rounded-lg bg-white p-6 shadow-xl" cdkTrapFocus>
+  <div
+    class="w-full max-w-md animate-modal-in rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800"
+    cdkTrapFocus
+  >
     <div class="flex items-center justify-between">
-      <h2 id="booking-modal-title" class="text-lg font-semibold text-gray-900">Rezerwacja</h2>
+      <h2 id="booking-modal-title" class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        Rezerwacja
+      </h2>
       <button
         (click)="closed.emit()"
-        class="text-gray-400 hover:text-gray-600"
+        class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
         aria-label="Zamknij"
       >
         ✕
       </button>
     </div>
 
-    <p class="mt-2 text-sm text-gray-600">
+    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
       {{ service().name }} · {{ service().duration }} min · {{ service().price }} zł
     </p>
 
     @if (step() === 'date') {
       <div class="mt-4">
-        <label for="booking-date" class="block text-sm font-medium text-gray-700">
+        <label
+          for="booking-date"
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           Wybierz datę
         </label>
         <input
@@ -33,17 +41,17 @@
           [min]="minDate"
           [value]="selectedDate()"
           (change)="onDateChange($event)"
-          class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+          class="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
         />
         <div class="mt-2 min-h-[1.25rem]" aria-live="polite">
           @if (loadingSlots()) {
-            <p class="text-sm text-gray-500">Sprawdzam dostępność...</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Sprawdzam dostępność...</p>
           } @else if (failedLoadingSlots()) {
-            <p class="text-sm text-red-500">
+            <p class="text-sm text-red-500 dark:text-red-400">
               Nie udało się sprawdzić dostępności. Spróbuj ponownie.
             </p>
           } @else if (selectedDate() && availableSlots().length === 0) {
-            <p class="text-sm text-red-500">Brak dostępnych godzin w tym dniu.</p>
+            <p class="text-sm text-red-500 dark:text-red-400">Brak dostępnych godzin w tym dniu.</p>
           }
         </div>
       </div>
@@ -51,7 +59,9 @@
 
     @if (step() === 'time') {
       <div class="mt-4">
-        <p class="text-sm font-medium text-gray-700">{{ selectedDate() }} — wybierz godzinę</p>
+        <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
+          {{ selectedDate() }} — wybierz godzinę
+        </p>
         <div class="mt-3 grid grid-cols-3 gap-2" role="group" aria-label="Dostępne godziny">
           @for (slot of availableSlots(); track slot) {
             <button
@@ -60,7 +70,7 @@
               [class.text-white]="selectedTime() === slot"
               [class.border-indigo-600]="selectedTime() === slot"
               [attr.aria-pressed]="selectedTime() === slot"
-              class="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium hover:border-indigo-400"
+              class="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium hover:border-indigo-400 dark:border-gray-600 dark:text-gray-200 dark:hover:border-indigo-400"
             >
               {{ slot }}
             </button>
@@ -70,7 +80,9 @@
     }
 
     @if (step() === 'confirm') {
-      <div class="mt-4 space-y-2 rounded-md bg-gray-50 p-4 text-sm">
+      <div
+        class="mt-4 space-y-2 rounded-md bg-gray-50 p-4 text-sm dark:bg-gray-700/50 dark:text-gray-200"
+      >
         <p><span class="font-medium">Data:</span> {{ selectedDate() }}</p>
         <p><span class="font-medium">Godzina:</span> {{ selectedTime() }}</p>
         <p><span class="font-medium">Usługa:</span> {{ service().name }}</p>
@@ -82,7 +94,7 @@
     @if (step() === 'success') {
       <div class="mt-4 flex flex-col items-center text-center" aria-live="polite">
         <div
-          class="flex h-14 w-14 animate-modal-in items-center justify-center rounded-full bg-green-100 text-green-600"
+          class="flex h-14 w-14 animate-modal-in items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-500/20 dark:text-green-400"
           aria-hidden="true"
         >
           <svg
@@ -95,8 +107,10 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
           </svg>
         </div>
-        <p class="mt-4 text-base font-medium text-gray-900">Rezerwacja wysłana!</p>
-        <p class="mt-1 text-sm text-gray-600">
+        <p class="mt-4 text-base font-medium text-gray-900 dark:text-gray-100">
+          Rezerwacja wysłana!
+        </p>
+        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
           Twoja wizyta oczekuje na potwierdzenie przez usługodawcę. Damy Ci znać, gdy zostanie
           potwierdzona.
         </p>
@@ -104,7 +118,7 @@
     }
 
     @if (errorMessage()) {
-      <p class="mt-3 text-sm text-red-600" role="alert">{{ errorMessage() }}</p>
+      <p class="mt-3 text-sm text-red-600 dark:text-red-400" role="alert">{{ errorMessage() }}</p>
     }
 
     @if (step() === 'success') {
@@ -121,7 +135,7 @@
         @if (step() !== 'date') {
           <button
             (click)="goBack()"
-            class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
           >
             Wstecz
           </button>

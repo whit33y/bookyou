@@ -16,7 +16,7 @@ export type EmptyStateIcon = 'calendar' | 'search' | 'inbox' | 'sparkles' | 'cli
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col items-center justify-center text-center" [class]="paddingClass()">
-      <div class="text-gray-300" [class]="iconSizeClass()" aria-hidden="true">
+      <div class="text-gray-300 dark:text-gray-600" [class]="iconSizeClass()" aria-hidden="true">
         <svg
           class="h-full w-full"
           fill="none"
@@ -67,7 +67,7 @@ export type EmptyStateIcon = 'calendar' | 'search' | 'inbox' | 'sparkles' | 'cli
       <p [class]="titleClass()">{{ title() }}</p>
 
       @if (description()) {
-        <p class="mt-1 max-w-sm text-sm text-gray-400">{{ description() }}</p>
+        <p class="mt-1 max-w-sm text-sm text-gray-400 dark:text-gray-500">{{ description() }}</p>
       }
 
       @if (ctaLabel()) {
@@ -106,7 +106,7 @@ export class EmptyStateComponent {
   readonly iconSizeClass = computed(() => (this.compact() ? 'h-10 w-10' : 'h-14 w-14'));
   readonly titleClass = computed(() =>
     this.compact()
-      ? 'mt-2 text-sm font-medium text-gray-600'
-      : 'mt-4 text-base font-medium text-gray-700',
+      ? 'mt-2 text-sm font-medium text-gray-600 dark:text-gray-300'
+      : 'mt-4 text-base font-medium text-gray-700 dark:text-gray-200',
   );
 }

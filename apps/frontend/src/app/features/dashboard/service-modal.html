@@ -6,18 +6,30 @@
   aria-modal="true"
   [attr.aria-label]="service() ? 'Edytuj usługę' : 'Dodaj usługę'"
 >
-  <div class="w-full max-w-md animate-modal-in rounded-lg bg-white p-6 shadow-xl" cdkTrapFocus>
-    <h2 class="text-lg font-semibold text-gray-900">
+  <div
+    class="w-full max-w-md animate-modal-in rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800"
+    cdkTrapFocus
+  >
+    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
       {{ service() ? 'Edytuj usługę' : 'Dodaj usługę' }}
     </h2>
 
     @if (error) {
-      <p class="mt-2 rounded-md bg-red-50 p-3 text-sm text-red-600">{{ error }}</p>
+      <p
+        class="mt-2 rounded-md bg-red-50 p-3 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400"
+      >
+        {{ error }}
+      </p>
     }
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="mt-4 space-y-4">
       <div>
-        <label for="service-name" class="block text-sm font-medium text-gray-700"> Nazwa </label>
+        <label
+          for="service-name"
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
+          Nazwa
+        </label>
         <input
           id="service-name"
           type="text"
@@ -25,12 +37,15 @@
           [attr.aria-invalid]="
             form.controls.name.touched && form.controls.name.errors ? true : null
           "
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
         />
       </div>
 
       <div>
-        <label for="service-duration" class="block text-sm font-medium text-gray-700">
+        <label
+          for="service-duration"
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           Czas trwania (min)
         </label>
         <input
@@ -40,12 +55,15 @@
           [attr.aria-invalid]="
             form.controls.duration.touched && form.controls.duration.errors ? true : null
           "
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
         />
       </div>
 
       <div>
-        <label for="service-price" class="block text-sm font-medium text-gray-700">
+        <label
+          for="service-price"
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           Cena (zł)
         </label>
         <input
@@ -56,18 +74,21 @@
           [attr.aria-invalid]="
             form.controls.price.touched && form.controls.price.errors ? true : null
           "
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
         />
       </div>
 
       <div>
-        <label for="service-category" class="block text-sm font-medium text-gray-700">
+        <label
+          for="service-category"
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           Kategoria
         </label>
         <select
           id="service-category"
           formControlName="categoryId"
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
         >
           <option value="">— brak kategorii —</option>
           @for (cat of categoryService.categories(); track cat.id) {
@@ -80,7 +101,7 @@
         <button
           type="button"
           (click)="closed.emit()"
-          class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
         >
           Anuluj
         </button>

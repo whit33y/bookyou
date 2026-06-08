@@ -39,14 +39,16 @@ interface SortOption {
     <section aria-labelledby="reviews-heading">
       <div class="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h2 id="reviews-heading" class="text-lg font-semibold text-gray-900">Opinie</h2>
+          <h2 id="reviews-heading" class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Opinie
+          </h2>
           @if (reviewCount() > 0) {
             <div class="mt-1 flex items-center gap-2">
               <app-star-rating [rating]="averageRating() ?? 0" size="sm" />
-              <span class="text-sm font-medium text-gray-900">
+              <span class="text-sm font-medium text-gray-900 dark:text-gray-100">
                 {{ averageRating() | number: '1.1-1' }}
               </span>
-              <span class="text-sm text-gray-500">({{ reviewCount() }})</span>
+              <span class="text-sm text-gray-500 dark:text-gray-400">({{ reviewCount() }})</span>
             </div>
           }
         </div>
@@ -58,7 +60,7 @@ interface SortOption {
               id="reviews-sort"
               [value]="sort()"
               (change)="onSortChange($event)"
-              class="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+              class="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
             >
               @for (option of sortOptions; track option.value) {
                 <option [value]="option.value">{{ option.label }}</option>
@@ -71,7 +73,7 @@ interface SortOption {
       @if (loading()) {
         <ul class="mt-4 space-y-4" aria-busy="true" aria-label="Ładowanie opinii">
           @for (i of [1, 2, 3]; track i) {
-            <li class="rounded-lg border border-gray-200 p-4">
+            <li class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
               <div class="flex items-center gap-3">
                 <app-skeleton width="2.25rem" height="2.25rem" rounded="rounded-full" />
                 <div class="space-y-2">
@@ -88,7 +90,7 @@ interface SortOption {
       } @else {
         <ul class="mt-4 space-y-4">
           @for (review of reviews(); track review.id) {
-            <li class="rounded-lg border border-gray-200 p-4">
+            <li class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
               <div class="flex items-center gap-3">
                 @if (review.client.avatarUrl | mediaUrl; as avatarSrc) {
                   <img
@@ -98,22 +100,26 @@ interface SortOption {
                   />
                 } @else {
                   <div
-                    class="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-sm font-semibold text-indigo-600"
+                    class="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-sm font-semibold text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300"
                     aria-hidden="true"
                   >
                     {{ reviewerInitial(review) }}
                   </div>
                 }
                 <div>
-                  <p class="text-sm font-medium text-gray-900">{{ reviewerName(review) }}</p>
-                  <p class="text-xs text-gray-500">{{ review.createdAt | date: 'd MMM yyyy' }}</p>
+                  <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {{ reviewerName(review) }}
+                  </p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    {{ review.createdAt | date: 'd MMM yyyy' }}
+                  </p>
                 </div>
               </div>
               <div class="mt-2">
                 <app-star-rating [rating]="review.rating" size="sm" />
               </div>
               @if (review.comment) {
-                <p class="mt-2 text-sm text-gray-700">{{ review.comment }}</p>
+                <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">{{ review.comment }}</p>
               }
             </li>
           }
@@ -125,7 +131,7 @@ interface SortOption {
               type="button"
               (click)="loadMore()"
               [disabled]="loadingMore()"
-              class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
             >
               {{ loadingMore() ? 'Ładowanie...' : 'Pokaż więcej' }}
             </button>
