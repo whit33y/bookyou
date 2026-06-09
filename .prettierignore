@@ -1,0 +1,7 @@
+node_modules
+apps/*/dist
+apps/*/node_modules
+apps/backend/src/generated
+coverage
+package-lock.json
+apps/*/package-lock.json

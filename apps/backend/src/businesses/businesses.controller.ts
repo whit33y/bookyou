@@ -120,7 +120,11 @@ export class BusinessesController {
     @Param('id') id: string,
     @Query() query: GetAvailableSlotsDto,
   ) {
-    return this.businessesService.getAvailableSlots(id, query.date, query.serviceId);
+    return this.businessesService.getAvailableSlots(
+      id,
+      query.date,
+      query.serviceId,
+    );
   }
 
   @Patch(':id')

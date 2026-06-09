@@ -8,7 +8,7 @@ interface MockMediaQueryList {
 }
 
 function mockMatchMedia(systemPrefersDark: boolean): MockMediaQueryList {
-  const listeners: Array<(event: MediaQueryListEvent) => void> = [];
+  const listeners: ((event: MediaQueryListEvent) => void)[] = [];
   const mql: MockMediaQueryList = {
     matches: systemPrefersDark,
     addEventListener: (_type, listener) => listeners.push(listener),

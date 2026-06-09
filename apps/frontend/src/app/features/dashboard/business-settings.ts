@@ -80,7 +80,7 @@ export class BusinessSettingsComponent {
     website: [
       '',
       Validators.pattern(
-        /^$|^https?:\/\/[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})+([\/\w\-.~:?#[\]@!$&'()*+,;=]*)$/,
+        /^$|^https?:\/\/[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})+([/\w\-.~:?#[\]@!$&'()*+,;=]*)$/,
       ),
     ],
     openingHours: this.buildOpeningHoursGroup(),
